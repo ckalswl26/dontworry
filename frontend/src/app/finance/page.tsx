@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { BackHeader, Card } from "@/components/Card";
+import { BottomNav } from "@/components/BottomNav";
 import { api } from "@/lib/api";
 import type { FinanceProduct, ProductRecommendation } from "@/lib/types";
 
@@ -196,6 +197,8 @@ export default function FinancePage() {
           ))}
         </div>
       </div>
+
+      <BottomNav />
     </div>
   );
 }

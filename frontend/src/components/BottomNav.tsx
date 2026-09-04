@@ -7,6 +7,7 @@ import { t } from "@/lib/i18n";
 
 const ITEMS = [
   { href: "/home", icon: "🏠", key: "home" },
+  { href: "/finance", icon: "🏦", key: "financeTab" },
   { href: "/planner", icon: "📊", key: "planner" },
   { href: "/dday", icon: "📅", key: "dday" },
   { href: "/my", icon: "👤", key: "myInfo" },
