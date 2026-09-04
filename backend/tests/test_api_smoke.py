@@ -101,6 +101,26 @@ def test_finance_whitelist_excludes_ended():
     assert "KINFA_EMPLOYEE_HESSAL_LEGACY" not in ids
 
 
+def test_cors_allows_any_vercel_preview_deployment_url():
+    resp = client.options(
+        "/api/health",
+        headers={
+            "Origin": "https://frontend-dslg91wot-charmingzi1.vercel.app",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.headers["access-control-allow-origin"] == "https://frontend-dslg91wot-charmingzi1.vercel.app"
+
+
+def test_cors_rejects_unrelated_origin():
+    resp = client.options(
+        "/api/health",
+        headers={"Origin": "https://evil-example.com", "Access-Control-Request-Method": "GET"},
+    )
+    assert "access-control-allow-origin" not in resp.headers
+
+
 def test_products_recommend_returns_only_eligible_candidates():
     resp = client.post(
         "/api/products/recommend",

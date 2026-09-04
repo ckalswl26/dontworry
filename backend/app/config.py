@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     ecos_api_key: str = ""
     justice_stats_api_key: str = ""
     cors_allow_origins: str = "http://localhost:3000"
+    # Vercel은 배포마다 새 임시 URL(frontend-<hash>-<team>.vercel.app)을 만든다.
+    # 매번 정확한 URL을 allow_origins에 추가하지 않아도 되도록, 이 프로젝트의
+    # vercel.app 서브도메인 패턴은 정규식으로 통째로 허용한다.
+    cors_allow_origin_regex: str = r"^https://frontend-[a-z0-9-]+\.vercel\.app$"
 
     min_wage_2026: int = 10320
     median_income_1p_2026: int = 2_564_238
