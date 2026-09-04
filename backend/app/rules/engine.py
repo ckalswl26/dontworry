@@ -25,6 +25,9 @@ class RuleContext:
     days_to_departure: int | None = None
     tenure_months: int | None = None
     documents_held: set[str] = field(default_factory=set)
+    has_arc: bool | None = None
+    is_tax_resident: bool | None = None
+    visa_remaining_months: int | None = None
 
     def get(self, field_name: str) -> Any:
         return getattr(self, field_name, None)

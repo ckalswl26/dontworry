@@ -1,8 +1,10 @@
 from fastapi import APIRouter
 
-from app.services import product_service
+from app.models.schemas import ProductRecommendationResponse, UserFinanceProfile
+from app.services import ai_service, product_matcher, product_service
 
 router = APIRouter(prefix="/api/finance", tags=["finance"])
+products_router = APIRouter(prefix="/api/products", tags=["products"])
 
 
 @router.get("/deposits")
@@ -29,3 +31,16 @@ def get_savings():
 def get_whitelist():
     products = product_service.get_whitelisted_products()
     return {"products": [p.model_dump() for p in products]}
+
+
+@products_router.post("/recommend", response_model=ProductRecommendationResponse)
+def recommend_products(profile: UserFinanceProfile) -> ProductRecommendationResponse:
+    """RULE(product_matcher) → GEN(ai_service) → GUARD 파이프라인.
+
+    LLM은 product_matcher가 이미 자격 조건으로 걸러낸 candidates 안에서만
+    설명 문구를 만들 수 있고, 그 목록 밖의 상품을 추천하는 것은 구조적으로 불가능하다.
+    """
+    all_products = product_service.get_whitelisted_products()
+    candidates = product_matcher.get_candidate_products(profile, all_products)
+    recommendations, ai_generated = ai_service.generate_product_recommendations(candidates, profile)
+    return ProductRecommendationResponse(recommendations=recommendations, ai_generated=ai_generated)

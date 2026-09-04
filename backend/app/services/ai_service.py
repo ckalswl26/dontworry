@@ -13,7 +13,8 @@ import json
 import logging
 
 from app.config import get_settings
-from app.models.schemas import ActionItem, IntentResult, UserProfile
+from app.models.schemas import ActionItem, FinanceProduct, IntentResult, ProductRecommendation, UserFinanceProfile, UserProfile
+from app.services.product_matcher import build_eligibility_badge
 
 logger = logging.getLogger(__name__)
 
@@ -236,3 +237,127 @@ def rank_actions(crisis_signals: dict, candidates: list[dict]) -> tuple[list[Act
     except Exception:
         logger.exception("Anthropic action ranking failed, using fallback")
         return _fallback_ranking(candidates, crisis_signals), False
+
+
+# ---------------------------------------------------------------------------
+# F5 상품 추천 (product_matcher.py의 RULE 후보를 넘겨받아 설명만 생성한다)
+# ---------------------------------------------------------------------------
+
+RECOMMEND_PRODUCTS_TOOL = {
+    "name": "recommend_products",
+    "description": "제시된 후보 상품(candidates) 중에서만 골라 사용자에게 보여줄 순서와 설명을 만든다.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "ranked_product_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 6},
+            "reasoning_per_product": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {"product_id": {"type": "string"}, "why": {"type": "string"}},
+                    "required": ["product_id", "why"],
+                },
+            },
+        },
+        "required": ["ranked_product_ids", "reasoning_per_product"],
+    },
+}
+
+MAX_RECOMMENDATIONS = 6
+
+
+def _fallback_product_recommendations(
+    candidates: list[FinanceProduct], profile: UserFinanceProfile
+) -> list[ProductRecommendation]:
+    return [
+        ProductRecommendation(
+            product_id=p.product_id,
+            institution=p.bank,
+            product_name=p.product_name,
+            category=p.product_type,
+            reason_ko=p.notes_ko or f"{p.product_name} 조건을 확인해볼 수 있어요.",
+            eligibility_badge_ko=build_eligibility_badge(p, profile),
+            caution_ko=p.caution_ko,
+            source_url=p.source_url,
+        )
+        for p in candidates[:MAX_RECOMMENDATIONS]
+    ]
+
+
+def generate_product_recommendations(
+    candidates: list[FinanceProduct], profile: UserFinanceProfile
+) -> tuple[list[ProductRecommendation], bool]:
+    """RULE(product_matcher)이 이미 자격을 걸러낸 candidates 안에서만 설명을 만든다.
+
+    GEN이 candidates 밖의 product_id를 반환하면 GUARD가 즉시 거부하고
+    규칙 기반 fallback(후보 전체를 그대로 노출)으로 대체한다.
+    """
+    if not candidates:
+        return [], False
+
+    client = _get_client()
+    if client is None:
+        return _fallback_product_recommendations(candidates, profile), False
+
+    candidate_payload = [
+        {
+            "product_id": p.product_id,
+            "product_name": p.product_name,
+            "institution": p.bank,
+            "category": p.product_type,
+            "notes_ko": p.notes_ko,
+            "caution_ko": p.caution_ko,
+        }
+        for p in candidates
+    ]
+
+    try:
+        response = client.messages.create(
+            model="claude-sonnet-5",
+            max_tokens=1024,
+            tools=[RECOMMEND_PRODUCTS_TOOL],
+            tool_choice={"type": "tool", "name": "recommend_products"},
+            messages=[
+                {
+                    "role": "user",
+                    "content": (
+                        "다음은 규칙 엔진이 이미 자격 조건을 확인해 걸러낸 금융상품 후보 목록입니다. "
+                        "이 목록 안에 있는 product_id만 사용해서 사용자에게 보여줄 순서를 정하고, "
+                        "각 상품이 왜 지금 이 사용자에게 맞는지 notes_ko의 사실만 근거로 한국어로 짧게 설명하세요. "
+                        "caution_ko가 있는 상품은 그 주의사항을 반드시 함께 언급하세요. "
+                        "목록에 없는 상품을 새로 만들거나 금리·한도 등 존재하지 않는 숫자를 지어내지 마세요.\n\n"
+                        f"user_profile: {json.dumps(profile.model_dump(), ensure_ascii=False)}\n"
+                        f"candidate_products: {json.dumps(candidate_payload, ensure_ascii=False)}"
+                    ),
+                }
+            ],
+        )
+        tool_use = next(b for b in response.content if b.type == "tool_use")
+        payload = tool_use.input
+        ranked_ids = payload.get("ranked_product_ids", [])
+        candidate_ids = [c["product_id"] for c in candidate_payload]
+
+        # GUARD: candidates 밖의 product_id가 하나라도 있으면 전부 거부하고 fallback 사용
+        if not ranked_ids or any(rid not in candidate_ids for rid in ranked_ids):
+            logger.warning("AI returned out-of-catalog product ids, falling back to rule-based order")
+            return _fallback_product_recommendations(candidates, profile), False
+
+        reasoning_map = {r["product_id"]: r["why"] for r in payload.get("reasoning_per_product", [])}
+        products_by_id = {p.product_id: p for p in candidates}
+        recommendations = [
+            ProductRecommendation(
+                product_id=pid,
+                institution=products_by_id[pid].bank,
+                product_name=products_by_id[pid].product_name,
+                category=products_by_id[pid].product_type,
+                reason_ko=reasoning_map.get(pid, products_by_id[pid].notes_ko),
+                eligibility_badge_ko=build_eligibility_badge(products_by_id[pid], profile),
+                caution_ko=products_by_id[pid].caution_ko,
+                source_url=products_by_id[pid].source_url,
+            )
+            for pid in ranked_ids[:MAX_RECOMMENDATIONS]
+        ]
+        return recommendations, True
+    except Exception:
+        logger.exception("Anthropic product recommendation failed, using fallback")
+        return _fallback_product_recommendations(candidates, profile), False

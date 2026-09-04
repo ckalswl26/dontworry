@@ -99,3 +99,22 @@ def test_finance_whitelist_excludes_ended():
     assert resp.status_code == 200
     ids = [p["product_id"] for p in resp.json()["products"]]
     assert "KINFA_EMPLOYEE_HESSAL_LEGACY" not in ids
+
+
+def test_products_recommend_returns_only_eligible_candidates():
+    resp = client.post(
+        "/api/products/recommend",
+        json={
+            "nationality": "VN",
+            "visa_type": "E-9",
+            "has_arc": True,
+            "is_tax_resident": False,
+            "tenure_months": 8,
+        },
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    ids = [r["product_id"] for r in body["recommendations"]]
+    assert "NH_K_FOREIGNER_CREDIT_LOAN" in ids
+    assert "ISA_GENERAL" not in ids  # 세법상 거주자 아님
+    assert "KINFA_EMPLOYEE_HESSAL_LEGACY" not in ids  # ENDED

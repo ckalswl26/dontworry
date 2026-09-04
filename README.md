@@ -23,7 +23,7 @@ LLM은 (1) 자연어 → 구조화(F1), (2) 정해진 Action Catalog 안에서�
 | F2 | 업무별 GREEN/AMBER/RED/N-A 신호등 판정 (`/api/rules/evaluate`) |
 | F3 | REQUIRED_BEFORE/RECOMMENDED_BEFORE 기반 처리순서 계산 (`/api/departure/plan`) |
 | F4 | 필요서류 체크리스트 · 준비도(%) (`/api/documents/readiness`) |
-| F5 | 외국인 전용/서민금융 whitelist + 금감원 공시 상품 조회 (`/api/finance/*`) |
+| F5 | 외국인 전용/서민금융 whitelist + 금감원 공시 상품 조회 (`/api/finance/*`), RULE→GEN→GUARD 상품 추천 (`POST /api/products/recommend`) |
 | F6 | 체류기간 자산목표 플래너 (`/api/planner/calculate`, `/api/scenario`) |
 | F7 | 출국 D-Day 금융체크 (`/api/dday/{date}`) |
 | F8 | 은행원용 사전상담 카드 (프론트엔드 화면, 서버에 저장하지 않음) |
@@ -108,6 +108,13 @@ E-9, 출국 D-40) 데모 페르소나로 전체 플로우를 바로 확인할 �
     action_id를 반환하면 GUARD가 거부하고 규칙 기반 fallback 우선순위를 사용합니다**
     (`tests/test_ai_service_guard.py`로 검증).
   - `ANTHROPIC_API_KEY`가 없거나 호출이 실패해도 앱은 죽지 않고 결정론적 결과로 대체됩니다.
+  - `generate_product_recommendations`: F5 상품 추천도 F10과 같은 RULE→GEN→GUARD 패턴을 재사용합니다.
+    `app/services/product_matcher.py`(RULE, LLM 없음)가 `product_whitelist.json`의 `eligibility`
+    (체류자격·외국인등록증·재직개월·거주자여부·체류잔여개월)로 후보를 먼저 걸러내고, LLM은 그
+    candidates 밖의 상품을 추천하거나 존재하지 않는 금리·한도를 지어낼 수 없습니다(밖으로 나가면
+    GUARD가 거부하고 규칙 기반 fallback으로 대체 — `tests/test_product_recommendation_guard.py`로 검증).
+  - MCP 서버 도구 확장(F9)은 설계 문서의 2단계 항목으로, 이 저장소에는 아직 실제 MCP 서버 자체가
+    연결되어 있지 않아 이번 F5 작업 범위에서는 제외했습니다(안 쓰이는 파일을 만들지 않기 위함).
 
 ## Source Registry
 
@@ -184,6 +191,7 @@ POST /api/documents/readiness
 GET  /api/finance/deposits
 GET  /api/finance/savings
 GET  /api/finance/whitelist
+POST /api/products/recommend
 POST /api/planner/calculate
 POST /api/scenario
 GET  /api/dday/{departure_date}

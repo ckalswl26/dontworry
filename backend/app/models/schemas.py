@@ -150,6 +150,25 @@ class PensionResult(BaseModel):
 
 # ---------- Finance ----------
 
+class AmountRange(BaseModel):
+    min: int | None = None
+    max: int | None = None
+
+
+class TermMonthsRange(BaseModel):
+    min: int | None = None
+    max: int | None = None
+
+
+class ProductEligibility(BaseModel):
+    """RULE 단계에서만 사용하는 결정론적 자격 조건. LLM은 이 값을 만들거나 바꾸지 않는다."""
+    visa_types: list[str] = Field(default_factory=list, description="비어 있으면 비자 종류 무관(전체 허용)")
+    requires_arc: bool = False
+    min_tenure_months: int = 0
+    is_tax_resident_required: bool = False
+    min_visa_remaining_months: int | None = None
+
+
 class FinanceProduct(BaseModel):
     product_id: str
     product_name: str
@@ -165,6 +184,39 @@ class FinanceProduct(BaseModel):
     status: str = "ACTIVE"
     disclaimer: str = "현재 입력한 조건 기준으로 확인해볼 수 있는 상품 카테고리입니다. 최종 가입 여부는 금융회사 확인이 필요합니다."
     sources: list[SourceRef] = Field(default_factory=list)
+    eligibility: ProductEligibility | None = None
+    amount_range: AmountRange | None = None
+    term_months_range: TermMonthsRange | None = None
+    purpose_tags: list[str] = Field(default_factory=list)
+    notes_ko: str = ""
+    caution_ko: str | None = Field(None, description="가입 가능하지만 실질 혜택이 제한적인 경우의 주의 문구(예: 청약 당첨 기회 제한)")
+    source_url: str | None = None
+
+
+class UserFinanceProfile(BaseModel):
+    nationality: str
+    visa_type: str
+    has_arc: bool | None = None
+    is_tax_resident: bool | None = None
+    tenure_months: int | None = None
+    visa_remaining_months: int | None = None
+    purpose: str | None = Field(None, description="선택: 저축/청약/송금/대출/보장/외화예금 등 목적 태그")
+
+
+class ProductRecommendation(BaseModel):
+    product_id: str
+    institution: str
+    product_name: str
+    category: str
+    reason_ko: str
+    eligibility_badge_ko: str
+    caution_ko: str | None = None
+    source_url: str | None = None
+
+
+class ProductRecommendationResponse(BaseModel):
+    recommendations: list[ProductRecommendation]
+    ai_generated: bool = False
 
 
 # ---------- F6 Planner ----------

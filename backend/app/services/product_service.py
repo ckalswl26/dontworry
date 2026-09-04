@@ -4,7 +4,7 @@ import json
 from functools import lru_cache
 
 from app.config import DATA_DIR
-from app.models.schemas import FinanceProduct
+from app.models.schemas import AmountRange, FinanceProduct, ProductEligibility, TermMonthsRange
 from app.services import fss_service, source_service
 
 
@@ -13,6 +13,31 @@ def _load_whitelist() -> list[dict]:
     path = DATA_DIR / "finance" / "product_whitelist.json"
     with open(path, encoding="utf-8") as f:
         return json.load(f)
+
+
+def _row_to_product(row: dict) -> FinanceProduct:
+    return FinanceProduct(
+        product_id=row["product_id"],
+        product_name=row["product_name"],
+        bank=row["bank"],
+        product_type=row["product_type"],
+        product_category=row.get("product_category"),
+        base_rate=row.get("base_rate"),
+        max_rate=row.get("max_rate"),
+        rate_as_of=row.get("rate_as_of"),
+        contract_months=row.get("contract_months"),
+        monthly_min_amount=row.get("monthly_min_amount"),
+        monthly_max_amount=row.get("monthly_max_amount"),
+        status=row.get("status", "ACTIVE"),
+        sources=source_service.get_sources([row["source_id"]]) if row.get("source_id") else [],
+        eligibility=ProductEligibility(**row["eligibility"]) if row.get("eligibility") else None,
+        amount_range=AmountRange(**row["amount_range"]) if row.get("amount_range") else None,
+        term_months_range=TermMonthsRange(**row["term_months_range"]) if row.get("term_months_range") else None,
+        purpose_tags=row.get("purpose_tags", []),
+        notes_ko=row.get("notes_ko", ""),
+        caution_ko=row.get("caution_ko"),
+        source_url=row.get("source_url"),
+    )
 
 
 def get_whitelisted_products(product_type: str | None = None) -> list[FinanceProduct]:
@@ -24,23 +49,7 @@ def get_whitelisted_products(product_type: str | None = None) -> list[FinancePro
             continue
         if product_type and row.get("product_type") != product_type:
             continue
-        products.append(
-            FinanceProduct(
-                product_id=row["product_id"],
-                product_name=row["product_name"],
-                bank=row["bank"],
-                product_type=row["product_type"],
-                product_category=row.get("product_category"),
-                base_rate=row.get("base_rate"),
-                max_rate=row.get("max_rate"),
-                rate_as_of=row.get("rate_as_of"),
-                contract_months=row.get("contract_months"),
-                monthly_min_amount=row.get("monthly_min_amount"),
-                monthly_max_amount=row.get("monthly_max_amount"),
-                status=row.get("status", "ACTIVE"),
-                sources=source_service.get_sources([row["source_id"]]) if row.get("source_id") else [],
-            )
-        )
+        products.append(_row_to_product(row))
     return products
 
 

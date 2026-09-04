@@ -14,9 +14,13 @@ function daysUntil(dateStr: string | null | undefined): number | null {
   return Math.round(diff / (1000 * 60 * 60 * 24));
 }
 
+function formatWon(amount: number): string {
+  return `${amount.toLocaleString()}원`;
+}
+
 export default function HomePage() {
   const router = useRouter();
-  const { state, setLastQuestion } = useStore();
+  const { state, setLastQuestion, setAssetsHidden } = useStore();
   const lang = state.profile.language;
   const [question, setQuestion] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -61,14 +65,39 @@ export default function HomePage() {
         </p>
       </div>
 
+      <Card className="mt-3">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-gray-500">{t(lang, "myAssets")}</p>
+          <button
+            onClick={() => setAssetsHidden(!state.assetsHidden)}
+            aria-label={state.assetsHidden ? "show assets" : "hide assets"}
+            className="text-lg text-gray-400"
+          >
+            {state.assetsHidden ? "🙈" : "👁"}
+          </button>
+        </div>
+        <p className="mt-1 text-2xl font-black text-brand-navy">
+          {state.assetsHidden ? "●●●●●●원" : formatWon(state.planner.current_savings)}
+        </p>
+        {state.planner.target_amount > 0 ? (
+          <p className="mt-1 text-xs text-gray-400">
+            {t(lang, "savingsGoalLabel")} {state.assetsHidden ? "●●●●●●원" : formatWon(state.planner.target_amount)}
+          </p>
+        ) : (
+          <button onClick={() => router.push("/planner")} className="mt-1 text-xs text-brand-blue">
+            {t(lang, "setGoalInPlanner")} ›
+          </button>
+        )}
+      </Card>
+
       <div className="mt-5">
-        <p className="mb-2 text-sm font-medium text-gray-500">{t(lang, "askPlaceholder")}</p>
+        <p className="mb-2 text-sm font-medium text-gray-500">{t(lang, "aiChatbotTitle")}</p>
         <div className="flex items-center gap-2 rounded-xl2 border border-gray-200 px-4 py-3">
           <input
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && submitQuestion()}
-            placeholder={t(lang, "askPlaceholder")}
+            placeholder={t(lang, "aiChatbotPlaceholder")}
             className="flex-1 text-sm outline-none"
           />
           <button onClick={submitQuestion} className="text-brand-blue" aria-label="submit">

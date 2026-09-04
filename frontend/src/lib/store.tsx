@@ -33,6 +33,7 @@ interface SessionState {
   planner: PlannerRequest;
   documentsHeld: string[];
   lastQuestion: string;
+  assetsHidden: boolean;
 }
 
 const DEFAULT_STATE: SessionState = {
@@ -41,6 +42,7 @@ const DEFAULT_STATE: SessionState = {
   planner: DEFAULT_PLANNER,
   documentsHeld: [],
   lastQuestion: "",
+  assetsHidden: false,
 };
 
 interface StoreContextValue {
@@ -51,6 +53,7 @@ interface StoreContextValue {
   setLastQuestion: (q: string) => void;
   setOnboarded: (v: boolean) => void;
   setLang: (l: Lang) => void;
+  setAssetsHidden: (v: boolean) => void;
   loadDemo: (profile: UserProfile, planner: PlannerRequest, docs: string[]) => void;
   reset: () => void;
 }
@@ -64,7 +67,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem(STORAGE_KEY);
-      if (raw) setState(JSON.parse(raw));
+      if (raw) setState({ ...DEFAULT_STATE, ...JSON.parse(raw) });
     } catch {
       // ignore corrupted storage
     }
@@ -89,6 +92,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setLastQuestion: (q) => setState((s) => ({ ...s, lastQuestion: q })),
       setOnboarded: (v) => setState((s) => ({ ...s, onboarded: v })),
       setLang: (l) => setState((s) => ({ ...s, profile: { ...s.profile, language: l } })),
+      setAssetsHidden: (v) => setState((s) => ({ ...s, assetsHidden: v })),
       loadDemo: (profile, planner, docs) =>
         setState((s) => ({ ...s, profile, planner, documentsHeld: docs, onboarded: true })),
       reset: () => setState(DEFAULT_STATE),
