@@ -30,5 +30,10 @@ export const api = {
   financeDeposits: () => request<{ products: import("./types").FinanceProduct[]; error: string | null }>("/api/finance/deposits"),
   financeSavings: () => request<{ products: import("./types").FinanceProduct[]; error: string | null }>("/api/finance/savings"),
   financeWhitelist: () => request<{ products: import("./types").FinanceProduct[] }>("/api/finance/whitelist"),
+  productsRecommend: (body: import("./types").UserFinanceProfile) =>
+    request<import("./types").ProductRecommendationResponse>("/api/products/recommend", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
   source: (id: string) => request(`/api/sources/${id}`),
 };

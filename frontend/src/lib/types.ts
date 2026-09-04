@@ -157,3 +157,29 @@ export interface DemoPersona {
   planner: PlannerRequest;
   documents_held: string[];
 }
+
+export interface UserFinanceProfile {
+  nationality: string;
+  visa_type: string;
+  has_arc?: boolean | null;
+  is_tax_resident?: boolean | null;
+  tenure_months?: number | null;
+  visa_remaining_months?: number | null;
+  purpose?: string | null;
+}
+
+export interface ProductRecommendation {
+  product_id: string;
+  institution: string;
+  product_name: string;
+  category: string;
+  reason_ko: string;
+  eligibility_badge_ko: string;
+  caution_ko?: string | null;
+  source_url?: string | null;
+}
+
+export interface ProductRecommendationResponse {
+  recommendations: ProductRecommendation[];
+  ai_generated: boolean;
+}
