@@ -195,3 +195,17 @@ export interface ProductRecommendationResponse {
   recommendations: ProductRecommendation[];
   ai_generated: boolean;
 }
+
+export interface MultilingualBranch {
+  branch_id: string;
+  bank: string;
+  branch_name: string;
+  address?: string | null;
+  phone?: string | null;
+  languages: string[];
+  note?: string | null;
+  verified: boolean;
+  authority_grade: string;
+  source_id: string;
+  last_verified_at: string;
+}

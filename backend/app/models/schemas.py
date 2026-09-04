@@ -317,4 +317,21 @@ class ScenarioResponse(BaseModel):
     delta_required_monthly_saving: float
 
 
+# ---------- 다국어 상담 지점 찾기 (F 신규 3순위) ----------
+
+class MultilingualBranch(BaseModel):
+    """검증된 정보만 담는다 - 주소·전화번호를 추측해서 채우지 않는다."""
+    branch_id: str
+    bank: str
+    branch_name: str
+    address: str | None = None
+    phone: str | None = None
+    languages: list[str] = Field(default_factory=list)
+    note: str | None = None
+    verified: bool = True
+    authority_grade: str
+    source_id: str
+    last_verified_at: str
+
+
 RuleEvaluateResponse.model_rebuild()

@@ -157,5 +157,25 @@
     "source_url": "https://ecos.bok.or.kr/api/",
     "status": "ACTIVE",
     "last_verified_at": "2026-09-04"
+  },
+  {
+    "source_id": "KB_FOREIGN_SPECIALTY_BRANCHES",
+    "organization": "KB국민은행",
+    "title": "외국인특화점포 · 외국어고객상담센터",
+    "source_type": "OFFICIAL_GUIDE",
+    "authority_grade": "A",
+    "source_url": "https://otalk.kbstar.com/quics?page=C034824",
+    "status": "ACTIVE",
+    "last_verified_at": "2026-09-05"
+  },
+  {
+    "source_id": "SHINHAN_SUNDAY_FOREIGN_BRANCHES",
+    "organization": "신한은행",
+    "title": "외국인 고객 위한 일요일 전용 영업점 (언론 보도)",
+    "source_type": "NEWS_REPORT",
+    "authority_grade": "C",
+    "source_url": "https://thetracker.co.kr/View.aspx?No=4030742",
+    "status": "ACTIVE",
+    "last_verified_at": "2026-09-05"
   }
 ]

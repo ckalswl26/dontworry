@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
-import { t } from "@/lib/i18n";
+import { codeLabel, t } from "@/lib/i18n";
 import { BackHeader, Card, ErrorNotice, PrimaryButton } from "@/components/Card";
 import { SignalBadge } from "@/components/SignalBadge";
 import { api } from "@/lib/api";
@@ -109,7 +109,7 @@ export default function TaskDetailPage() {
                         onChange={() => toggleDoc(doc)}
                         className="h-4 w-4 accent-brand-navy"
                       />
-                      {doc.replaceAll("_", " ")}
+                      {codeLabel(lang, doc)}
                     </label>
                   ))}
                 </div>
@@ -120,6 +120,14 @@ export default function TaskDetailPage() {
                     className="print:hidden mt-4 w-full rounded-xl border border-brand-blue py-2.5 text-sm font-semibold text-brand-blue"
                   >
                     🖨 {t(lang, "buildVisitChecklist")}
+                  </button>
+                )}
+                {requiresVisit && (
+                  <button
+                    onClick={() => router.push("/branches")}
+                    className="print:hidden mt-2 w-full rounded-xl py-2 text-xs font-semibold text-gray-500 underline"
+                  >
+                    🌐 {t(lang, "findMultilingualBranch")}
                   </button>
                 )}
               </Card>
@@ -136,7 +144,7 @@ export default function TaskDetailPage() {
                 <ul className="mt-3 flex flex-col gap-1.5 text-sm">
                   {task.required_documents.map((doc) => (
                     <li key={doc}>
-                      {held.has(doc) ? "☑" : "☐"} {doc.replaceAll("_", " ")}
+                      {held.has(doc) ? "☑" : "☐"} {codeLabel(lang, doc)}
                     </li>
                   ))}
                 </ul>

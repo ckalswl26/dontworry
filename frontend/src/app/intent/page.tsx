@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
-import { t } from "@/lib/i18n";
+import { codeLabel, t } from "@/lib/i18n";
 import { BackHeader, ErrorNotice, QuickReplyButton } from "@/components/Card";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
@@ -120,7 +120,7 @@ export default function IntentPage() {
               <div className="flex items-center justify-between px-4 py-3">
                 <span className="text-sm text-gray-500">{t(lang, "visitTime")}</span>
                 <span className="font-bold">
-                  {result.available_time_slots.length ? result.available_time_slots.join(", ") : "-"}
+                  {result.available_time_slots.length ? result.available_time_slots.map((code) => codeLabel(lang, code)).join(", ") : "-"}
                 </span>
               </div>
             </div>

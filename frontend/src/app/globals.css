@@ -34,6 +34,7 @@ body {
    실제 모바일 화면(540px 미만)에서는 이 미디어쿼리가 적용되지 않아 지금처럼 꽉 차게 보인다. */
 @media (min-width: 540px) {
   body {
+    --phone-frame-width: min(480px, calc((100dvh - 48px) * 9 / 19.5));
     display: flex;
     min-height: 100dvh;
     align-items: center;
@@ -43,7 +44,7 @@ body {
   }
 
   .app-shell {
-    width: min(480px, calc((100dvh - 48px) * 9 / 19.5));
+    width: var(--phone-frame-width);
     height: min(calc(480px * 19.5 / 9), calc(100dvh - 48px));
     min-height: 0;
     aspect-ratio: 9 / 19.5;
@@ -56,8 +57,12 @@ body {
   }
 
   .bottom-nav {
-    bottom: 34px;
-    width: calc(min(480px, calc((100dvh - 48px) * 9 / 19.5)) - 20px);
+    /* 프레임의 10px 테두리를 제외한 실제 화면 영역에 정확히 맞춘다. */
+    bottom: 34px !important;
+    width: calc(var(--phone-frame-width) - 20px) !important;
+    max-width: none;
+    overflow: hidden;
+    border-radius: 0 0 22px 22px;
   }
 
   .app-shell > * {

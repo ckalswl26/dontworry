@@ -36,4 +36,6 @@ export const api = {
       body: JSON.stringify(body),
     }),
   source: (id: string) => request(`/api/sources/${id}`),
+  multilingualBranches: () =>
+    request<{ branches: import("./types").MultilingualBranch[] }>("/api/locations/multilingual-branches"),
 };
