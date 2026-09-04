@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { PrimaryButton } from "@/components/Card";
+import { Dropdown } from "@/components/Dropdown";
 import { LogoWordmark, Mascot } from "@/components/Logo";
 import { api } from "@/lib/api";
 
@@ -70,55 +71,48 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col px-6 py-8">
-      <div className="flex items-center justify-between rounded-xl2 bg-brand-sky px-5 py-4">
-        <div><LogoWordmark height={32} /><h1 className="mt-3 text-2xl font-black text-brand-navy">{t(lang, "onboardingTitle")}</h1><p className="mt-1 text-sm text-slate-500">{t(lang, "onboardingDesc")}</p></div>
-        <Mascot size={96} className="h-24 w-24 object-contain" />
+    <div className="flex min-h-dvh flex-col px-5 py-6">
+      <div className="flex items-center justify-between rounded-xl2 bg-brand-sky px-4 py-3.5">
+        <div className="min-w-0 pr-2">
+          <LogoWordmark height={20} />
+          <p className="mt-1 text-[10px] font-semibold text-slate-500">외국인 근로자를 위한 금융 서비스</p>
+          <h1 className="mt-3 text-[17px] font-black leading-tight tracking-[-0.03em] text-brand-navy">맞춤 금융 안내를 시작해요</h1>
+          <p className="mt-1.5 text-[11px] leading-4 text-slate-500">필요한 정보만 확인할게요.<br />언제든 내 정보에서 수정할 수 있어요.</p>
+        </div>
+        <Mascot size={64} className="h-16 w-16 shrink-0 object-contain" />
       </div>
 
-      <div className="mt-7 flex flex-col gap-6 rounded-xl2 border border-slate-100 bg-white p-5 shadow-[0_8px_24px_rgba(17,28,78,0.06)]">
+      <div className="mt-5 flex flex-col gap-4 rounded-xl2 border border-slate-100 bg-white p-4 shadow-[0_8px_24px_rgba(17,28,78,0.06)]">
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "nationality")}</label>
-          <select
+          <label className="mb-1.5 block text-xs font-medium text-gray-600">{t(lang, "nationality")}</label>
+          <Dropdown
             value={profile.nationality}
-            onChange={(e) => setLocalProfile({ ...profile, nationality: e.target.value })}
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm focus:border-brand-blue"
-          >
-            {NATIONALITIES.map((n) => (
-              <option key={n.code} value={n.code}>
-                {n[lang] ?? n.ko}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "visaType")}</label>
-          <select
-            value={profile.visa_type}
-            onChange={(e) => setLocalProfile({ ...profile, visa_type: e.target.value })}
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm focus:border-brand-blue"
-          >
-            {VISA_TYPES.map((v) => (
-              <option key={v} value={v}>
-                {v}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "departureDate")}</label>
-          <input
-            type="date"
-            value={profile.departure_date ?? ""}
-            onChange={(e) => setLocalProfile({ ...profile, departure_date: e.target.value })}
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm focus:border-brand-blue"
+            onChange={(v) => setLocalProfile({ ...profile, nationality: v })}
+            options={NATIONALITIES.map((n) => ({ value: n.code, label: n[lang] ?? n.ko }))}
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "npsEnrolled")}</label>
+          <label className="mb-1.5 block text-xs font-medium text-gray-600">{t(lang, "visaType")}</label>
+          <Dropdown
+            value={profile.visa_type}
+            onChange={(v) => setLocalProfile({ ...profile, visa_type: v })}
+            options={VISA_TYPES.map((v) => ({ value: v, label: v }))}
+          />
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-gray-600">{t(lang, "departureDate")}</label>
+          <input
+            type="date"
+            value={profile.departure_date ?? ""}
+            onChange={(e) => setLocalProfile({ ...profile, departure_date: e.target.value })}
+            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm shadow-sm focus:border-brand-blue"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-gray-600">{t(lang, "npsEnrolled")}</label>
           <div className="flex gap-2">
             {[
               { v: true, label: lang === "ko" ? "가입" : lang === "vi" ? "Có" : "Enrolled" },
@@ -127,7 +121,7 @@ export default function OnboardingPage() {
               <button
                 key={String(opt.v)}
                 onClick={() => setLocalProfile({ ...profile, nps_enrolled: opt.v })}
-                className={`flex-1 rounded-full border py-2 text-sm ${
+                className={`flex-1 rounded-full border py-1.5 text-xs ${
                   profile.nps_enrolled === opt.v ? "border-brand-navy bg-brand-navy text-white" : "border-gray-200"
                 }`}
               >
@@ -138,24 +132,24 @@ export default function OnboardingPage() {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "tenureMonths")}</label>
+          <label className="mb-1.5 block text-xs font-medium text-gray-600">{t(lang, "tenureMonths")}</label>
           <input
             type="number"
             min={0}
             value={profile.tenure_months ?? ""}
             onChange={(e) => setLocalProfile({ ...profile, tenure_months: e.target.value ? Number(e.target.value) : null })}
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm focus:border-brand-blue"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm shadow-sm focus:border-brand-blue"
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "visitTime")}</label>
-          <div className="flex flex-wrap gap-2">
+          <label className="mb-1.5 block text-xs font-medium text-gray-600">{t(lang, "visitTime")}</label>
+          <div className="flex flex-wrap gap-1.5">
             {VISIT_TIMES.map((vt) => (
               <button
                 key={vt.code}
                 onClick={() => toggleVisitTime(vt.code)}
-                className={`rounded-full border px-4 py-2 text-sm ${
+                className={`rounded-full border px-3 py-1.5 text-xs ${
                   profile.available_visit_time.includes(vt.code)
                     ? "border-brand-navy bg-brand-navy text-white"
                     : "border-gray-200 text-gray-600"
@@ -168,17 +162,16 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      <div className="mt-10 flex flex-col gap-3">
+      <div className="mt-6 flex flex-col gap-2.5">
         <PrimaryButton onClick={handleStart}>{t(lang, "start")}</PrimaryButton>
         <button
           onClick={handleDemo}
           disabled={loadingDemo}
-          className="w-full rounded-xl2 border border-brand-blue py-3 text-sm font-semibold text-brand-blue disabled:opacity-40"
+          className="w-full rounded-xl2 border border-brand-blue py-2.5 text-xs font-semibold text-brand-blue disabled:opacity-40"
         >
           {loadingDemo ? "..." : t(lang, "demoMode")}
         </button>
       </div>
-
     </div>
   );
 }

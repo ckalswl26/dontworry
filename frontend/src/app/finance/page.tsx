@@ -113,7 +113,7 @@ export default function FinancePage() {
     <div className="flex min-h-dvh flex-col">
       <BackHeader title={t(lang, "relatedProducts")} onBack={() => router.back()} />
 
-      <div className="flex-1 px-5 py-6">
+      <div className="flex-1 px-5 pb-28 pt-6">
         <p className="text-xs text-gray-400">{t(lang, "productDisclaimer")}</p>
 
         <Card className="mt-4">

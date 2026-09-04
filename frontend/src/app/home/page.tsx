@@ -47,7 +47,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col px-5 pt-6">
+    <div className="flex min-h-dvh flex-col px-5 pb-28 pt-6">
       <div className="flex items-center justify-between">
         <LogoWordmark height={28} />
       </div>

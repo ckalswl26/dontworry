@@ -16,7 +16,7 @@ export default function MyPage() {
     <div className="flex min-h-dvh flex-col">
       <BackHeader title={t(lang, "myTitle")} onBack={() => router.back()} />
 
-      <div className="flex-1 px-5 py-6">
+      <div className="flex-1 px-5 pb-28 pt-6">
         <Card>
           <div className="flex items-center justify-between py-1">
             <span className="text-sm text-gray-500">{t(lang, "nameLabel")}</span>

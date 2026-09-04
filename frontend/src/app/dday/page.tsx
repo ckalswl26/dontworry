@@ -23,7 +23,7 @@ export default function DDayPage() {
     <div className="flex min-h-dvh flex-col">
       <BackHeader title={t(lang, "ddayTitle")} onBack={() => router.back()} />
 
-      <div className="flex-1 px-5 py-6">
+      <div className="flex-1 px-5 pb-28 pt-6">
         {!state.profile.departure_date && (
           <p className="text-sm text-gray-400">출국 예정일을 먼저 입력해주세요 (내 정보에서 수정 가능).</p>
         )}

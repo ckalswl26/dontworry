@@ -112,7 +112,7 @@ export const dictionaries: Record<Lang, Dict> = {
     signalNA: "해당없음",
   },
   en: {
-    appName: "Don't Worry",
+    appName: "Don't ₩orry",
     tagline: "Prepare for departure, worry-free",
     onboardingTitle: "Just a few details",
     onboardingDesc: "We need this to tailor guidance to your status. You can edit it anytime.",
@@ -221,7 +221,7 @@ export const dictionaries: Record<Lang, Dict> = {
   },
   vi: {
     appName: "Don't ₩orry",
-    tagline: "Chuẩn bị xuất cảnh, an tâm cùng Don't Worry",
+    tagline: "Dịch vụ tài chính cho người lao động nước ngoài",
     onboardingTitle: "Cho chúng tôi biết vài điều",
     onboardingDesc: "Cần thiết để hướng dẫn phù hợp với tình trạng cư trú. Bạn có thể chỉnh sửa bất cứ lúc nào.",
     langSelect: "Chọn ngôn ngữ",

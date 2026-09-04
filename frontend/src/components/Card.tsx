@@ -22,7 +22,7 @@ export function PrimaryButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className="w-full rounded-xl2 bg-brand-blue py-4 text-center font-bold text-white shadow-[0_8px_20px_rgba(8,104,247,0.24)] hover:-translate-y-0.5 hover:bg-brand-navy disabled:opacity-40"
+      className="w-full rounded-xl2 bg-brand-blue py-3 text-center text-sm font-bold text-white shadow-[0_8px_20px_rgba(8,104,247,0.24)] hover:-translate-y-0.5 hover:bg-brand-navy disabled:opacity-40"
     >
       {children}
     </button>
@@ -70,11 +70,11 @@ export function ErrorNotice({ message }: { message: string }) {
 
 export function BackHeader({ title, onBack }: { title: string; onBack?: () => void }) {
   return (
-    <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-slate-100 bg-white/90 px-5 py-4 backdrop-blur">
-      <button onClick={onBack} aria-label="back" className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-sky text-xl text-brand-navy">
+    <header className="sticky top-0 z-10 flex items-center gap-2.5 border-b border-slate-100 bg-white/90 px-4 py-3 backdrop-blur">
+      <button onClick={onBack} aria-label="back" className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-sky text-base text-brand-navy">
         ←
       </button>
-      <h1 className="text-xl font-extrabold tracking-tight text-brand-navy">{title}</h1>
+      <h1 className="text-base font-extrabold tracking-tight text-brand-navy">{title}</h1>
     </header>
   );
 }

@@ -91,7 +91,7 @@ export default function PlannerPage() {
     <div className="flex min-h-dvh flex-col">
       <BackHeader title={t(lang, "plannerTitle")} onBack={() => router.back()} />
 
-      <div className="flex-1 px-5 py-6">
+      <div className="flex-1 px-5 pb-28 pt-6">
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-xs text-gray-500">{t(lang, "targetAmount")}</label>

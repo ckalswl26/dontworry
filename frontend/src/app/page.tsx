@@ -28,18 +28,20 @@ export default function SplashPage() {
   }, [ready, state.onboarded, router]);
 
   return (
-    <main className="relative flex min-h-dvh flex-col overflow-hidden px-6 pb-8 pt-10 text-center">
+    <main className="relative flex min-h-dvh flex-col justify-center overflow-hidden px-6 py-7 text-center">
       <div className="absolute -right-24 -top-28 h-72 w-72 rounded-full bg-brand-sky" />
       <div className="relative flex flex-col items-center">
-        <LogoWordmark height={72} />
-        <div className="mt-3 h-56 w-56 overflow-hidden rounded-full bg-gradient-to-b from-brand-sky to-white p-1 shadow-[0_18px_45px_rgba(8,104,247,0.16)]">
-          <Mascot size={220} className="h-full w-full scale-110 object-contain" />
+        <LogoWordmark height={40} />
+        <p className="mt-2 text-xs font-semibold text-slate-500">외국인 근로자를 위한 금융 서비스</p>
+        <div className="mt-4 h-52 w-52 overflow-hidden rounded-full bg-gradient-to-b from-brand-sky to-white p-1 shadow-[0_18px_45px_rgba(8,104,247,0.16)]">
+          <Mascot size={208} className="h-full w-full scale-110 object-contain" />
         </div>
-        <h1 className="mt-5 text-2xl font-black leading-tight text-brand-navy">출국 준비, 돈워리가 함께할게요</h1>
-        <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">외국인 근로자를 위한 출국 준비 금융·행정 안내</p>
+        <h1 className="mt-5 text-[26px] font-black leading-[1.3] tracking-[-0.05em] text-brand-navy">
+          한국 생활의 금융 고민,<br />돈워리가 함께 해결해요
+        </h1>
       </div>
 
-      <div className="relative mt-8 w-full">
+      <div className="relative mt-7 w-full">
         <p className="mb-3 text-left text-sm font-bold text-brand-navy">언어를 선택하세요 <span className="font-normal text-slate-400">Select language</span></p>
         <div className="grid grid-cols-3 gap-2">
           {LANGS.map((l) => (

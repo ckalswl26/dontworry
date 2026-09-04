@@ -15,15 +15,14 @@ export function LogoMark({ size = 40 }: { size?: number }) {
 
 export function LogoWordmark({ className = "", height = 40 }: { className?: string; height?: number }) {
   return (
-    <Image
-      src="/brand/logo-wordmark.png"
-      alt="돈워리 워드마크"
-      width={height * 3.2}
-      height={height}
-      style={{ height, width: "auto" }}
-      className={className}
-      priority
-    />
+    <span
+      role="img"
+      aria-label="Don't ₩orry 돈워리 워드마크"
+      style={{ fontSize: height, lineHeight: 1 }}
+      className={`inline-flex items-baseline whitespace-nowrap font-black tracking-[-0.06em] text-brand-navy ${className}`}
+    >
+      Don&apos;t&nbsp;<span className="text-brand-gold">₩</span>orry
+    </span>
   );
 }
 

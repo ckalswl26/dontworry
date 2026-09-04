@@ -11,7 +11,8 @@ body {
 body {
   background: #eef2f8;
   color: #111c4e;
-  font-family: Arial, "Noto Sans KR", sans-serif;
+  font-family: "Arial Rounded MT Bold", "Noto Sans KR", "Malgun Gothic", Arial, sans-serif;
+  letter-spacing: -0.02em;
 }
 
 .app-shell {
@@ -20,7 +21,7 @@ body {
   min-height: 100dvh;
   background: linear-gradient(180deg, #f8fbff 0%, #ffffff 34%);
   position: relative;
-  padding-bottom: 84px;
+  padding-bottom: 0;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -55,6 +56,10 @@ body {
     /* fixed 요소(하단 탭바, FAB 등)가 실제 브라우저 창이 아니라 이 프레임 기준으로
        고정되도록 새로운 containing block을 만든다. */
     transform: translateZ(0);
+  }
+
+  .app-shell > * {
+    min-height: 100%;
   }
 }
 
