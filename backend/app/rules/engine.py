@@ -91,6 +91,10 @@ def get_node(task_id: str) -> dict | None:
     return next((n for n in graph["nodes"] if n["id"] == task_id), None)
 
 
+def get_all_nodes() -> list[dict]:
+    return _load_graph()["nodes"]
+
+
 def build_workflow() -> list[WorkflowStep]:
     """Kahn's algorithm topological sort over REQUIRED_BEFORE / RECOMMENDED_BEFORE edges.
 

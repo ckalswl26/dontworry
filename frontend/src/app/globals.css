@@ -66,3 +66,54 @@ body {
 button, a, input, select { transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(8, 104, 247, .2); outline-offset: 2px; }
 input, select { color: #111c4e; }
+
+@keyframes mascot-float {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-12px) rotate(1deg); }
+}
+
+@keyframes mascot-shadow {
+  0%, 100% { transform: scaleX(1); opacity: .55; }
+  50% { transform: scaleX(.76); opacity: .28; }
+}
+
+.mascot-float {
+  animation: mascot-float 3.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.mascot-shadow {
+  animation: mascot-shadow 3.2s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot-float,
+  .mascot-shadow {
+    animation: none;
+  }
+}
+
+/* 방문 준비 체크리스트 인쇄/PDF 저장 시 폰 프레임 목업을 해제하고
+   일반 문서처럼 출력한다. */
+@media print {
+  body {
+    display: block;
+    background: #fff;
+    padding: 0;
+  }
+
+  .app-shell {
+    width: auto;
+    height: auto;
+    max-width: none;
+    max-height: none;
+    aspect-ratio: auto;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: #fff;
+    overflow: visible;
+    transform: none;
+  }
+}

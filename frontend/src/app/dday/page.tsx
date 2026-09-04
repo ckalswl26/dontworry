@@ -46,10 +46,21 @@ export default function DDayPage() {
                   onClick={() => item.task_id && router.push(`/tasks/${item.task_id}`)}
                   className="relative text-left"
                 >
-                  <span className="absolute -left-[27px] top-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-blue text-[10px] font-bold text-white">
+                  <span
+                    className={`absolute -left-[27px] top-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white ${
+                      item.requires_visit ? "bg-brand-red" : "bg-brand-blue"
+                    }`}
+                  >
                     {item.day_offset === 0 ? "0" : item.day_offset}
                   </span>
-                  <p className="font-semibold text-brand-navy">{item.label}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-semibold text-brand-navy">{item.label}</p>
+                    {item.requires_visit && (
+                      <span className="inline-flex items-center gap-0.5 rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-brand-red">
+                        📍 {t(lang, "signalRed")}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-500">
                     {item.detail}
                     {item.is_recommended_not_legal && " (팀 권장 시점, 법정기한 아님)"}

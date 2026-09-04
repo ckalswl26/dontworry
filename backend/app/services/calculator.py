@@ -4,6 +4,9 @@ from __future__ import annotations
 from datetime import date
 
 from app.models.schemas import DDayItem, DDayResponse, PlannerRequest, PlannerResponse
+from app.rules import engine as rule_engine
+
+BRANCH_VISIT_CHANNELS = {"BRANCH_VISIT", "BRANCH_VISIT_OR_MAIL"}
 
 
 def calculate_planner(req: PlannerRequest) -> PlannerResponse:
@@ -37,8 +40,49 @@ RECOMMENDED_DDAY_OFFSETS = [
     {"day_offset": 0, "task_id": None, "label": "출국", "detail": "모든 정리가 끝났습니다.", "is_recommended_not_legal": False},
 ]
 
+# 방문이 필요한 업무는 서류를 챙기고 영업일·예약 여부를 확인할 시간이 필요해서
+# 실제 처리 시점보다 여유 있게(팀 권장 D-14) 미리 알려준다. 법정기한이 아니라
+# 팀이 정한 권장 시점이므로 is_recommended_not_legal=True로 표시한다.
+EARLY_VISIT_NOTICE_OFFSET = -14
+
+
+def _early_visit_notice_items() -> list[dict]:
+    """departure_rule_graph.json에서 channel이 방문형인 업무 중,
+    RECOMMENDED_DDAY_OFFSETS에 아직 task_id로 등장하지 않는 업무만
+    D-14 '미리 준비하세요' 항목으로 추가한다. 하드코딩된 새 사실을 만들지 않고,
+    이미 Rule Graph에 있는 channel 값만 그대로 읽어서 쓴다."""
+    already_covered = {item["task_id"] for item in RECOMMENDED_DDAY_OFFSETS if item["task_id"]}
+
+    extra_items: list[dict] = []
+    for node in rule_engine.get_all_nodes():
+        if node["id"] in already_covered:
+            continue
+        if node.get("channel") not in BRANCH_VISIT_CHANNELS:
+            continue
+        extra_items.append(
+            {
+                "day_offset": EARLY_VISIT_NOTICE_OFFSET,
+                "task_id": node["id"],
+                "label": f"{node['label_ko']} 미리 준비하세요",
+                "detail": "방문이 필요한 업무예요. 서류를 미리 챙기고 영업일을 확인해두면 좋아요 (팀 권장 시점).",
+                "is_recommended_not_legal": True,
+            }
+        )
+    return extra_items
+
 
 def calculate_dday(departure_date: date) -> DDayResponse:
     days_left = (departure_date - date.today()).days
-    items = [DDayItem(**item) for item in RECOMMENDED_DDAY_OFFSETS]
+    channel_by_task = {node["id"]: node.get("channel") for node in rule_engine.get_all_nodes()}
+
+    all_offsets = RECOMMENDED_DDAY_OFFSETS + _early_visit_notice_items()
+    all_offsets = sorted(all_offsets, key=lambda item: item["day_offset"])
+
+    items = [
+        DDayItem(
+            **item,
+            requires_visit=channel_by_task.get(item["task_id"]) in BRANCH_VISIT_CHANNELS,
+        )
+        for item in all_offsets
+    ]
     return DDayResponse(departure_date=departure_date, days_left=days_left, items=items)

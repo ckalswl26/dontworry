@@ -36,6 +36,9 @@ export default function TaskDetailPage() {
   const heldCount = task?.required_documents.filter((d) => held.has(d)).length ?? 0;
   const pct = total ? Math.round((heldCount / total) * 100) : 100;
 
+  const requiresVisit = task?.channel === "BRANCH_VISIT" || task?.channel === "BRANCH_VISIT_OR_MAIL";
+  const printedAt = new Date().toLocaleString(lang === "ko" ? "ko-KR" : lang === "vi" ? "vi-VN" : "en-US");
+
   return (
     <div className="flex min-h-dvh flex-col">
       <BackHeader title={task?.label ?? t(lang, "checklist")} onBack={() => router.back()} />
@@ -46,14 +49,14 @@ export default function TaskDetailPage() {
 
         {task && (
           <>
-            <div className="flex items-center justify-between">
+            <div className="print:hidden flex items-center justify-between">
               <SignalBadge signal={task.signal} lang={lang} />
               {task.responsible_org && <span className="text-xs text-gray-400">{task.responsible_org}</span>}
             </div>
-            <p className="mt-3 text-sm text-gray-600">{task.reason}</p>
+            <p className="print:hidden mt-3 text-sm text-gray-600">{task.reason}</p>
 
             {total > 0 && (
-              <Card className="mt-5">
+              <Card className="print:hidden mt-5">
                 <div className="flex items-center gap-4">
                   <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-4 border-brand-blue text-sm font-bold text-brand-navy">
                     {pct}%
@@ -80,11 +83,47 @@ export default function TaskDetailPage() {
                     </label>
                   ))}
                 </div>
+
+                {requiresVisit && (
+                  <button
+                    onClick={() => window.print()}
+                    className="print:hidden mt-4 w-full rounded-xl border border-brand-blue py-2.5 text-sm font-semibold text-brand-blue"
+                  >
+                    🖨 {t(lang, "buildVisitChecklist")}
+                  </button>
+                )}
               </Card>
             )}
 
+            {/* 인쇄/PDF 저장 전용 뷰 - 평소엔 보이지 않고 window.print() 시에만 렌더링된다 */}
+            {task && total > 0 && (
+              <div className="hidden print:block">
+                <h2 className="text-lg font-bold text-brand-navy">{t(lang, "printedChecklistTitle")}</h2>
+                <p className="mt-1 text-sm text-gray-600">{task.label}</p>
+                <p className="mt-3 text-sm">
+                  {t(lang, "readiness")}: {pct}%
+                </p>
+                <ul className="mt-3 flex flex-col gap-1.5 text-sm">
+                  {task.required_documents.map((doc) => (
+                    <li key={doc}>
+                      {held.has(doc) ? "☑" : "☐"} {doc.replaceAll("_", " ")}
+                    </li>
+                  ))}
+                </ul>
+                {task.sources.length > 0 && (
+                  <p className="mt-4 text-xs text-gray-500">
+                    {t(lang, "judgementBasis")}:{" "}
+                    {task.sources.map((s) => `${s.organization} (${s.last_verified_at})`).join(", ")}
+                  </p>
+                )}
+                <p className="mt-4 text-[11px] text-gray-400">
+                  Don&apos;t ₩orry · {printedAt}
+                </p>
+              </div>
+            )}
+
             {task.sources.length > 0 && (
-              <div className="mt-5">
+              <div className="print:hidden mt-5">
                 <p className="text-xs font-semibold text-gray-400">{t(lang, "judgementBasis")}</p>
                 <div className="mt-2 flex flex-col gap-2">
                   {task.sources.map((s) => (
@@ -103,7 +142,7 @@ export default function TaskDetailPage() {
         )}
       </div>
 
-      <div className="px-5 pb-8">
+      <div className="print:hidden px-5 pb-8">
         <PrimaryButton onClick={() => router.push("/finance")}>{t(lang, "relatedProducts")}</PrimaryButton>
       </div>
     </div>

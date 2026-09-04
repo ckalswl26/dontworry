@@ -70,7 +70,7 @@ export function ErrorNotice({ message }: { message: string }) {
 
 export function BackHeader({ title, onBack }: { title: string; onBack?: () => void }) {
   return (
-    <header className="sticky top-0 z-10 flex items-center gap-2.5 border-b border-slate-100 bg-white/90 px-4 py-3 backdrop-blur">
+    <header className="print:hidden sticky top-0 z-10 flex items-center gap-2.5 border-b border-slate-100 bg-white/90 px-4 py-3 backdrop-blur">
       <button onClick={onBack} aria-label="back" className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-sky text-base text-brand-navy">
         ←
       </button>

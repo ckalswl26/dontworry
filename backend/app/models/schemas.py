@@ -259,6 +259,7 @@ class DDayItem(BaseModel):
     task_id: str | None
     is_recommended_not_legal: bool = True
     detail: str
+    requires_visit: bool = False
 
 
 class DDayResponse(BaseModel):

@@ -118,6 +118,7 @@ export interface DDayItem {
   task_id: string | null;
   is_recommended_not_legal: boolean;
   detail: string;
+  requires_visit: boolean;
 }
 
 export interface DDayResponse {
