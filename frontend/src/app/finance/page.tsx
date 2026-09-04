@@ -113,7 +113,7 @@ export default function FinancePage() {
     <div className="flex min-h-dvh flex-col">
       <BackHeader title={t(lang, "relatedProducts")} onBack={() => router.back()} />
 
-      <div className="flex-1 px-5 py-5">
+      <div className="flex-1 px-5 py-6">
         <p className="text-xs text-gray-400">{t(lang, "productDisclaimer")}</p>
 
         <Card className="mt-4">
@@ -147,7 +147,7 @@ export default function FinancePage() {
           </div>
         </Card>
 
-        <p className="mt-6 text-sm font-semibold text-gray-500">{t(lang, "myRecommendedProducts")}</p>
+        <p className="mt-6 text-sm font-extrabold text-brand-navy">{t(lang, "myRecommendedProducts")}</p>
         {!aiGenerated && !recLoading && recommendations.length > 0 && (
           <p className="mt-1 text-[11px] text-gray-400">{t(lang, "ruleBasedFallbackNote")}</p>
         )}
@@ -191,7 +191,7 @@ export default function FinancePage() {
           ))}
         </div>
 
-        <p className="mt-6 text-sm font-semibold text-gray-500">금융감독원 공시 적금 상품</p>
+        <p className="mt-6 text-sm font-extrabold text-brand-navy">금융감독원 공시 적금 상품</p>
         {savingsLoading && <p className="mt-2 text-sm text-gray-400">...</p>}
         {savingsError && (
           <p className="mt-2 text-sm text-gray-400">

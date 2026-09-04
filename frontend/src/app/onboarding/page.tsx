@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { PrimaryButton } from "@/components/Card";
-import { LogoWordmark } from "@/components/Logo";
+import { LogoWordmark, Mascot } from "@/components/Logo";
 import { api } from "@/lib/api";
 
 const NATIONALITIES = [
@@ -60,17 +60,18 @@ export default function OnboardingPage() {
 
   return (
     <div className="flex min-h-dvh flex-col px-6 py-8">
-      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">DONWORRY · 온보딩</p>
-      <h1 className="mt-2 text-2xl font-bold text-brand-navy">{t(lang, "onboardingTitle")}</h1>
-      <p className="mt-2 text-sm text-gray-500">{t(lang, "onboardingDesc")}</p>
+      <div className="flex items-center justify-between rounded-xl2 bg-brand-sky px-5 py-4">
+        <div><LogoWordmark height={32} /><h1 className="mt-3 text-2xl font-black text-brand-navy">{t(lang, "onboardingTitle")}</h1><p className="mt-1 text-sm text-slate-500">{t(lang, "onboardingDesc")}</p></div>
+        <Mascot size={96} className="h-24 w-24 object-contain" />
+      </div>
 
-      <div className="mt-8 flex flex-col gap-6">
+      <div className="mt-7 flex flex-col gap-6 rounded-xl2 border border-slate-100 bg-white p-5 shadow-[0_8px_24px_rgba(17,28,78,0.06)]">
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "nationality")}</label>
           <select
             value={profile.nationality}
             onChange={(e) => setLocalProfile({ ...profile, nationality: e.target.value })}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3"
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm focus:border-brand-blue"
           >
             {NATIONALITIES.map((n) => (
               <option key={n.code} value={n.code}>
@@ -85,7 +86,7 @@ export default function OnboardingPage() {
           <select
             value={profile.visa_type}
             onChange={(e) => setLocalProfile({ ...profile, visa_type: e.target.value })}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3"
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm focus:border-brand-blue"
           >
             {VISA_TYPES.map((v) => (
               <option key={v} value={v}>
@@ -101,7 +102,7 @@ export default function OnboardingPage() {
             type="date"
             value={profile.departure_date ?? ""}
             onChange={(e) => setLocalProfile({ ...profile, departure_date: e.target.value })}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3"
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm focus:border-brand-blue"
           />
         </div>
 
@@ -132,7 +133,7 @@ export default function OnboardingPage() {
             min={0}
             value={profile.tenure_months ?? ""}
             onChange={(e) => setLocalProfile({ ...profile, tenure_months: e.target.value ? Number(e.target.value) : null })}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3"
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm focus:border-brand-blue"
           />
         </div>
 
@@ -167,9 +168,6 @@ export default function OnboardingPage() {
         </button>
       </div>
 
-      <div className="mt-8 flex justify-center opacity-60">
-        <LogoWordmark height={24} />
-      </div>
     </div>
   );
 }

@@ -23,7 +23,7 @@ export default function DDayPage() {
     <div className="flex min-h-dvh flex-col">
       <BackHeader title={t(lang, "ddayTitle")} onBack={() => router.back()} />
 
-      <div className="flex-1 px-5 py-5">
+      <div className="flex-1 px-5 py-6">
         {!state.profile.departure_date && (
           <p className="text-sm text-gray-400">출국 예정일을 먼저 입력해주세요 (내 정보에서 수정 가능).</p>
         )}
@@ -38,7 +38,7 @@ export default function DDayPage() {
               <p className="mt-1 text-4xl font-black">D-{data.days_left}</p>
             </div>
 
-            <p className="mt-6 text-sm font-semibold text-gray-500">{t(lang, "todo")}</p>
+            <p className="mt-6 text-sm font-extrabold text-brand-navy">{t(lang, "todo")}</p>
             <div className="relative mt-3 flex flex-col gap-6 border-l border-gray-200 pl-6">
               {data.items.map((item, i) => (
                 <button

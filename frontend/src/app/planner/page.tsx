@@ -91,7 +91,7 @@ export default function PlannerPage() {
     <div className="flex min-h-dvh flex-col">
       <BackHeader title={t(lang, "plannerTitle")} onBack={() => router.back()} />
 
-      <div className="flex-1 px-5 py-5">
+      <div className="flex-1 px-5 py-6">
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-xs text-gray-500">{t(lang, "targetAmount")}</label>
@@ -100,7 +100,7 @@ export default function PlannerPage() {
               value={targetAmount}
               onChange={(e) => setTargetAmount(e.target.value)}
               placeholder="0"
-              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-brand-blue"
             />
           </div>
           <div>
@@ -110,7 +110,7 @@ export default function PlannerPage() {
               value={monthsLeft}
               onChange={(e) => setMonthsLeft(e.target.value)}
               placeholder="0"
-              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-brand-blue"
             />
           </div>
           <div className="col-span-2">
@@ -120,7 +120,7 @@ export default function PlannerPage() {
               value={monthlyIncome}
               onChange={(e) => setMonthlyIncome(e.target.value)}
               placeholder="0"
-              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-brand-blue"
             />
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function PlannerPage() {
           {t(lang, "mealsHousing")}
         </label>
 
-        <p className="mt-5 text-sm font-semibold text-gray-500">{t(lang, "expenses")}</p>
+        <p className="mt-5 text-sm font-extrabold text-brand-navy">{t(lang, "expenses")}</p>
         <div className="mt-2 grid grid-cols-2 gap-3">
           {EXPENSE_KEYS.map((key) => {
             const isUnknown = unknownExpenses.has(key);
@@ -158,7 +158,7 @@ export default function PlannerPage() {
                   onChange={(e) => setExpenses({ ...expenses, [key]: e.target.value })}
                   placeholder="0"
                   disabled={isUnknown}
-                  className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm disabled:bg-gray-50 disabled:text-gray-300"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-brand-blue disabled:bg-gray-50 disabled:text-gray-300"
                 />
               </div>
             );

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`rounded-xl2 border border-gray-100 bg-white p-4 shadow-sm ${className}`}>{children}</div>
+    <div className={`rounded-xl2 border border-slate-100 bg-white p-5 shadow-[0_8px_24px_rgba(17,28,78,0.07)] ${className}`}>{children}</div>
   );
 }
 
@@ -22,7 +22,7 @@ export function PrimaryButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className="w-full rounded-xl2 bg-brand-navy py-4 text-center font-semibold text-white disabled:opacity-40"
+      className="w-full rounded-xl2 bg-brand-blue py-4 text-center font-bold text-white shadow-[0_8px_20px_rgba(8,104,247,0.24)] hover:-translate-y-0.5 hover:bg-brand-navy disabled:opacity-40"
     >
       {children}
     </button>
@@ -70,11 +70,11 @@ export function ErrorNotice({ message }: { message: string }) {
 
 export function BackHeader({ title, onBack }: { title: string; onBack?: () => void }) {
   return (
-    <header className="flex items-center gap-3 border-b border-gray-100 px-4 py-4">
-      <button onClick={onBack} aria-label="back" className="text-xl text-brand-navy">
+    <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-slate-100 bg-white/90 px-5 py-4 backdrop-blur">
+      <button onClick={onBack} aria-label="back" className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-sky text-xl text-brand-navy">
         ←
       </button>
-      <h1 className="text-lg font-bold text-brand-navy">{title}</h1>
+      <h1 className="text-xl font-extrabold tracking-tight text-brand-navy">{title}</h1>
     </header>
   );
 }

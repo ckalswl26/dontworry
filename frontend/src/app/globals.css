@@ -9,15 +9,20 @@ body {
 }
 
 body {
-  background: #f5f6fa;
+  background: #eef2f8;
   color: #111c4e;
+  font-family: Arial, "Noto Sans KR", sans-serif;
 }
 
 .app-shell {
   max-width: 480px;
   margin: 0 auto;
   min-height: 100dvh;
-  background: #ffffff;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 34%);
   position: relative;
   padding-bottom: 84px;
 }
+
+button, a, input, select { transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(8, 104, 247, .2); outline-offset: 2px; }
+input, select { color: #111c4e; }

@@ -7,6 +7,7 @@ import { BackHeader, ErrorNotice, QuickReplyButton } from "@/components/Card";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
 import type { IntentResult } from "@/lib/types";
+import { Mascot } from "@/components/Logo";
 
 const TASK_LABELS: Record<string, string> = {
   departure_notification: "출국예정신고",
@@ -55,9 +56,16 @@ export default function IntentPage() {
     <div className="flex min-h-dvh flex-col">
       <BackHeader title={t(lang, "confirmQuestion")} onBack={() => router.back()} />
 
-      <div className="flex-1 px-5 py-5">
+      <div className="flex-1 px-5 py-6">
         <p className="text-xs text-gray-400">{t(lang, "inputQuestion")}</p>
-        <div className="mt-2 rounded-xl2 bg-brand-gray p-4 text-sm text-brand-navy">&quot;{state.lastQuestion}&quot;</div>
+        <div className="mt-2 rounded-xl2 bg-brand-gray p-4 text-sm text-brand-navy shadow-sm">&quot;{state.lastQuestion}&quot;</div>
+
+        <div className="mt-5 flex items-start gap-3">
+          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white bg-brand-sky shadow-sm"><Mascot size={40} className="h-full w-full scale-125 object-contain" /></div>
+          <div className="rounded-xl2 rounded-tl-md bg-brand-sky px-4 py-3 text-sm font-medium text-brand-navy">
+            {loading ? t(lang, "analyzingText") : t(lang, "confirmQuestion")}
+          </div>
+        </div>
 
         {loading && <p className="mt-6 text-sm text-gray-400">{t(lang, "analyzingText")}</p>}
         {!loading && error && (
@@ -68,7 +76,7 @@ export default function IntentPage() {
 
         {!loading && !error && result && result.intent_candidates.length === 0 && (
           <div className="mt-6">
-            <p className="text-sm font-semibold text-gray-500">{t(lang, "notUnderstoodTitle")}</p>
+            <p className="text-sm font-extrabold text-brand-navy">{t(lang, "notUnderstoodTitle")}</p>
             <div className="mt-3 flex flex-col gap-2">
               {FALLBACK_CATEGORIES.map((c) => (
                 <QuickReplyButton key={c.route} onClick={() => router.push(c.route)}>
@@ -81,7 +89,7 @@ export default function IntentPage() {
 
         {!loading && !error && result && result.intent_candidates.length > 0 && result.confidence < CONFIDENCE_THRESHOLD && (
           <div className="mt-6">
-            <p className="text-sm font-semibold text-gray-500">{t(lang, "pickCandidateTitle")}</p>
+            <p className="text-sm font-extrabold text-brand-navy">{t(lang, "pickCandidateTitle")}</p>
             <div className="mt-3 flex flex-col gap-2">
               {result.intent_candidates.map((c) => (
                 <QuickReplyButton key={c} onClick={() => applyAndNavigate(`/tasks/${c}`)}>
@@ -97,7 +105,7 @@ export default function IntentPage() {
 
         {!loading && !error && result && result.intent_candidates.length > 0 && result.confidence >= CONFIDENCE_THRESHOLD && (
           <>
-            <p className="mt-6 text-sm font-semibold text-gray-500">{t(lang, "understood")}</p>
+            <p className="mt-6 text-sm font-extrabold text-brand-navy">{t(lang, "understood")}</p>
             <div className="mt-2 divide-y divide-gray-100 rounded-xl2 border border-gray-100">
               <div className="flex items-center justify-between px-4 py-3">
                 <span className="text-sm text-gray-500">{t(lang, "visaType")}</span>
@@ -117,7 +125,7 @@ export default function IntentPage() {
               </div>
             </div>
 
-            <p className="mt-6 text-sm font-semibold text-gray-500">
+            <p className="mt-6 text-sm font-extrabold text-brand-navy">
               {t(lang, "relatedTasks")} {result.intent_candidates.length}건
             </p>
             <div className="mt-2 flex flex-wrap gap-2">

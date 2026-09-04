@@ -6,7 +6,7 @@ import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { Card } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
-import { LogoWordmark } from "@/components/Logo";
+import { LogoWordmark, Mascot } from "@/components/Logo";
 
 function daysUntil(dateStr: string | null | undefined): number | null {
   if (!dateStr) return null;
@@ -54,7 +54,7 @@ export default function HomePage() {
 
       <p className="mt-4 text-lg font-bold text-brand-navy">{greeting}</p>
 
-      <div className="mt-3 rounded-xl2 bg-brand-navy p-5 text-white">
+      <div className="mt-3 rounded-xl2 bg-gradient-to-br from-brand-navy to-[#24397E] p-5 text-white shadow-[0_12px_30px_rgba(17,28,78,0.2)]">
         <p className="text-xs text-white/70">{t(lang, "daysToDeparture")}</p>
         <p className="mt-1 text-4xl font-black">{days !== null ? `D-${days}` : "D-?"}</p>
         {days !== null && (
@@ -95,17 +95,18 @@ export default function HomePage() {
         )}
       </Card>
 
-      <div className="mt-5">
-        <p className="mb-2 text-sm font-medium text-gray-500">{t(lang, "aiChatbotTitle")}</p>
-        <div className="flex items-center gap-2 rounded-xl2 border border-gray-200 px-4 py-3">
+      <div id="ai-chat" className="mt-5 scroll-mt-6">
+        <p className="mb-2 text-sm font-bold text-brand-navy">{t(lang, "aiChatbotTitle")}</p>
+        <div className="flex items-center gap-3 rounded-xl2 border border-brand-blue/20 bg-brand-sky/50 p-3 shadow-sm">
+          <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 border-white bg-white shadow-sm"><Mascot size={44} className="h-full w-full scale-125 object-contain" /></div>
           <input
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && submitQuestion()}
             placeholder={t(lang, "aiChatbotPlaceholder")}
-            className="flex-1 text-sm outline-none"
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none"
           />
-          <button onClick={submitQuestion} className="text-brand-blue" aria-label="submit">
+          <button onClick={submitQuestion} className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-blue text-white shadow-sm" aria-label="submit">
             ➤
           </button>
         </div>

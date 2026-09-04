@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
+import { Mascot } from "@/components/Logo";
 
 const ITEMS = [
   { href: "/home", icon: "🏠", key: "home" },
@@ -24,11 +25,11 @@ export function BottomNav() {
       {/* AI 챗봇 진입 FAB - 탭바 위, 화면 우측 하단에 고정 */}
       <button
         type="button"
-        onClick={() => router.push("/home")}
+        onClick={() => router.push("/home#ai-chat")}
         aria-label={t(lang, "aiChatbotTitle")}
-        className="absolute bottom-[72px] right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand-navy text-2xl text-white shadow-lg"
+        className="absolute bottom-[72px] right-4 z-30 flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-brand-sky shadow-[0_10px_28px_rgba(17,28,78,0.22)] hover:-translate-y-1"
       >
-        💬
+        <Mascot size={58} className="h-[58px] w-[58px] scale-125 object-contain" />
       </button>
 
       <div className="flex items-center justify-around py-2">
