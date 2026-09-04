@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
-import { BackHeader, Card } from "@/components/Card";
+import { BackHeader, Card, ErrorNotice } from "@/components/Card";
 import { api } from "@/lib/api";
+import { useFetch } from "@/lib/useApi";
 
 interface SourceDetail {
   source_id: string;
@@ -26,17 +26,19 @@ export default function SourceDetailPage() {
   const params = useParams<{ id: string }>();
   const { state } = useStore();
   const lang = state.profile.language;
-  const [data, setData] = useState<SourceDetail | null>(null);
-
-  useEffect(() => {
-    api.source(params.id).then((d) => setData(d as SourceDetail));
-  }, [params.id]);
+  const { data, loading, error } = useFetch<SourceDetail>(
+    () => api.source(params.id) as Promise<SourceDetail>,
+    [params.id]
+  );
 
   return (
     <div className="flex min-h-dvh flex-col">
       <BackHeader title={t(lang, "sourceDetail")} onBack={() => router.back()} />
 
       <div className="flex-1 px-5 py-5">
+        {loading && <p className="text-sm text-gray-400">...</p>}
+        {!loading && error && <ErrorNotice message={error} />}
+
         {data && (
           <Card>
             <p className="text-xs text-gray-400">{data.source_type}</p>

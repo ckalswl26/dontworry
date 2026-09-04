@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
-import { BackHeader, PrimaryButton } from "@/components/Card";
+import { BackHeader, ErrorNotice, PrimaryButton } from "@/components/Card";
 import { api } from "@/lib/api";
+import { useFetch } from "@/lib/useApi";
 import type { DeparturePlanResponse } from "@/lib/types";
 
 const PRIORITY_LABEL_KEY: Record<string, string> = {
@@ -24,12 +24,10 @@ export default function TimelinePage() {
   const router = useRouter();
   const { state } = useStore();
   const lang = state.profile.language;
-  const [data, setData] = useState<DeparturePlanResponse | null>(null);
-
-  useEffect(() => {
-    api.departurePlan({ profile: state.profile }).then(setData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { data, loading, error } = useFetch<DeparturePlanResponse>(
+    () => api.departurePlan({ profile: state.profile }),
+    []
+  );
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -37,6 +35,8 @@ export default function TimelinePage() {
       <p className="px-5 pt-4 text-sm text-gray-500">{t(lang, "orderDesc")}</p>
 
       <div className="flex-1 px-5 py-6">
+        {loading && <p className="text-sm text-gray-400">...</p>}
+        {!loading && error && <ErrorNotice message={error} />}
         <div className="relative flex flex-col gap-6 border-l border-gray-200 pl-6">
           {data?.ordered_steps.map((step) => (
             <button

@@ -1,24 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
-import { BackHeader } from "@/components/Card";
+import { BackHeader, ErrorNotice } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
 import { api } from "@/lib/api";
+import { useFetch } from "@/lib/useApi";
 import type { DDayResponse } from "@/lib/types";
 
 export default function DDayPage() {
   const router = useRouter();
   const { state } = useStore();
   const lang = state.profile.language;
-  const [data, setData] = useState<DDayResponse | null>(null);
 
-  useEffect(() => {
-    if (!state.profile.departure_date) return;
-    api.dday(state.profile.departure_date).then(setData);
-  }, [state.profile.departure_date]);
+  const { data, loading, error } = useFetch<DDayResponse | null>(
+    () => (state.profile.departure_date ? api.dday(state.profile.departure_date) : Promise.resolve(null)),
+    [state.profile.departure_date]
+  );
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -28,6 +27,9 @@ export default function DDayPage() {
         {!state.profile.departure_date && (
           <p className="text-sm text-gray-400">출국 예정일을 먼저 입력해주세요 (내 정보에서 수정 가능).</p>
         )}
+
+        {state.profile.departure_date && loading && <p className="text-sm text-gray-400">...</p>}
+        {!loading && error && <ErrorNotice message={error} />}
 
         {data && (
           <>

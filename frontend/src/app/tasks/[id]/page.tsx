@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
-import { BackHeader, Card, PrimaryButton } from "@/components/Card";
+import { BackHeader, Card, ErrorNotice, PrimaryButton } from "@/components/Card";
 import { SignalBadge } from "@/components/SignalBadge";
 import { api } from "@/lib/api";
+import { useFetch } from "@/lib/useApi";
 import type { RuleEvaluateResponse, TaskSignal } from "@/lib/types";
 
 export default function TaskDetailPage() {
@@ -14,13 +15,12 @@ export default function TaskDetailPage() {
   const params = useParams<{ id: string }>();
   const { state, setDocumentsHeld } = useStore();
   const lang = state.profile.language;
-  const [data, setData] = useState<RuleEvaluateResponse | null>(null);
   const [held, setHeld] = useState<Set<string>>(new Set(state.documentsHeld));
 
-  useEffect(() => {
-    api.rulesEvaluate({ profile: state.profile, documents_held: state.documentsHeld }).then(setData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { data, loading, error } = useFetch<RuleEvaluateResponse>(
+    () => api.rulesEvaluate({ profile: state.profile, documents_held: state.documentsHeld }),
+    []
+  );
 
   const task: TaskSignal | undefined = data?.tasks.find((tk) => tk.task_id === params.id);
 
@@ -41,6 +41,9 @@ export default function TaskDetailPage() {
       <BackHeader title={task?.label ?? t(lang, "checklist")} onBack={() => router.back()} />
 
       <div className="flex-1 px-5 py-5">
+        {loading && <p className="text-sm text-gray-400">...</p>}
+        {!loading && error && <ErrorNotice message={error} />}
+
         {task && (
           <>
             <div className="flex items-center justify-between">

@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
-import { BackHeader, Card } from "@/components/Card";
+import { BackHeader, Card, ErrorNotice } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
 import { api } from "@/lib/api";
-import type { FinanceProduct, ProductRecommendation } from "@/lib/types";
+import { useFetch } from "@/lib/useApi";
+import type { FinanceProduct, ProductRecommendationResponse } from "@/lib/types";
 
 function monthsUntil(dateStr: string | null | undefined): number | null {
   if (!dateStr) return null;
@@ -71,29 +72,22 @@ export default function FinancePage() {
   const [isTaxResident, setIsTaxResident] = useState<boolean | null>(null);
   const [purpose, setPurpose] = useState<string | null>(null);
 
-  const [recommendations, setRecommendations] = useState<ProductRecommendation[]>([]);
-  const [aiGenerated, setAiGenerated] = useState(false);
-  const [recLoading, setRecLoading] = useState(true);
-
-  const [savings, setSavings] = useState<FinanceProduct[]>([]);
-  const [savingsError, setSavingsError] = useState<string | null>(null);
-  const [savingsLoading, setSavingsLoading] = useState(true);
-
-  useEffect(() => {
-    api.financeSavings()
-      .then((sv) => {
-        setSavings(sv.products);
-        setSavingsError(sv.error);
-      })
-      .finally(() => setSavingsLoading(false));
-  }, []);
+  const { data: savingsData, loading: savingsLoading, error: savingsFetchError } = useFetch(
+    () => api.financeSavings(),
+    []
+  );
+  const savings: FinanceProduct[] = savingsData?.products ?? [];
+  const savingsError = savingsFetchError ?? savingsData?.error ?? null;
 
   const visaRemainingMonths = monthsUntil(state.profile.visa_expiry_date);
 
-  useEffect(() => {
-    setRecLoading(true);
-    api
-      .productsRecommend({
+  const {
+    data: recData,
+    loading: recLoading,
+    error: recError,
+  } = useFetch<ProductRecommendationResponse>(
+    () =>
+      api.productsRecommend({
         nationality: state.profile.nationality,
         visa_type: state.profile.visa_type,
         has_arc: hasArc,
@@ -101,25 +95,19 @@ export default function FinancePage() {
         tenure_months: state.profile.tenure_months,
         visa_remaining_months: visaRemainingMonths,
         purpose,
-      })
-      .then((res) => {
-        setRecommendations(res.recommendations);
-        setAiGenerated(res.ai_generated);
-      })
-      .catch(() => {
-        setRecommendations([]);
-      })
-      .finally(() => setRecLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    hasArc,
-    isTaxResident,
-    purpose,
-    state.profile.nationality,
-    state.profile.visa_type,
-    state.profile.tenure_months,
-    visaRemainingMonths,
-  ]);
+      }),
+    [
+      hasArc,
+      isTaxResident,
+      purpose,
+      state.profile.nationality,
+      state.profile.visa_type,
+      state.profile.tenure_months,
+      visaRemainingMonths,
+    ]
+  );
+  const recommendations = recData?.recommendations ?? [];
+  const aiGenerated = recData?.ai_generated ?? false;
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -164,7 +152,8 @@ export default function FinancePage() {
           <p className="mt-1 text-[11px] text-gray-400">{t(lang, "ruleBasedFallbackNote")}</p>
         )}
         {recLoading && <p className="mt-2 text-sm text-gray-400">...</p>}
-        {!recLoading && recommendations.length === 0 && (
+        {!recLoading && recError && <ErrorNotice message={recError} />}
+        {!recLoading && !recError && recommendations.length === 0 && (
           <div className="mt-2 rounded-xl2 border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
             <p>{t(lang, "noMatchingProducts")}</p>
             {state.profile.tenure_months === null && (
