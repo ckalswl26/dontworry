@@ -18,14 +18,31 @@ function formatWon(amount: number): string {
   return `${amount.toLocaleString()}원`;
 }
 
+interface SpeechRecognitionLike {
+  lang: string;
+  interimResults: boolean;
+  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+  start: () => void;
+}
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
+
 export default function HomePage() {
   const router = useRouter();
   const { state, setLastQuestion, setAssetsHidden } = useStore();
   const lang = state.profile.language;
   const [question, setQuestion] = useState("");
   const [mounted, setMounted] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const [listening, setListening] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    const speechWindow = window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor; webkitSpeechRecognition?: SpeechRecognitionConstructor };
+    setSpeechSupported(Boolean(speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition));
+  }, []);
   useEffect(() => {
     if (mounted && !state.onboarded) router.replace("/");
   }, [mounted, state.onboarded, router]);
@@ -44,6 +61,20 @@ export default function HomePage() {
     }
     setLastQuestion(question);
     router.push("/intent");
+  };
+
+  const startVoiceInput = () => {
+    const speechWindow = window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor; webkitSpeechRecognition?: SpeechRecognitionConstructor };
+    const Recognition = speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition;
+    if (!Recognition) return;
+    const recognition = new Recognition();
+    recognition.lang = lang === "ko" ? "ko-KR" : lang === "vi" ? "vi-VN" : "en-US";
+    recognition.interimResults = false;
+    recognition.onresult = (event) => setQuestion(event.results[0][0].transcript);
+    recognition.onend = () => setListening(false);
+    recognition.onerror = () => setListening(false);
+    setListening(true);
+    recognition.start();
   };
 
   return (
@@ -117,6 +148,11 @@ export default function HomePage() {
             placeholder={t(lang, "aiChatbotPlaceholder")}
             className="min-w-0 flex-1 bg-transparent text-sm outline-none"
           />
+          {speechSupported && (
+            <button type="button" onClick={startVoiceInput} aria-label="음성으로 입력" className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${listening ? "bg-red-50 text-brand-red" : "bg-white text-brand-navy"}`}>
+              🎙️
+            </button>
+          )}
           <button onClick={submitQuestion} className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-blue text-white shadow-sm" aria-label="submit">
             ➤
           </button>

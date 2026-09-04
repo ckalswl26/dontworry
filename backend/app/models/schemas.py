@@ -42,6 +42,8 @@ class UserProfile(BaseModel):
 class IntentRequest(BaseModel):
     text: str
     profile: UserProfile
+    last_confirmed_intent: str | None = None
+    conversation_context: dict[str, Any] = Field(default_factory=dict)
 
 
 class IntentResult(BaseModel):
@@ -52,6 +54,8 @@ class IntentResult(BaseModel):
     documents_held: list[str] = Field(default_factory=list)
     available_time_slots: list[str] = Field(default_factory=list)
     confidence: float = 0.5
+    context_used: bool = False
+    out_of_scope: bool = False
 
 
 # ---------- F2/F3 Rule evaluation ----------

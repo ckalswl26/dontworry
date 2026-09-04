@@ -161,6 +161,8 @@ export interface IntentResult {
   documents_held: string[];
   available_time_slots: string[];
   confidence: number;
+  context_used: boolean;
+  out_of_scope: boolean;
 }
 
 export interface DemoPersona {

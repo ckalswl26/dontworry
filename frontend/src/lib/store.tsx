@@ -34,6 +34,8 @@ interface SessionState {
   planner: PlannerRequest;
   documentsHeld: string[];
   lastQuestion: string;
+  lastConfirmedIntent: string | null;
+  conversationContext: Record<string, string>;
   assetsHidden: boolean;
   consultation: {
     branch: string;
@@ -50,6 +52,8 @@ const DEFAULT_STATE: SessionState = {
   planner: DEFAULT_PLANNER,
   documentsHeld: [],
   lastQuestion: "",
+  lastConfirmedIntent: null,
+  conversationContext: {},
   assetsHidden: false,
   consultation: { branch: "", visitDate: "", visitTime: "", memo: "", ready: false },
 };
@@ -60,6 +64,8 @@ interface StoreContextValue {
   setPlanner: (p: Partial<PlannerRequest>) => void;
   setDocumentsHeld: (docs: string[]) => void;
   setLastQuestion: (q: string) => void;
+  confirmIntent: (intent: string) => void;
+  resetConversation: () => void;
   setOnboarded: (v: boolean) => void;
   setLang: (l: Lang) => void;
   setAssetsHidden: (v: boolean) => void;
@@ -107,6 +113,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setPlanner: (p) => setState((s) => ({ ...s, planner: { ...s.planner, ...p } })),
       setDocumentsHeld: (docs) => setState((s) => ({ ...s, documentsHeld: docs })),
       setLastQuestion: (q) => setState((s) => ({ ...s, lastQuestion: q })),
+      confirmIntent: (intent) => setState((s) => ({
+        ...s,
+        lastConfirmedIntent: intent,
+        conversationContext: {
+          nationality: s.profile.nationality,
+          visa_type: s.profile.visa_type,
+          last_intent: intent,
+        },
+      })),
+      resetConversation: () => setState((s) => ({ ...s, lastQuestion: "", lastConfirmedIntent: null, conversationContext: {} })),
       setOnboarded: (v) => setState((s) => ({ ...s, onboarded: v })),
       setLang: (l) => setState((s) => ({ ...s, profile: { ...s.profile, language: l } })),
       setAssetsHidden: (v) => setState((s) => ({ ...s, assetsHidden: v })),

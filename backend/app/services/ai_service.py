@@ -60,7 +60,7 @@ def _get_client():
         return None
 
 
-def _fallback_intent(text: str, profile: UserProfile) -> IntentResult:
+def _fallback_intent(text: str, profile: UserProfile, last_confirmed_intent: str | None = None) -> IntentResult:
     text_lower = text.lower()
     candidates: list[str] = []
     keyword_map = {
@@ -74,23 +74,46 @@ def _fallback_intent(text: str, profile: UserProfile) -> IntentResult:
     for task_type, keywords in keyword_map.items():
         if any(k in text_lower for k in keywords):
             candidates.append(task_type)
-    if not candidates:
+    follow_up_words = ["그거", "그 업무", "서류", "필요해", "어떻게", "그 다음", "that", "documents", "what do i need"]
+    context_used = not candidates and last_confirmed_intent in KNOWN_TASK_TYPES and any(word in text_lower for word in follow_up_words)
+    if context_used:
+        candidates = [last_confirmed_intent]
+    out_of_scope = not candidates and not any(word in text_lower for word in follow_up_words)
+    if not candidates and not out_of_scope:
         candidates = KNOWN_TASK_TYPES.copy()
 
     return IntentResult(
         nationality=profile.nationality,
         visa_type=profile.visa_type,
         intent_candidates=candidates,
-        confidence=0.35,
+        confidence=0.9 if context_used else 0.35,
+        context_used=context_used,
+        out_of_scope=out_of_scope,
     )
 
 
-def extract_intent(text: str, profile: UserProfile) -> IntentResult:
+def extract_intent(
+    text: str,
+    profile: UserProfile,
+    last_confirmed_intent: str | None = None,
+    conversation_context: dict | None = None,
+) -> IntentResult:
     client = _get_client()
     if client is None:
-        return _fallback_intent(text, profile)
+        return _fallback_intent(text, profile, last_confirmed_intent)
 
     try:
+        from app.rules.engine import get_all_nodes
+
+        grounding = [
+            {
+                "task_id": node["id"],
+                "labels": [node.get("label_ko"), node.get("label_en"), node.get("label_vi")],
+                "required_documents": node.get("required_documents", []),
+                "source_refs": node.get("source_refs", []),
+            }
+            for node in get_all_nodes()
+        ]
         response = client.messages.create(
             model="claude-sonnet-5",
             max_tokens=512,
@@ -100,8 +123,12 @@ def extract_intent(text: str, profile: UserProfile) -> IntentResult:
                 {
                     "role": "user",
                     "content": (
-                        f"사용자 체류자격: {profile.visa_type}, 국적: {profile.nationality}\n"
-                        f"질문: {text}"
+                        "맥락은 질문의 대상을 해석할 때만 사용하고 사실을 만들지 마세요. "
+                        "답변 근거는 RULE graph의 업무명·판정·서류·source_refs에 한정됩니다.\n"
+                        f"직전 확정 업무: {last_confirmed_intent or '없음'}\n"
+                        f"대화 맥락: {json.dumps(conversation_context or {}, ensure_ascii=False)}\n"
+                        f"허용된 RULE 근거 조각: {json.dumps(grounding, ensure_ascii=False)}\n"
+                        f"사용자 체류자격: {profile.visa_type}, 국적: {profile.nationality}\n질문: {text}"
                     ),
                 }
             ],
@@ -109,18 +136,18 @@ def extract_intent(text: str, profile: UserProfile) -> IntentResult:
         tool_use = next(b for b in response.content if b.type == "tool_use")
         payload = tool_use.input
         candidates = [c for c in payload.get("intent_candidates", []) if c in KNOWN_TASK_TYPES]
-        if not candidates:
-            candidates = KNOWN_TASK_TYPES.copy()
         return IntentResult(
             nationality=profile.nationality,
             visa_type=profile.visa_type,
             intent_candidates=candidates,
             documents_held=payload.get("documents_held", []),
             confidence=float(payload.get("confidence", 0.5)),
+            context_used=bool(last_confirmed_intent and len(candidates) == 1 and candidates[0] == last_confirmed_intent),
+            out_of_scope=not candidates,
         )
     except Exception:
         logger.exception("Anthropic intent extraction failed, using fallback")
-        return _fallback_intent(text, profile)
+        return _fallback_intent(text, profile, last_confirmed_intent)
 
 
 RANK_ACTIONS_TOOL = {
