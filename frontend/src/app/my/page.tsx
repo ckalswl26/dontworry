@@ -19,6 +19,16 @@ export default function MyPage() {
       <div className="flex-1 px-5 py-5">
         <Card>
           <div className="flex items-center justify-between py-1">
+            <span className="text-sm text-gray-500">{t(lang, "nameLabel")}</span>
+            <input
+              type="text"
+              value={state.profile.name ?? ""}
+              onChange={(e) => setProfile({ name: e.target.value })}
+              placeholder={t(lang, "namePlaceholder")}
+              className="rounded-lg border border-gray-200 px-2 py-1 text-right text-sm"
+            />
+          </div>
+          <div className="flex items-center justify-between py-1">
             <span className="text-sm text-gray-500">{t(lang, "nationality")}</span>
             <span className="font-semibold">{state.profile.nationality}</span>
           </div>

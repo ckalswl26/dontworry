@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 
@@ -15,11 +15,22 @@ const ITEMS = [
 
 export function BottomNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const { state } = useStore();
   const lang = state.profile.language;
 
   return (
     <nav className="fixed bottom-0 left-1/2 z-20 w-full max-w-[480px] -translate-x-1/2 border-t border-gray-100 bg-white/95 backdrop-blur">
+      {/* AI 챗봇 진입 FAB - 탭바 위, 화면 우측 하단에 고정 */}
+      <button
+        type="button"
+        onClick={() => router.push("/home")}
+        aria-label={t(lang, "aiChatbotTitle")}
+        className="absolute bottom-[72px] right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand-navy text-2xl text-white shadow-lg"
+      >
+        💬
+      </button>
+
       <div className="flex items-center justify-around py-2">
         {ITEMS.map((item) => {
           const active = pathname === item.href;

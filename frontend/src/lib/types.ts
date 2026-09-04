@@ -1,6 +1,8 @@
 export type Lang = "ko" | "en" | "vi";
 
 export interface UserProfile {
+  /** 서버에 저장되지 않는 프론트엔드 전용 필드. 화면 인사말 등 표시용으로만 쓴다. */
+  name?: string;
   nationality: string;
   visa_type: string;
   visa_expiry_date?: string | null;

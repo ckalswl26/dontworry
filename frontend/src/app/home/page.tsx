@@ -33,6 +33,9 @@ export default function HomePage() {
   if (!mounted) return null;
 
   const days = daysUntil(state.profile.departure_date);
+  const greeting = state.profile.name
+    ? t(lang, "greetingWithName").replace("{name}", state.profile.name)
+    : t(lang, "greetingNoName");
 
   const submitQuestion = () => {
     if (!question.trim()) {
@@ -49,7 +52,9 @@ export default function HomePage() {
         <LogoWordmark height={28} />
       </div>
 
-      <div className="mt-5 rounded-xl2 bg-brand-navy p-5 text-white">
+      <p className="mt-4 text-lg font-bold text-brand-navy">{greeting}</p>
+
+      <div className="mt-3 rounded-xl2 bg-brand-navy p-5 text-white">
         <p className="text-xs text-white/70">{t(lang, "daysToDeparture")}</p>
         <p className="mt-1 text-4xl font-black">{days !== null ? `D-${days}` : "D-?"}</p>
         {days !== null && (

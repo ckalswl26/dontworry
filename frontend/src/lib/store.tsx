@@ -6,6 +6,7 @@ import type { Lang, PlannerRequest, UserProfile } from "./types";
 const STORAGE_KEY = "dontworry_session_v1";
 
 export const DEFAULT_PROFILE: UserProfile = {
+  name: "",
   nationality: "VN",
   visa_type: "E-9",
   visa_expiry_date: null,
