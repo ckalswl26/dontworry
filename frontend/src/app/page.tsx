@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { LogoWordmark, Mascot } from "@/components/Logo";
 import { PrimaryButton } from "@/components/Card";
+import { t } from "@/lib/i18n";
 import type { Lang } from "@/lib/types";
 
 const LANGS: { code: Lang; label: string; greeting: string }[] = [
@@ -12,6 +13,18 @@ const LANGS: { code: Lang; label: string; greeting: string }[] = [
   { code: "en", label: "English", greeting: "Welcome" },
   { code: "vi", label: "Tiếng Việt", greeting: "Xin chào" },
 ];
+
+const SPLASH_TITLE: Record<Lang, string> = {
+  ko: "한국 생활의 금융 고민,\n돈워리가 함께 해결해요",
+  en: "Money worries in Korea,\nDon't Worry solves them with you",
+  vi: "Nỗi lo tài chính khi ở Hàn Quốc,\nDon't Worry cùng bạn giải quyết",
+};
+
+const SPLASH_TAGLINE: Record<Lang, string> = {
+  ko: "외국인 근로자를 위한 금융 서비스",
+  en: "A financial service for foreign workers",
+  vi: "Dịch vụ tài chính dành cho lao động nước ngoài",
+};
 
 export default function SplashPage() {
   const router = useRouter();
@@ -32,17 +45,20 @@ export default function SplashPage() {
       <div className="absolute -right-24 -top-28 h-72 w-72 rounded-full bg-brand-sky" />
       <div className="relative flex flex-col items-center">
         <LogoWordmark height={40} />
-        <p className="mt-2 text-xs font-semibold text-slate-500">외국인 근로자를 위한 금융 서비스</p>
-        <div className="mt-4 h-52 w-52 overflow-hidden rounded-full bg-gradient-to-b from-brand-sky to-white p-1 shadow-[0_18px_45px_rgba(8,104,247,0.16)]">
-          <Mascot size={208} className="h-full w-full scale-110 object-contain" />
-        </div>
-        <h1 className="mt-5 text-[26px] font-black leading-[1.3] tracking-[-0.05em] text-brand-navy">
-          한국 생활의 금융 고민,<br />돈워리가 함께 해결해요
+        <p className="mt-2 text-xs font-semibold text-slate-500">{SPLASH_TAGLINE[selected]}</p>
+        <Mascot
+          size={208}
+          className="mt-4 h-52 w-52 object-contain drop-shadow-[0_20px_28px_rgba(17,28,78,0.32)]"
+        />
+        <h1 className="mt-5 whitespace-pre-line text-[26px] font-black leading-[1.3] tracking-[-0.05em] text-brand-navy">
+          {SPLASH_TITLE[selected]}
         </h1>
       </div>
 
       <div className="relative mt-7 w-full">
-        <p className="mb-3 text-left text-sm font-bold text-brand-navy">언어를 선택하세요 <span className="font-normal text-slate-400">Select language</span></p>
+        <p className="mb-3 text-left text-sm font-bold text-brand-navy">
+          {t(selected, "langSelect")} <span className="font-normal text-slate-400">Select language</span>
+        </p>
         <div className="grid grid-cols-3 gap-2">
           {LANGS.map((l) => (
             <button
@@ -56,7 +72,9 @@ export default function SplashPage() {
           ))}
         </div>
         <div className="mt-4">
-          <PrimaryButton onClick={() => { setLang(selected); router.push("/onboarding"); }}>시작하기</PrimaryButton>
+          <PrimaryButton onClick={() => { setLang(selected); router.push("/onboarding"); }}>
+            {t(selected, "start")}
+          </PrimaryButton>
         </div>
       </div>
     </main>
