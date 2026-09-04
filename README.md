@@ -136,12 +136,38 @@ cd backend
 
 ## 배포
 
-- Frontend → Vercel 권장 (`frontend/` 를 루트로 지정, 환경변수 `NEXT_PUBLIC_API_BASE_URL`
-  에 배포된 백엔드 URL 입력)
-- Backend → Render/Railway/Fly.io 등 권장 (`backend/` 를 루트로 지정, 시작 명령
-  `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, 환경변수는 위 목록 참고)
+GitHub 저장소: https://github.com/ckalswl26/dontworry (private)
+
+### 1) Backend → Render
+
+저장소 루트의 `render.yaml`(Blueprint)이 이미 준비되어 있습니다.
+
+1. https://dashboard.render.com → **New +** → **Blueprint**
+2. `ckalswl26/dontworry` 저장소 선택 (render.yaml을 자동 인식)
+3. 환경변수 입력: `FSS_API_KEY`, `ANTHROPIC_API_KEY`, `ECOS_API_KEY`, `JUSTICE_STATS_API_KEY`
+4. 배포 완료 후 발급되는 URL(예: `https://dontworry-api.onrender.com`)을 확인
+
+### 2) Frontend → Vercel
+
+1. https://vercel.com/new → `ckalswl26/dontworry` 저장소 Import
+2. **Root Directory**를 `frontend`로 지정 (Framework Preset: Next.js 자동 인식)
+3. 환경변수 `NEXT_PUBLIC_API_BASE_URL` = 1번에서 받은 Render 백엔드 URL
+4. Deploy
+
+### 3) 마지막 연결
+
+Vercel 배포 URL(예: `https://dontworry.vercel.app`)이 나오면 Render 대시보드의
+`CORS_ALLOW_ORIGINS` 환경변수를 그 URL로 갱신하고 재배포합니다
+(`render.yaml`의 기본값은 placeholder이므로 실제 값으로 덮어써야 합니다).
 
 배포 완료 후 실제 접속 URL은 이 섹션에 갱신합니다.
+
+- Backend health check: `<Render URL>/api/health`
+- Frontend: `<Vercel URL>`
+
+이 세 단계는 웹 대시보드에서 GitHub 저장소를 Import하는 것만으로 끝나며, 별도 CLI 로그인이
+필요하지 않습니다(Render/Vercel CLI가 이 작업 환경에 인증되어 있지 않아 이 부분만 직접
+완료해주셔야 합니다).
 
 ## API 엔드포인트 요약
 
