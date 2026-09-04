@@ -9,6 +9,14 @@ import { BottomNav } from "@/components/BottomNav";
 import { api } from "@/lib/api";
 import type { FinanceProduct, ProductRecommendation } from "@/lib/types";
 
+function monthsUntil(dateStr: string | null | undefined): number | null {
+  if (!dateStr) return null;
+  const target = new Date(dateStr);
+  const now = new Date();
+  const totalDays = Math.round((target.getTime() - now.setHours(0, 0, 0, 0)) / (1000 * 60 * 60 * 24));
+  return Math.floor(totalDays / 30);
+}
+
 const PURPOSE_TAGS: { value: string; ko: string; en: string; vi: string }[] = [
   { value: "저축", ko: "저축", en: "Savings", vi: "Tiết kiệm" },
   { value: "계좌개설", ko: "계좌개설", en: "Account", vi: "Mở tài khoản" },
@@ -80,6 +88,8 @@ export default function FinancePage() {
       .finally(() => setSavingsLoading(false));
   }, []);
 
+  const visaRemainingMonths = monthsUntil(state.profile.visa_expiry_date);
+
   useEffect(() => {
     setRecLoading(true);
     api
@@ -89,6 +99,7 @@ export default function FinancePage() {
         has_arc: hasArc,
         is_tax_resident: isTaxResident,
         tenure_months: state.profile.tenure_months,
+        visa_remaining_months: visaRemainingMonths,
         purpose,
       })
       .then((res) => {
@@ -100,7 +111,15 @@ export default function FinancePage() {
       })
       .finally(() => setRecLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasArc, isTaxResident, purpose, state.profile.nationality, state.profile.visa_type, state.profile.tenure_months]);
+  }, [
+    hasArc,
+    isTaxResident,
+    purpose,
+    state.profile.nationality,
+    state.profile.visa_type,
+    state.profile.tenure_months,
+    visaRemainingMonths,
+  ]);
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -146,7 +165,14 @@ export default function FinancePage() {
         )}
         {recLoading && <p className="mt-2 text-sm text-gray-400">...</p>}
         {!recLoading && recommendations.length === 0 && (
-          <p className="mt-2 text-sm text-gray-400">{t(lang, "noMatchingProducts")}</p>
+          <div className="mt-2 rounded-xl2 border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+            <p>{t(lang, "noMatchingProducts")}</p>
+            {state.profile.tenure_months === null && (
+              <button onClick={() => router.push("/onboarding")} className="mt-1 block underline">
+                {t(lang, "fillTenureHint")}
+              </button>
+            )}
+          </div>
         )}
         <div className="mt-2 flex flex-col gap-3">
           {recommendations.map((r) => (
