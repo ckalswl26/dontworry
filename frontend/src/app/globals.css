@@ -23,6 +23,35 @@ body {
   padding-bottom: 84px;
 }
 
+/* 데스크톱 폭에서는 실제 폰처럼 보이도록 프레임을 씌운다.
+   실제 모바일 화면(480px 이하)에서는 이 미디어쿼리가 적용되지 않아 지금처럼 꽉 차게 보인다. */
+@media (min-width: 560px) {
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: radial-gradient(circle at 50% 15%, #dbe8fb 0%, #eef2f8 55%, #e4e9f2 100%);
+    padding: 32px 0;
+  }
+
+  .app-shell {
+    width: 390px;
+    max-width: 390px;
+    height: 844px;
+    max-height: 90vh;
+    margin: 0;
+    border-radius: 44px;
+    border: 10px solid #111c4e;
+    box-shadow: 0 30px 60px rgba(17, 28, 78, 0.28), 0 0 0 2px rgba(255, 255, 255, 0.5) inset;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* fixed 요소(하단 탭바, FAB 등)가 실제 브라우저 창이 아니라 이 프레임 기준으로
+       고정되도록 새로운 containing block을 만든다. */
+    transform: translateZ(0);
+  }
+}
+
 button, a, input, select { transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(8, 104, 247, .2); outline-offset: 2px; }
 input, select { color: #111c4e; }
