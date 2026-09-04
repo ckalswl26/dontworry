@@ -2,6 +2,7 @@ services:
   - type: web
     name: dontworry-api
     runtime: python
+    plan: free
     rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
@@ -15,6 +16,6 @@ services:
       - key: JUSTICE_STATS_API_KEY
         sync: false
       - key: CORS_ALLOW_ORIGINS
-        value: https://dontworry.vercel.app
+        value: https://frontend-omega-sooty-14.vercel.app
       - key: APP_ENV
         value: production
