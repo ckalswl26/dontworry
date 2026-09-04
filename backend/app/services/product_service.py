@@ -1,0 +1,74 @@
+from __future__ import annotations
+
+import json
+from functools import lru_cache
+
+from app.config import DATA_DIR
+from app.models.schemas import FinanceProduct
+from app.services import fss_service, source_service
+
+
+@lru_cache
+def _load_whitelist() -> list[dict]:
+    path = DATA_DIR / "finance" / "product_whitelist.json"
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_whitelisted_products(product_type: str | None = None) -> list[FinanceProduct]:
+    """서민금융/외국인 전용 상품 whitelist. ENDED 상태는 절대 추천하지 않는다."""
+    rows = _load_whitelist()
+    products = []
+    for row in rows:
+        if row.get("status") == "ENDED" or row.get("do_not_recommend"):
+            continue
+        if product_type and row.get("product_type") != product_type:
+            continue
+        products.append(
+            FinanceProduct(
+                product_id=row["product_id"],
+                product_name=row["product_name"],
+                bank=row["bank"],
+                product_type=row["product_type"],
+                product_category=row.get("product_category"),
+                base_rate=row.get("base_rate"),
+                max_rate=row.get("max_rate"),
+                rate_as_of=row.get("rate_as_of"),
+                contract_months=row.get("contract_months"),
+                monthly_min_amount=row.get("monthly_min_amount"),
+                monthly_max_amount=row.get("monthly_max_amount"),
+                status=row.get("status", "ACTIVE"),
+                sources=source_service.get_sources([row["source_id"]]) if row.get("source_id") else [],
+            )
+        )
+    return products
+
+
+def get_fss_deposits() -> dict:
+    result = fss_service.get_deposit_products()
+    return _normalize_fss_result(result, "DEPOSIT")
+
+
+def get_fss_savings() -> dict:
+    result = fss_service.get_savings_products()
+    return _normalize_fss_result(result, "SAVINGS")
+
+
+def _normalize_fss_result(result: dict, product_type: str) -> dict:
+    if result.get("error"):
+        return {"products": [], "error": result["error"]}
+    products = [
+        FinanceProduct(
+            product_id=p["product_id"],
+            product_name=p["product_name"] or "",
+            bank=p["bank"] or "",
+            product_type=product_type,
+            base_rate=p.get("base_rate"),
+            max_rate=p.get("max_rate"),
+            rate_as_of=p.get("rate_as_of"),
+            status="ACTIVE",
+        )
+        for p in result["products"]
+        if p.get("status", "ACTIVE") == "ACTIVE"
+    ]
+    return {"products": products, "error": None}

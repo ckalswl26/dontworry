@@ -1,0 +1,51 @@
+[
+  {
+    "product_id": "KB_GLOBAL_STAR_SAVINGS",
+    "product_name": "KB Global Star 적금",
+    "bank": "KB국민은행",
+    "target_customer": "FOREIGNER",
+    "product_type": "SAVINGS",
+    "product_category": "FOREIGN_WORKER_SAVINGS",
+    "contract_months": 12,
+    "monthly_min_amount": 1000,
+    "monthly_max_amount": 500000,
+    "base_rate": 2.0,
+    "max_rate": 5.5,
+    "rate_as_of": "2026-08-21",
+    "features": ["급여이체 우대금리", "해외송금 우대금리", "만기 시 본국계좌 자동송금 옵션"],
+    "status": "ACTIVE",
+    "source_id": "KB_GLOBAL_STAR",
+    "last_verified_at": "2026-09-04"
+  },
+  {
+    "product_id": "KB_GLOBAL_STAR_ACCOUNT",
+    "product_name": "KB Global Star 통장",
+    "bank": "KB국민은행",
+    "target_customer": "FOREIGNER",
+    "product_type": "DEPOSIT_ACCOUNT",
+    "product_category": "FOREIGN_WORKER_ACCOUNT",
+    "channels": {
+      "mobile": {
+        "available": true,
+        "conditions": ["resident_status != NON_RESIDENT", "has_supported_foreigner_id == true", "has_domestic_mobile_phone == true", "has_other_bank_account == true"]
+      },
+      "branch": {"available": true}
+    },
+    "status": "ACTIVE",
+    "source_id": "KB_GLOBAL_STAR",
+    "last_verified_at": "2026-09-04"
+  },
+  {
+    "product_id": "KINFA_EMPLOYEE_HESSAL_LEGACY",
+    "product_name": "근로자햇살론",
+    "bank": "서민금융진흥원 협약 금융회사",
+    "target_customer": "GENERAL_WORKER",
+    "product_type": "LOAN",
+    "product_category": "MICROFINANCE_LOAN",
+    "status": "ENDED",
+    "effective_to": "2025-12-31",
+    "do_not_recommend": true,
+    "source_id": "KINFA_EMPLOYEE_HESSAL",
+    "last_verified_at": "2026-09-04"
+  }
+]

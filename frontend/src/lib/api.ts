@@ -1,0 +1,34 @@
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers: { "Content-Type": "application/json", ...(options?.headers || {}) },
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`API_ERROR ${res.status}: ${text}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+export const api = {
+  health: () => request<{ status: string }>("/api/health"),
+  demoPersona: () => request<import("./types").DemoPersona>("/api/demo/persona"),
+  intent: (body: unknown) => request<import("./types").IntentResult>("/api/intent", { method: "POST", body: JSON.stringify(body) }),
+  rulesEvaluate: (body: unknown) =>
+    request<import("./types").RuleEvaluateResponse>("/api/rules/evaluate", { method: "POST", body: JSON.stringify(body) }),
+  departurePlan: (body: unknown) =>
+    request<import("./types").DeparturePlanResponse>("/api/departure/plan", { method: "POST", body: JSON.stringify(body) }),
+  documentsReadiness: (body: unknown) => request("/api/documents/readiness", { method: "POST", body: JSON.stringify(body) }),
+  plannerCalculate: (body: unknown) =>
+    request<import("./types").PlannerResponse>("/api/planner/calculate", { method: "POST", body: JSON.stringify(body) }),
+  scenario: (body: unknown) => request("/api/scenario", { method: "POST", body: JSON.stringify(body) }),
+  briefing: (body: unknown) =>
+    request<import("./types").BriefingResponse>("/api/briefing", { method: "POST", body: JSON.stringify(body) }),
+  dday: (date: string) => request<import("./types").DDayResponse>(`/api/dday/${date}`),
+  financeDeposits: () => request<{ products: import("./types").FinanceProduct[]; error: string | null }>("/api/finance/deposits"),
+  financeSavings: () => request<{ products: import("./types").FinanceProduct[]; error: string | null }>("/api/finance/savings"),
+  financeWhitelist: () => request<{ products: import("./types").FinanceProduct[] }>("/api/finance/whitelist"),
+  source: (id: string) => request(`/api/sources/${id}`),
+};

@@ -1,0 +1,12 @@
+{
+  "name": "Don't Worry / 돈워리",
+  "short_name": "돈워리",
+  "description": "외국인 근로자를 위한 출국 준비 금융·행정 안내 서비스",
+  "start_url": "/home",
+  "display": "standalone",
+  "background_color": "#F5F6FA",
+  "theme_color": "#111C4E",
+  "icons": [
+    { "src": "/logo-mark.png", "sizes": "1254x1254", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

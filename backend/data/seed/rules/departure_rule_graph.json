@@ -1,0 +1,148 @@
+{
+  "graph_id": "departure_rule_graph_e9",
+  "nodes": [
+    {
+      "id": "departure_notification",
+      "label_ko": "출국예정신고",
+      "label_en": "Departure Notification",
+      "label_vi": "Khai báo dự định xuất cảnh",
+      "category": "PROCEDURE",
+      "task_type": "departure_notification",
+      "signal_rule": {
+        "thresholds": [
+          {"condition": {"field": "days_to_departure", "op": "lte", "value": 7}, "signal": "RED", "reason_ko": "출국이 일주일 이내인데 출국예정신고가 안 되어 있으면 다른 절차가 모두 늦어져요"},
+          {"condition": {"field": "days_to_departure", "op": "lte", "value": 30}, "signal": "AMBER", "reason_ko": "출국 30일 전부터 신고 가능합니다. 지금 신고하면 이후 서류 준비가 순조로워요"}
+        ],
+        "default": {"signal": "GREEN", "reason_ko": "출국 30일 전부터 신고할 수 있어요. 아직 여유가 있습니다"}
+      },
+      "required_documents": [],
+      "channel": "ONLINE",
+      "responsible_org": "한국산업인력공단 / 고용센터",
+      "source_refs": ["EPS_DEPARTURE_GUIDE"]
+    },
+    {
+      "id": "departure_confirmation",
+      "label_ko": "출국예정사실확인서 발급",
+      "label_en": "Departure Confirmation Certificate",
+      "label_vi": "Giấy xác nhận dự định xuất cảnh",
+      "category": "PROCEDURE",
+      "task_type": "departure_confirmation",
+      "signal_rule": {
+        "default": {"signal": "AMBER", "reason_ko": "출국예정신고 완료 후에만 발급받을 수 있어요"}
+      },
+      "required_documents": [],
+      "channel": "BRANCH_VISIT",
+      "responsible_org": "고용센터",
+      "source_refs": ["EPS_DEPARTURE_GUIDE"]
+    },
+    {
+      "id": "return_cost_insurance",
+      "label_ko": "귀국비용보험",
+      "label_en": "Return Cost Insurance",
+      "label_vi": "Bảo hiểm chi phí hồi hương",
+      "category": "FINANCE",
+      "task_type": "return_cost_insurance",
+      "signal_rule": {
+        "thresholds": [
+          {"condition": {"field": "days_to_departure", "op": "lte", "value": 14}, "signal": "RED", "reason_ko": "출국이 얼마 안 남았어요. 출국예정사실확인서부터 준비해 보험금을 신청하세요"}
+        ],
+        "default": {"signal": "AMBER", "reason_ko": "체류기간만료·임의 출국 등 출국 사유가 있으면 신청할 수 있어요"}
+      },
+      "required_documents": ["insurance_claim_form", "personal_bankbook_copy", "passport_or_foreigner_registration_card_copy", "departure_expected_confirmation"],
+      "channel": "BRANCH_VISIT",
+      "responsible_org": "삼성화재",
+      "source_refs": ["HRDK_RETURN_COST_INSURANCE"]
+    },
+    {
+      "id": "maturity_insurance",
+      "label_ko": "출국만기보험",
+      "label_en": "Departure Maturity Insurance",
+      "label_vi": "Bảo hiểm mãn hạn xuất cảnh",
+      "category": "FINANCE",
+      "task_type": "maturity_insurance",
+      "signal_rule": {
+        "thresholds": [
+          {"condition": {"field": "tenure_months", "op": "lt", "value": 12}, "signal": "N/A", "reason_ko": "1년 미만 근무 시 출국만기보험 대상이 아니에요"},
+          {"condition": {"field": "days_to_departure", "op": "lte", "value": 14}, "signal": "RED", "reason_ko": "출국이 얼마 안 남았어요. 출국예정사실확인서부터 준비하세요"}
+        ],
+        "default": {"signal": "AMBER", "reason_ko": "1년 이상 근무했다면 출국 전 신청할 수 있어요"}
+      },
+      "required_documents": ["personal_bankbook_copy", "departure_expected_confirmation", "insurance_claim_form", "foreigner_registration_card_or_passport"],
+      "channel": "BRANCH_VISIT",
+      "responsible_org": "삼성화재",
+      "source_refs": ["HRDK_RETURN_COST_INSURANCE", "EPS_DEPARTURE_GUIDE"]
+    },
+    {
+      "id": "overseas_remittance",
+      "label_ko": "해외송금",
+      "label_en": "Overseas Remittance",
+      "label_vi": "Chuyển tiền ra nước ngoài",
+      "category": "FINANCE",
+      "task_type": "overseas_remittance",
+      "signal_rule": {
+        "default": {"signal": "GREEN", "reason_ko": "은행 앱에서 바로 처리할 수 있어요"}
+      },
+      "required_documents": [],
+      "channel": "MOBILE",
+      "responsible_org": "은행",
+      "source_refs": ["HANA_FOREIGN_REMITTANCE"]
+    },
+    {
+      "id": "account_closure",
+      "label_ko": "계좌 정리",
+      "label_en": "Account Closure",
+      "label_vi": "Đóng tài khoản ngân hàng",
+      "category": "FINANCE",
+      "task_type": "account_closure",
+      "signal_rule": {
+        "default": {"signal": "RED", "reason_ko": "계좌 해지는 은행 영업점 방문이 필요해요"}
+      },
+      "required_documents": ["passport_or_foreigner_registration_card", "bankbook"],
+      "channel": "BRANCH_VISIT",
+      "responsible_org": "은행",
+      "source_refs": ["HANA_FOREIGN_REMITTANCE"]
+    },
+    {
+      "id": "pension_refund",
+      "label_ko": "국민연금 반환일시금",
+      "label_en": "NPS Lump-sum Refund",
+      "label_vi": "Trợ cấp hoàn trả một lần NPS",
+      "category": "FINANCE",
+      "task_type": "pension_refund",
+      "signal_rule": {
+        "default": {"signal": "AMBER", "reason_ko": "국민연금 가입 이력과 체류자격에 따라 반환일시금 대상 여부가 결정됩니다. 상세 판정 결과를 확인하세요"}
+      },
+      "required_documents": ["flight_ticket_reservation_copy", "lump_sum_refund_claim_form", "passport", "personal_bankbook", "account_confirmation", "overseas_remittance_application"],
+      "channel": "BRANCH_VISIT_OR_MAIL",
+      "responsible_org": "국민연금공단",
+      "note": "이 노드는 자체 신호등 대신 pension_rule_engine 판정 결과(eligible/claimable_now/payable_now)를 그대로 사용한다. 국적으로 제외하지 않는다.",
+      "source_refs": ["NPS_LUMP_SUM_REFUND"]
+    },
+    {
+      "id": "employer_change_report",
+      "label_ko": "사업주 고용변동 신고 (참고용)",
+      "label_en": "Employer Change-of-Employment Report (reference)",
+      "label_vi": "Báo cáo thay đổi việc làm (thông tin tham khảo)",
+      "category": "INFO",
+      "task_type": "employer_change_report",
+      "signal_rule": {
+        "default": {"signal": "GREEN", "reason_ko": "사업주가 출국 후 15일 이내에 신고해야 하는 의무입니다. 근로자가 직접 할 일은 아니지만 확인해두면 좋아요"}
+      },
+      "required_documents": [],
+      "channel": "INFO_ONLY",
+      "responsible_org": "고용센터 / 출입국관리사무소",
+      "actor": "EMPLOYER",
+      "source_refs": ["IMMIGRATION_STAY_MANUAL"]
+    }
+  ],
+  "edges": [
+    {"from_node": "departure_notification", "to_node": "departure_confirmation", "edge_type": "REQUIRED_BEFORE"},
+    {"from_node": "departure_confirmation", "to_node": "return_cost_insurance", "edge_type": "REQUIRED_BEFORE"},
+    {"from_node": "departure_confirmation", "to_node": "maturity_insurance", "edge_type": "REQUIRED_BEFORE"},
+    {"from_node": "departure_confirmation", "to_node": "pension_refund", "edge_type": "PROVIDES_DOCUMENT"},
+    {"from_node": "maturity_insurance", "to_node": "overseas_remittance", "edge_type": "RECOMMENDED_BEFORE"},
+    {"from_node": "return_cost_insurance", "to_node": "overseas_remittance", "edge_type": "RECOMMENDED_BEFORE"},
+    {"from_node": "overseas_remittance", "to_node": "account_closure", "edge_type": "RECOMMENDED_BEFORE"},
+    {"from_node": "departure_notification", "to_node": "employer_change_report", "edge_type": "TRIGGERS"}
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "rule_set_id": "nps_lump_sum_refund_2026_05",
+  "source_id": "NPS_LUMP_SUM_REFUND",
+  "effective_as_of": "2026-05",
+  "data_as_of": "2026-05",
+  "last_verified_at": "2026-09-04",
+  "priority_order": ["VISA_BASED", "AGREEMENT_BASED", "RECIPROCITY_BASED", "UNKNOWN"],
+  "note": "국적만으로 반환일시금 대상에서 제외하지 않는다. 체류자격(비자) 기반 규칙을 최우선으로 판정하고, 그 다음 사회보장협정, 그 다음 상응성 순으로 검토한다.",
+  "visa_based": {
+    "description": "체류자격이 국민연금 가입과 결합되면 국적과 무관하게 반환일시금 대상이 된다.",
+    "eligible_visa_types": ["E-8_LEGACY_TRAINING_EMPLOYMENT", "E-9", "H-2"],
+    "excluded_visa_types": ["E-8_SEASONAL_WORK"],
+    "requires_nps_enrollment": true,
+    "enrollment_cutoff_date": "2007-05-11",
+    "enrollment_cutoff_note": "2007-05-11 이후 신규 가입한 E-8 계절근로는 과거 E-8 연수취업과 달리 반환일시금 지급 대상이 아님"
+  },
+  "agreement_based": {
+    "description": "대한민국과 해당 국가 간 사회보장협정에 반환일시금 관련 규정이 있는 경우",
+    "countries": ["DE", "US", "CA", "CZ", "HU", "AU", "FR", "BE", "BG", "PL", "SK", "RO", "AT", "IN", "TR", "CH", "BR", "PE", "LU", "SI", "HR", "UY", "PH", "AR"]
+  },
+  "reciprocity_based": {
+    "description": "상호주의를 적용하거나(한국 국민에게 동등한 반환일시금 대응 조치 인정) 한국과 사회보장협정을 체결한 국가의 국민",
+    "minimum_months_6": ["BZ"],
+    "minimum_months_12": ["GD", "JO", "VC", "ZW", "CM", "TH", "BT", "LA"],
+    "no_minimum": ["GH", "LK", "BM", "MY", "SV", "ID", "KE", "KZ", "HK", "TT", "SD", "CO", "VU", "TN", "UG", "KH", "SB"]
+  },
+  "claim_window": {
+    "before_departure": {
+      "allowed": true,
+      "max_days_before_departure": 30,
+      "requires": ["flight_ticket_reservation_copy"]
+    },
+    "after_departure": {
+      "allowed": true,
+      "requires_departure_confirmed": true
+    },
+    "statute_of_limitations_years": 5,
+    "note": "청구권 소멸시효 및 일부 예외 사유는 원문에 구체적으로 명시되지 않아 TODO. 사안별로 국민연금공단(1355)에 재확인 필요."
+  },
+  "required_documents": ["flight_ticket_reservation_copy", "lump_sum_refund_claim_form", "passport", "personal_bankbook", "account_confirmation", "overseas_remittance_application"]
+}

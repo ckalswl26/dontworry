@@ -1,0 +1,256 @@
+from __future__ import annotations
+
+from datetime import date
+from enum import Enum
+from typing import Any, Literal
+
+from pydantic import BaseModel, Field
+
+
+class SignalStatus(str, Enum):
+    GREEN = "GREEN"
+    AMBER = "AMBER"
+    RED = "RED"
+    NA = "N/A"
+
+
+class RuleStatus(str, Enum):
+    CONFIRMED = "CONFIRMED"
+    CONDITIONAL = "CONDITIONAL"
+    ADDITIONAL_REVIEW = "ADDITIONAL_REVIEW"
+    EXTERNAL_RULESET_REQUIRED = "EXTERNAL_RULESET_REQUIRED"
+    NOT_SUPPORTED = "NOT_SUPPORTED"
+
+
+# ---------- User / Onboarding ----------
+
+class UserProfile(BaseModel):
+    nationality: str = Field(..., description="ISO 3166-1 alpha-2, e.g. VN")
+    visa_type: str = Field(..., description="법무부 체류자격 코드, e.g. E-9")
+    visa_expiry_date: date | None = None
+    departure_date: date | None = None
+    available_visit_time: list[str] = Field(default_factory=list)
+    nps_enrolled: bool | None = None
+    nps_insured_months: int | None = None
+    tenure_months: int | None = None
+    industry: str | None = None
+    language: Literal["ko", "en", "vi"] = "ko"
+
+
+# ---------- F1 Intent ----------
+
+class IntentRequest(BaseModel):
+    text: str
+    profile: UserProfile
+
+
+class IntentResult(BaseModel):
+    nationality: str
+    visa_type: str
+    residency_days_left: int | None = None
+    intent_candidates: list[str]
+    documents_held: list[str] = Field(default_factory=list)
+    available_time_slots: list[str] = Field(default_factory=list)
+    confidence: float = 0.5
+
+
+# ---------- F2/F3 Rule evaluation ----------
+
+class SourceRef(BaseModel):
+    source_id: str
+    organization: str | None = None
+    title: str | None = None
+    source_url: str | None = None
+    authority_grade: str | None = None
+    status: str | None = None
+    last_verified_at: str | None = None
+
+
+class TaskSignal(BaseModel):
+    task_id: str
+    label: str
+    signal: SignalStatus
+    reason: str
+    required_documents: list[str] = Field(default_factory=list)
+    channel: str | None = None
+    responsible_org: str | None = None
+    actor: str = "WORKER"
+    sources: list[SourceRef] = Field(default_factory=list)
+
+
+class RuleEvaluateRequest(BaseModel):
+    profile: UserProfile
+    documents_held: list[str] = Field(default_factory=list)
+
+
+class RuleEvaluateResponse(BaseModel):
+    days_to_departure: int | None
+    tasks: list[TaskSignal]
+    pension: "PensionResult"
+
+
+# ---------- Workflow ----------
+
+class WorkflowStep(BaseModel):
+    step: int
+    task_id: str
+    label: str
+    priority: Literal["REQUIRED", "RECOMMENDED", "INFO"]
+    edge_type: str | None = None
+    note: str | None = None
+
+
+class DeparturePlanRequest(BaseModel):
+    profile: UserProfile
+
+
+class DeparturePlanResponse(BaseModel):
+    ordered_steps: list[WorkflowStep]
+    product_categories: list[str] = Field(default_factory=list)
+
+
+# ---------- F4 Documents ----------
+
+class DocumentReadinessRequest(BaseModel):
+    task_id: str
+    required_documents: list[str]
+    documents_held: list[str]
+
+
+class DocumentReadinessResponse(BaseModel):
+    task_id: str
+    total: int
+    held: int
+    missing: list[str]
+    readiness_pct: float
+
+
+# ---------- Pension ----------
+
+class PensionRequest(BaseModel):
+    nationality: str
+    visa_type: str
+    nps_enrolled: bool
+    nps_insured_months: int | None = None
+    departure_date: date | None = None
+    departure_confirmed: bool = False
+
+
+class PensionResult(BaseModel):
+    eligible: bool
+    claimable_now: bool
+    payable_now: bool
+    reason_code: str
+    reason: str
+    missing_documents: list[str] = Field(default_factory=list)
+    next_action: str
+    matched_rule: str
+    sources: list[SourceRef] = Field(default_factory=list)
+
+
+# ---------- Finance ----------
+
+class FinanceProduct(BaseModel):
+    product_id: str
+    product_name: str
+    bank: str
+    product_type: str
+    product_category: str | None = None
+    base_rate: float | None = None
+    max_rate: float | None = None
+    rate_as_of: str | None = None
+    contract_months: int | None = None
+    monthly_min_amount: int | None = None
+    monthly_max_amount: int | None = None
+    status: str = "ACTIVE"
+    disclaimer: str = "현재 입력한 조건 기준으로 확인해볼 수 있는 상품 카테고리입니다. 최종 가입 여부는 금융회사 확인이 필요합니다."
+    sources: list[SourceRef] = Field(default_factory=list)
+
+
+# ---------- F6 Planner ----------
+
+class ExpenseBreakdown(BaseModel):
+    housing: int = 0
+    food: int = 0
+    communication: int = 0
+    transportation: int = 0
+    remittance: int = 0
+    other: int = 0
+
+    @property
+    def total(self) -> int:
+        return self.housing + self.food + self.communication + self.transportation + self.remittance + self.other
+
+
+class PlannerRequest(BaseModel):
+    target_amount: int
+    current_savings: int = 0
+    months_left: int
+    monthly_income: int
+    expenses: ExpenseBreakdown
+    meals_housing_provided: bool = False
+
+
+class PlannerResponse(BaseModel):
+    disposable_income: int
+    required_monthly_saving: float
+    goal_met: bool
+    shortfall_amount: int
+    recommended_categories: list[str] = Field(default_factory=list)
+
+
+# ---------- F7 D-Day ----------
+
+class DDayItem(BaseModel):
+    day_offset: int
+    label: str
+    task_id: str | None
+    is_recommended_not_legal: bool = True
+    detail: str
+
+
+class DDayResponse(BaseModel):
+    departure_date: date
+    days_left: int
+    items: list[DDayItem]
+
+
+# ---------- F10 Briefing ----------
+
+class BriefingRequest(BaseModel):
+    profile: UserProfile
+    documents_held: list[str] = Field(default_factory=list)
+    planner: PlannerRequest | None = None
+    hourly_wage: float | None = None
+    weekly_work_hours: float | None = None
+    overtime_hours: float | None = None
+
+
+class ActionItem(BaseModel):
+    action_id: str
+    title: str
+    why: str
+    category: str
+
+
+class BriefingResponse(BaseModel):
+    crisis_signals: dict[str, Any]
+    ranked_actions: list[ActionItem]
+    top3_summary: list[str]
+    sources: list[SourceRef] = Field(default_factory=list)
+    ai_generated: bool = False
+
+
+class ScenarioRequest(BaseModel):
+    base_planner: PlannerRequest
+    changed_field: Literal["housing", "food", "communication", "transportation", "remittance", "other", "monthly_income", "months_left"]
+    new_value: int
+
+
+class ScenarioResponse(BaseModel):
+    base: PlannerResponse
+    updated: PlannerResponse
+    delta_required_monthly_saving: float
+
+
+RuleEvaluateResponse.model_rebuild()

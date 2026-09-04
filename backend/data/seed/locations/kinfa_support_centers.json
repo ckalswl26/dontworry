@@ -1,0 +1,35 @@
+[
+  {
+    "center_id": "KINFA_SEOUL",
+    "center_name": "서민금융통합지원센터 서울",
+    "center_type": "INTEGRATED_SUPPORT_CENTER",
+    "city": "서울특별시",
+    "district": "중구",
+    "phone": "1397",
+    "source_url": "https://www.kinfa.or.kr/counselingSupport/centerSmileFind.do",
+    "last_verified_at": "2026-09-04",
+    "note": "정확한 도로명주소/좌표는 배치 크롤링으로 별도 갱신 필요 (MVP placeholder)"
+  },
+  {
+    "center_id": "KINFA_GYEONGGI_SUWON",
+    "center_name": "서민금융통합지원센터 경기(수원)",
+    "center_type": "INTEGRATED_SUPPORT_CENTER",
+    "city": "경기도",
+    "district": "수원시",
+    "phone": "1397",
+    "source_url": "https://www.kinfa.or.kr/counselingSupport/centerSmileFind.do",
+    "last_verified_at": "2026-09-04",
+    "note": "정확한 도로명주소/좌표는 배치 크롤링으로 별도 갱신 필요 (MVP placeholder)"
+  },
+  {
+    "center_id": "KINFA_INCHEON",
+    "center_name": "서민금융통합지원센터 인천",
+    "center_type": "INTEGRATED_SUPPORT_CENTER",
+    "city": "인천광역시",
+    "district": "미추홀구",
+    "phone": "1397",
+    "source_url": "https://www.kinfa.or.kr/counselingSupport/centerSmileFind.do",
+    "last_verified_at": "2026-09-04",
+    "note": "정확한 도로명주소/좌표는 배치 크롤링으로 별도 갱신 필요 (MVP placeholder)"
+  }
+]

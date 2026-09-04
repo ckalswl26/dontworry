@@ -1,0 +1,175 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useStore } from "@/lib/store";
+import { t } from "@/lib/i18n";
+import { PrimaryButton } from "@/components/Card";
+import { LogoWordmark } from "@/components/Logo";
+import { api } from "@/lib/api";
+
+const NATIONALITIES = [
+  { code: "VN", ko: "베트남", en: "Vietnam", vi: "Việt Nam" },
+  { code: "TH", ko: "태국", en: "Thailand", vi: "Thái Lan" },
+  { code: "PH", ko: "필리핀", en: "Philippines", vi: "Philippines" },
+  { code: "ID", ko: "인도네시아", en: "Indonesia", vi: "Indonesia" },
+  { code: "KH", ko: "캄보디아", en: "Cambodia", vi: "Campuchia" },
+  { code: "NP", ko: "네팔", en: "Nepal", vi: "Nepal" },
+  { code: "MM", ko: "미얀마", en: "Myanmar", vi: "Myanmar" },
+];
+
+const VISA_TYPES = ["E-9", "H-2", "E-8_LEGACY_TRAINING_EMPLOYMENT", "E-8_SEASONAL_WORK"];
+
+const VISIT_TIMES = [
+  { code: "weekday_daytime", key: "weekday" },
+  { code: "saturday", key: "saturday" },
+  { code: "sunday_only", key: "sundayOnly" },
+];
+
+export default function OnboardingPage() {
+  const router = useRouter();
+  const { state, setProfile, setOnboarded, loadDemo } = useStore();
+  const lang = state.profile.language;
+  const [profile, setLocalProfile] = useState(state.profile);
+  const [loadingDemo, setLoadingDemo] = useState(false);
+
+  const toggleVisitTime = (code: string) => {
+    const current = profile.available_visit_time;
+    const next = current.includes(code) ? current.filter((c) => c !== code) : [...current, code];
+    setLocalProfile({ ...profile, available_visit_time: next });
+  };
+
+  const handleStart = () => {
+    setProfile(profile);
+    setOnboarded(true);
+    router.push("/home");
+  };
+
+  const handleDemo = async () => {
+    setLoadingDemo(true);
+    try {
+      const demo = await api.demoPersona();
+      loadDemo(demo.profile, demo.planner, demo.documents_held);
+      router.push("/home");
+    } catch {
+      alert("데모 데이터를 불러오지 못했어요. 백엔드 서버가 실행 중인지 확인해주세요.");
+    } finally {
+      setLoadingDemo(false);
+    }
+  };
+
+  return (
+    <div className="flex min-h-dvh flex-col px-6 py-8">
+      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">DONWORRY · 온보딩</p>
+      <h1 className="mt-2 text-2xl font-bold text-brand-navy">{t(lang, "onboardingTitle")}</h1>
+      <p className="mt-2 text-sm text-gray-500">{t(lang, "onboardingDesc")}</p>
+
+      <div className="mt-8 flex flex-col gap-6">
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "nationality")}</label>
+          <select
+            value={profile.nationality}
+            onChange={(e) => setLocalProfile({ ...profile, nationality: e.target.value })}
+            className="w-full rounded-xl border border-gray-200 px-4 py-3"
+          >
+            {NATIONALITIES.map((n) => (
+              <option key={n.code} value={n.code}>
+                {n[lang] ?? n.ko}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "visaType")}</label>
+          <select
+            value={profile.visa_type}
+            onChange={(e) => setLocalProfile({ ...profile, visa_type: e.target.value })}
+            className="w-full rounded-xl border border-gray-200 px-4 py-3"
+          >
+            {VISA_TYPES.map((v) => (
+              <option key={v} value={v}>
+                {v}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "departureDate")}</label>
+          <input
+            type="date"
+            value={profile.departure_date ?? ""}
+            onChange={(e) => setLocalProfile({ ...profile, departure_date: e.target.value })}
+            className="w-full rounded-xl border border-gray-200 px-4 py-3"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "npsEnrolled")}</label>
+          <div className="flex gap-2">
+            {[
+              { v: true, label: lang === "ko" ? "가입" : lang === "vi" ? "Có" : "Enrolled" },
+              { v: false, label: lang === "ko" ? "미가입" : lang === "vi" ? "Không" : "Not enrolled" },
+            ].map((opt) => (
+              <button
+                key={String(opt.v)}
+                onClick={() => setLocalProfile({ ...profile, nps_enrolled: opt.v })}
+                className={`flex-1 rounded-full border py-2 text-sm ${
+                  profile.nps_enrolled === opt.v ? "border-brand-navy bg-brand-navy text-white" : "border-gray-200"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "tenureMonths")}</label>
+          <input
+            type="number"
+            min={0}
+            value={profile.tenure_months ?? ""}
+            onChange={(e) => setLocalProfile({ ...profile, tenure_months: e.target.value ? Number(e.target.value) : null })}
+            className="w-full rounded-xl border border-gray-200 px-4 py-3"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "visitTime")}</label>
+          <div className="flex flex-wrap gap-2">
+            {VISIT_TIMES.map((vt) => (
+              <button
+                key={vt.code}
+                onClick={() => toggleVisitTime(vt.code)}
+                className={`rounded-full border px-4 py-2 text-sm ${
+                  profile.available_visit_time.includes(vt.code)
+                    ? "border-brand-navy bg-brand-navy text-white"
+                    : "border-gray-200 text-gray-600"
+                }`}
+              >
+                {t(lang, vt.key)}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-10 flex flex-col gap-3">
+        <PrimaryButton onClick={handleStart}>{t(lang, "start")}</PrimaryButton>
+        <button
+          onClick={handleDemo}
+          disabled={loadingDemo}
+          className="w-full rounded-xl2 border border-brand-blue py-3 text-sm font-semibold text-brand-blue disabled:opacity-40"
+        >
+          {loadingDemo ? "..." : t(lang, "demoMode")}
+        </button>
+      </div>
+
+      <div className="mt-8 flex justify-center opacity-60">
+        <LogoWordmark height={24} />
+      </div>
+    </div>
+  );
+}

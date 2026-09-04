@@ -1,0 +1,23 @@
+[
+  {
+    "channel_id": "SHINHAN_SOL_GLOBAL",
+    "bank": "신한은행",
+    "target": "FOREIGNER",
+    "channel_type": "MOBILE_APP",
+    "languages_count": 16,
+    "capabilities": ["ACCOUNT_OPENING", "FOREIGN_EXCHANGE", "LOAN"],
+    "evidence_type": "BANK_PRESS_RELEASE",
+    "source_id": "SHINHAN_SOL_GLOBAL",
+    "last_verified_at": "2026-09-04"
+  },
+  {
+    "channel_id": "HANA_FOREIGN_REMITTANCE",
+    "bank": "하나은행",
+    "service": "INTERNATIONAL_REMITTANCE",
+    "channel_type": "INTERNET_BANKING",
+    "available_for": ["FOREIGNER_DOMESTIC_EARNINGS_REMITTANCE", "NON_RESIDENT_DOMESTIC_EARNINGS_REMITTANCE"],
+    "routing_path": ["송금", "외화송금", "해외송금보내기"],
+    "source_id": "HANA_FOREIGN_REMITTANCE",
+    "last_verified_at": "2026-09-04"
+  }
+]

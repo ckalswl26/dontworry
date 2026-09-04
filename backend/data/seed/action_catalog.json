@@ -1,0 +1,74 @@
+[
+  {
+    "action_id": "ACT-REMIT-ADJUST",
+    "title_ko": "본국 송금액 일시 조정 검토",
+    "title_en": "Review temporarily adjusting remittance amount",
+    "title_vi": "Xem xét điều chỉnh tạm thời số tiền chuyển về nước",
+    "trigger_signal": "savings_goal_met_false",
+    "category": "SAVINGS"
+  },
+  {
+    "action_id": "ACT-EXPENSE-CUT",
+    "title_ko": "통계 대비 과다 지출 항목 점검",
+    "title_en": "Review expense items above statistical average",
+    "title_vi": "Kiểm tra các khoản chi tiêu vượt mức trung bình thống kê",
+    "trigger_signal": "savings_goal_met_false",
+    "category": "SAVINGS"
+  },
+  {
+    "action_id": "ACT-SAVINGS-GOAL-ADJUST",
+    "title_ko": "목표 금액 또는 목표 기간 재조정",
+    "title_en": "Re-adjust target amount or target period",
+    "title_vi": "Điều chỉnh lại số tiền hoặc thời hạn mục tiêu",
+    "trigger_signal": "savings_goal_met_false",
+    "category": "SAVINGS"
+  },
+  {
+    "action_id": "ACT-DOC-PREP",
+    "title_ko": "부족 서류 우선 발급 절차 안내",
+    "title_en": "Guidance on obtaining missing required documents first",
+    "title_vi": "Hướng dẫn ưu tiên chuẩn bị giấy tờ còn thiếu",
+    "trigger_signal": "document_readiness_low",
+    "category": "DOCUMENTS"
+  },
+  {
+    "action_id": "ACT-SUNDAY-BOOK",
+    "title_ko": "일요영업점 방문 예약",
+    "title_en": "Book a Sunday-branch visit",
+    "title_vi": "Đặt lịch hẹn chi nhánh làm việc Chủ nhật",
+    "trigger_signal": "visit_required_task_exists",
+    "category": "VISIT"
+  },
+  {
+    "action_id": "ACT-WAGE-VERIFY",
+    "title_ko": "근로계약서·급여명세 재확인 권고",
+    "title_en": "Recommend re-checking employment contract and payslip",
+    "title_vi": "Khuyến nghị kiểm tra lại hợp đồng lao động và bảng lương",
+    "trigger_signal": "min_wage_violation_suspected",
+    "category": "LABOR_INFO"
+  },
+  {
+    "action_id": "ACT-DEPARTURE-REPORT",
+    "title_ko": "출국예정신고 우선 처리 안내",
+    "title_en": "Guidance to prioritize departure notification",
+    "title_vi": "Hướng dẫn ưu tiên khai báo dự định xuất cảnh",
+    "trigger_signal": "unresolved_required_prerequisite",
+    "category": "PROCEDURE"
+  },
+  {
+    "action_id": "ACT-NOT-APPLICABLE-INFO",
+    "title_ko": "해당없음 업무 안내로 헛걸음 방지",
+    "title_en": "Inform about not-applicable tasks to avoid wasted visits",
+    "title_vi": "Thông báo công việc không áp dụng để tránh đi lại vô ích",
+    "trigger_signal": "not_applicable_task_exists",
+    "category": "INFO"
+  },
+  {
+    "action_id": "ACT-DEADLINE-PRIORITIZE",
+    "title_ko": "출국일 임박 업무 최우선 처리 안내",
+    "title_en": "Prioritize tasks close to departure deadline",
+    "title_vi": "Ưu tiên xử lý công việc gần hạn xuất cảnh",
+    "trigger_signal": "days_to_deadline_low",
+    "category": "PROCEDURE"
+  }
+]
