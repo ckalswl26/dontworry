@@ -21,7 +21,7 @@ export function BottomNav() {
   const lang = state.profile.language;
 
   return (
-    <nav className="print:hidden fixed bottom-0 left-1/2 z-20 w-full max-w-[480px] -translate-x-1/2 border-t border-gray-100 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+    <nav className="bottom-nav print:hidden fixed bottom-0 left-1/2 z-20 w-full max-w-[480px] -translate-x-1/2 border-t border-gray-100 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
       {/* AI 챗봇 진입 FAB - 원형 배경 없이 마스코트가 그대로 떠 있는 느낌, 탭바 위 우측 하단 고정 */}
       <button
         type="button"

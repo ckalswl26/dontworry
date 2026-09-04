@@ -54,9 +54,20 @@ export default function HomePage() {
 
       <p className="mt-4 text-lg font-bold text-brand-navy">{greeting}</p>
 
+      {state.consultation.ready && (
+        <button
+          type="button"
+          onClick={() => router.push("/consult-card")}
+          className="mt-3 flex w-full items-center justify-between rounded-xl bg-brand-sky px-4 py-3 text-left shadow-sm"
+        >
+          <span><span className="mr-2">✓</span><span className="text-sm font-bold text-brand-navy">상담 준비 완료</span></span>
+          <span className="text-xs font-semibold text-brand-blue">카드 보기 ›</span>
+        </button>
+      )}
+
       <div className="mt-3 rounded-xl2 bg-gradient-to-br from-brand-navy to-[#24397E] p-5 text-white shadow-[0_12px_30px_rgba(17,28,78,0.2)]">
         <p className="text-xs text-white/70">{t(lang, "daysToDeparture")}</p>
-        <p className="mt-1 text-4xl font-black">{days !== null ? `D-${days}` : "D-?"}</p>
+        <p className={`${days !== null ? "text-4xl" : "text-xl"} mt-1 font-black`}>{days !== null ? `D-${days}` : "출국예정일 미입력"}</p>
         {days !== null && (
           <div className="mt-3 h-1.5 w-full rounded-full bg-white/20">
             <div

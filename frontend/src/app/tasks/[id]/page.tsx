@@ -55,6 +55,36 @@ export default function TaskDetailPage() {
             </div>
             <p className="print:hidden mt-3 text-sm text-gray-600">{task.reason}</p>
 
+            {requiresVisit && task.alternative_channel && (
+              <Card className="print:hidden mt-4 border-brand-blue/30 bg-blue-50/50">
+                <p className="text-xs font-semibold text-brand-blue">{t(lang, "alternativeChannelLabel")}</p>
+                <p className="mt-1 font-semibold text-brand-navy">{task.alternative_channel.name}</p>
+                {task.alternative_channel.description && (
+                  <p className="mt-1 text-sm text-gray-600">{task.alternative_channel.description}</p>
+                )}
+                <div className="mt-3 flex flex-col gap-2">
+                  {task.alternative_channel.url && (
+                    <a
+                      href={task.alternative_channel.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block w-full rounded-xl bg-brand-blue py-2.5 text-center text-sm font-semibold text-white"
+                    >
+                      {t(lang, "openAlternativeChannel")}
+                    </a>
+                  )}
+                  {task.alternative_channel.phone && (
+                    <a
+                      href={`tel:${task.alternative_channel.phone}`}
+                      className="block w-full rounded-xl border border-brand-blue py-2.5 text-center text-sm font-semibold text-brand-blue"
+                    >
+                      📞 {task.alternative_channel.phone}
+                    </a>
+                  )}
+                </div>
+              </Card>
+            )}
+
             {total > 0 && (
               <Card className="print:hidden mt-5">
                 <div className="flex items-center gap-4">

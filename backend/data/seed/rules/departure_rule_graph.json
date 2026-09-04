@@ -100,7 +100,7 @@
       "required_documents": ["passport_or_foreigner_registration_card", "bankbook"],
       "channel": "BRANCH_VISIT",
       "responsible_org": "은행",
-      "source_refs": ["HANA_FOREIGN_REMITTANCE"]
+      "source_refs": []
     },
     {
       "id": "pension_refund",

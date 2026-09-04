@@ -27,6 +27,14 @@ export interface SourceRef {
 
 export type SignalStatus = "GREEN" | "AMBER" | "RED" | "N/A";
 
+export interface AlternativeChannel {
+  name: string;
+  description?: string | null;
+  url?: string | null;
+  phone?: string | null;
+  source_id?: string | null;
+}
+
 export interface TaskSignal {
   task_id: string;
   label: string;
@@ -37,6 +45,7 @@ export interface TaskSignal {
   responsible_org?: string | null;
   actor: string;
   sources: SourceRef[];
+  alternative_channel?: AlternativeChannel | null;
 }
 
 export interface PensionResult {

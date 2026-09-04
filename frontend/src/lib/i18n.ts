@@ -75,6 +75,8 @@ export const dictionaries: Record<Lang, Dict> = {
     ruleBasedFallbackNote: "규칙 기반 기본 설명 (AI 미연결 시 대체)",
     noMatchingProducts: "지금 조건으로는 확인해볼 수 있는 상품이 없어요. 조건을 조정해보세요.",
     fillTenureHint: "근무기간을 입력하면 대출 상품도 확인할 수 있어요 · 온보딩에서 수정하기",
+    alternativeChannelLabel: "방문 없이 처리하기",
+    openAlternativeChannel: "앱으로 처리하기",
     bookVisit: "일요영업점 방문 예약하기",
     plannerTitle: "체류기간 자산목표 플래너",
     targetAmount: "목표금액",
@@ -86,7 +88,7 @@ export const dictionaries: Record<Lang, Dict> = {
     requiredSaving: "필요 월 저축액",
     goalMet: "목표 달성 가능",
     goalNotMet: "목표 저축액 부족",
-    unknownExpense: "모름",
+    unknownExpense: "금액 미정",
     excludedExpenseNote: "항목은 입력하지 않아 정확한 계산에서 제외됐어요. 참고용으로만 봐주세요.",
     recalculate: "다시 계산하기",
     briefingTitle: "AI 재무 브리핑",
@@ -185,6 +187,8 @@ export const dictionaries: Record<Lang, Dict> = {
     ruleBasedFallbackNote: "Rule-based default explanation (used when AI is not connected)",
     noMatchingProducts: "No products match your current conditions. Try adjusting them.",
     fillTenureHint: "Enter your tenure to also see loan products · Edit in onboarding",
+    alternativeChannelLabel: "Handle it without visiting",
+    openAlternativeChannel: "Open the app",
     bookVisit: "Book a Sunday-branch visit",
     plannerTitle: "Savings Goal Planner",
     targetAmount: "Target amount",
@@ -196,7 +200,7 @@ export const dictionaries: Record<Lang, Dict> = {
     requiredSaving: "Required monthly saving",
     goalMet: "Goal achievable",
     goalNotMet: "Savings shortfall",
-    unknownExpense: "Unknown",
+    unknownExpense: "Not entered",
     excludedExpenseNote: "was left unspecified and excluded from the calculation. Treat this result as a reference only.",
     recalculate: "Recalculate",
     briefingTitle: "AI Financial Briefing",
@@ -295,6 +299,8 @@ export const dictionaries: Record<Lang, Dict> = {
     ruleBasedFallbackNote: "Giải thích mặc định theo quy tắc (dùng khi chưa kết nối AI)",
     noMatchingProducts: "Không có sản phẩm phù hợp với điều kiện hiện tại. Hãy thử điều chỉnh.",
     fillTenureHint: "Nhập thời gian làm việc để xem cả sản phẩm vay · Chỉnh sửa trong phần khởi tạo",
+    alternativeChannelLabel: "Xử lý không cần đến trực tiếp",
+    openAlternativeChannel: "Mở ứng dụng",
     bookVisit: "Đặt lịch chi nhánh làm việc Chủ nhật",
     plannerTitle: "Kế hoạch mục tiêu tài sản",
     targetAmount: "Số tiền mục tiêu",
@@ -306,7 +312,7 @@ export const dictionaries: Record<Lang, Dict> = {
     requiredSaving: "Số tiền cần tiết kiệm mỗi tháng",
     goalMet: "Có thể đạt mục tiêu",
     goalNotMet: "Thiếu hụt so với mục tiêu",
-    unknownExpense: "Chưa rõ",
+    unknownExpense: "Chưa nhập",
     excludedExpenseNote: "chưa được nhập nên đã loại khỏi phép tính chính xác. Chỉ dùng kết quả này để tham khảo.",
     recalculate: "Tính lại",
     briefingTitle: "Bản tóm tắt tài chính AI",
@@ -334,6 +340,55 @@ export const dictionaries: Record<Lang, Dict> = {
     signalNA: "Không áp dụng",
   },
 };
+
+const CODE_LABELS: Partial<Record<Lang, Record<string, string>>> = {
+  ko: {
+    weekday_daytime: "평일 주간 방문 가능",
+    saturday: "토요일 방문 가능",
+    sunday_only: "일요일만 방문 가능",
+    passport_or_foreigner_registration_card: "여권 또는 외국인등록증",
+    passport_or_foreigner_registration_card_copy: "여권 또는 외국인등록증 사본",
+    foreigner_registration_card_or_passport: "외국인등록증 또는 여권",
+    bankbook: "통장",
+    personal_bankbook: "본인 명의 통장",
+    personal_bankbook_copy: "본인 명의 통장 사본",
+    departure_expected_confirmation: "출국예정사실확인서",
+    insurance_claim_form: "보험금 신청서",
+    flight_ticket_reservation_copy: "항공권 예약 사본",
+    lump_sum_refund_claim_form: "반환일시금 지급청구서",
+    passport: "여권",
+    account_confirmation: "계좌 확인서",
+    overseas_remittance_application: "해외송금 신청서",
+    BRANCH_VISIT: "영업점 방문",
+    MOBILE: "모바일",
+    OFFICIAL_GUIDE: "공식 안내",
+    BANK_FAQ: "은행 공식 FAQ",
+    OFFICIAL_HWP_MANUAL: "공식 업무 안내서",
+  },
+  en: {
+    weekday_daytime: "Weekday daytime",
+    saturday: "Saturday available",
+    sunday_only: "Sunday only",
+    passport_or_foreigner_registration_card: "Passport or residence card",
+    bankbook: "Bankbook",
+  },
+  vi: {
+    weekday_daytime: "Ban ngày trong tuần",
+    saturday: "Có thể vào Thứ Bảy",
+    sunday_only: "Chỉ Chủ Nhật",
+    passport_or_foreigner_registration_card: "Hộ chiếu hoặc thẻ cư trú",
+    bankbook: "Sổ ngân hàng",
+  },
+};
+
+export function codeLabel(lang: Lang, code: string): string {
+  const translated = CODE_LABELS[lang]?.[code] ?? CODE_LABELS.ko?.[code];
+  if (translated) return translated;
+  return code
+    .replaceAll("_", " ")
+    .toLowerCase()
+    .replace(/^./, (letter) => letter.toUpperCase());
+}
 
 export function t(lang: Lang, key: string): string {
   return dictionaries[lang]?.[key] ?? dictionaries.ko[key] ?? key;

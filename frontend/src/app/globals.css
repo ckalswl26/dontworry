@@ -53,9 +53,11 @@ body {
     box-shadow: 0 24px 70px rgba(17, 28, 78, 0.18), 0 0 0 2px rgba(255, 255, 255, 0.5) inset;
     overflow-y: auto;
     overscroll-behavior: contain;
-    /* fixed 요소(하단 탭바, FAB 등)가 실제 브라우저 창이 아니라 이 프레임 기준으로
-       고정되도록 새로운 containing block을 만든다. */
-    transform: translateZ(0);
+  }
+
+  .bottom-nav {
+    bottom: 34px;
+    width: calc(min(480px, calc((100dvh - 48px) * 9 / 19.5)) - 20px);
   }
 
   .app-shell > * {

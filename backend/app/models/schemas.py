@@ -66,6 +66,16 @@ class SourceRef(BaseModel):
     last_verified_at: str | None = None
 
 
+class AlternativeChannel(BaseModel):
+    """방문 없이 처리할 수 있는 실제 확인된 대안 채널만 담는다.
+    확인 안 된 URL·전화번호는 절대 넣지 않고 null로 둔다."""
+    name: str
+    description: str | None = None
+    url: str | None = None
+    phone: str | None = None
+    source_id: str | None = None
+
+
 class TaskSignal(BaseModel):
     task_id: str
     label: str
@@ -76,6 +86,7 @@ class TaskSignal(BaseModel):
     responsible_org: str | None = None
     actor: str = "WORKER"
     sources: list[SourceRef] = Field(default_factory=list)
+    alternative_channel: AlternativeChannel | None = None
 
 
 class RuleEvaluateRequest(BaseModel):

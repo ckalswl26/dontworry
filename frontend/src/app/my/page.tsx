@@ -17,58 +17,72 @@ export default function MyPage() {
       <BackHeader title={t(lang, "myTitle")} onBack={() => router.back()} />
 
       <div className="flex-1 px-5 pb-28 pt-6">
-        <Card>
-          <div className="flex items-center justify-between py-1">
-            <span className="text-sm text-gray-500">{t(lang, "nameLabel")}</span>
+        <div className="mb-5">
+          <h2 className="text-xl font-black tracking-tight text-brand-navy">
+            {lang === "ko" ? "내 정보를 관리해요" : lang === "vi" ? "Quản lý thông tin" : "Manage your information"}
+          </h2>
+          <p className="mt-1 text-sm text-slate-500">
+            {lang === "ko" ? "맞춤 금융 안내에 필요한 기본 정보예요." : lang === "vi" ? "Thông tin cơ bản cho hướng dẫn tài chính phù hợp." : "Basic details used for personalized financial guidance."}
+          </p>
+        </div>
+
+        <Card className="!p-0">
+          <div className="flex min-h-[68px] items-center justify-between gap-4 px-5 py-3">
+            <label htmlFor="profile-name" className="shrink-0 text-sm font-semibold text-slate-500">{t(lang, "nameLabel")}</label>
             <input
+              id="profile-name"
               type="text"
               value={state.profile.name ?? ""}
               onChange={(e) => setProfile({ name: e.target.value })}
               placeholder={t(lang, "namePlaceholder")}
-              className="rounded-lg border border-gray-200 px-2 py-1 text-right text-sm"
+              className="min-w-0 max-w-[240px] flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-right text-sm focus:border-brand-blue focus:bg-white"
             />
           </div>
-          <div className="flex items-center justify-between py-1">
-            <span className="text-sm text-gray-500">{t(lang, "nationality")}</span>
-            <span className="font-semibold">{state.profile.nationality}</span>
+          <div className="mx-5 border-t border-slate-100" />
+          <div className="flex min-h-[58px] items-center justify-between px-5 py-3">
+            <span className="text-sm font-semibold text-slate-500">{t(lang, "nationality")}</span>
+            <span className="rounded-lg bg-brand-sky px-3 py-1.5 text-sm font-bold text-brand-navy">{state.profile.nationality}</span>
           </div>
-          <div className="flex items-center justify-between py-1">
-            <span className="text-sm text-gray-500">{t(lang, "visaType")}</span>
-            <span className="font-semibold">{state.profile.visa_type}</span>
+          <div className="mx-5 border-t border-slate-100" />
+          <div className="flex min-h-[58px] items-center justify-between px-5 py-3">
+            <span className="text-sm font-semibold text-slate-500">{t(lang, "visaType")}</span>
+            <span className="rounded-lg bg-brand-cream px-3 py-1.5 text-sm font-bold text-brand-navy">{state.profile.visa_type}</span>
           </div>
-          <div className="flex items-center justify-between py-1">
-            <span className="text-sm text-gray-500">{t(lang, "departureDate")}</span>
+          <div className="mx-5 border-t border-slate-100" />
+          <div className="flex min-h-[68px] items-center justify-between gap-4 px-5 py-3">
+            <label htmlFor="departure-date" className="shrink-0 text-sm font-semibold text-slate-500">{t(lang, "departureDate")}</label>
             <input
+              id="departure-date"
               type="date"
               value={state.profile.departure_date ?? ""}
               onChange={(e) => setProfile({ departure_date: e.target.value })}
-              className="rounded-lg border border-gray-200 px-2 py-1 text-sm"
+              className="min-w-0 max-w-[220px] rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-brand-blue focus:bg-white"
             />
           </div>
         </Card>
 
-        <div className="mt-4">
-          <label className="mb-2 block text-sm font-medium text-gray-600">{t(lang, "langSelect")}</label>
-          <div className="flex gap-2">
+        <Card className="mt-4">
+          <p className="mb-3 text-sm font-bold text-brand-navy">{t(lang, "langSelect")}</p>
+          <div className="grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-1.5">
             {(["ko", "en", "vi"] as Lang[]).map((l) => (
               <button
                 key={l}
                 onClick={() => setLang(l)}
-                className={`flex-1 rounded-full border py-2 text-sm ${
-                  lang === l ? "border-brand-navy bg-brand-navy text-white" : "border-gray-200"
+                className={`rounded-lg py-2.5 text-sm font-bold ${
+                  lang === l ? "bg-brand-navy text-white shadow-sm" : "text-slate-500 hover:bg-white"
                 }`}
               >
                 {l.toUpperCase()}
               </button>
             ))}
           </div>
-        </div>
+        </Card>
 
         <button
           onClick={() => router.push("/consult-card")}
-          className="mt-6 w-full rounded-xl2 border border-brand-blue py-3 text-sm font-semibold text-brand-blue"
+          className="mt-4 flex w-full items-center justify-between rounded-xl2 border border-brand-blue/20 bg-brand-sky px-5 py-4 text-left text-sm font-bold text-brand-navy shadow-sm"
         >
-          {t(lang, "consultCard")}
+          <span><span className="mr-2">🏦</span>{t(lang, "consultCard")}</span><span className="text-brand-blue">›</span>
         </button>
 
         <button
@@ -76,7 +90,7 @@ export default function MyPage() {
             reset();
             router.push("/");
           }}
-          className="mt-3 w-full rounded-xl2 border border-gray-200 py-3 text-sm text-gray-500"
+          className="mx-auto mt-5 block px-4 py-2 text-xs font-semibold text-slate-400 underline decoration-slate-300 underline-offset-4"
         >
           {lang === "ko" ? "정보 초기화" : lang === "vi" ? "Đặt lại thông tin" : "Reset info"}
         </button>

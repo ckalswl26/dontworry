@@ -35,6 +35,13 @@ interface SessionState {
   documentsHeld: string[];
   lastQuestion: string;
   assetsHidden: boolean;
+  consultation: {
+    branch: string;
+    visitDate: string;
+    visitTime: string;
+    memo: string;
+    ready: boolean;
+  };
 }
 
 const DEFAULT_STATE: SessionState = {
@@ -44,6 +51,7 @@ const DEFAULT_STATE: SessionState = {
   documentsHeld: [],
   lastQuestion: "",
   assetsHidden: false,
+  consultation: { branch: "", visitDate: "", visitTime: "", memo: "", ready: false },
 };
 
 interface StoreContextValue {
@@ -55,6 +63,7 @@ interface StoreContextValue {
   setOnboarded: (v: boolean) => void;
   setLang: (l: Lang) => void;
   setAssetsHidden: (v: boolean) => void;
+  setConsultation: (value: Partial<SessionState["consultation"]>) => void;
   loadDemo: (profile: UserProfile, planner: PlannerRequest, docs: string[]) => void;
   reset: () => void;
 }
@@ -68,7 +77,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem(STORAGE_KEY);
-      if (raw) setState({ ...DEFAULT_STATE, ...JSON.parse(raw) });
+      if (raw) {
+        const saved = JSON.parse(raw) as Partial<SessionState>;
+        setState({
+          ...DEFAULT_STATE,
+          ...saved,
+          consultation: { ...DEFAULT_STATE.consultation, ...saved.consultation },
+        });
+      }
     } catch {
       // ignore corrupted storage
     }
@@ -94,6 +110,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setOnboarded: (v) => setState((s) => ({ ...s, onboarded: v })),
       setLang: (l) => setState((s) => ({ ...s, profile: { ...s.profile, language: l } })),
       setAssetsHidden: (v) => setState((s) => ({ ...s, assetsHidden: v })),
+      setConsultation: (consultation) =>
+        setState((s) => ({ ...s, consultation: { ...s.consultation, ...consultation } })),
       loadDemo: (profile, planner, docs) =>
         setState((s) => ({ ...s, profile, planner, documentsHeld: docs, onboarded: true })),
       reset: () => setState(DEFAULT_STATE),

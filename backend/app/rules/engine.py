@@ -14,7 +14,7 @@ from functools import lru_cache
 from typing import Any
 
 from app.config import DATA_DIR
-from app.models.schemas import SignalStatus, SourceRef, TaskSignal, WorkflowStep
+from app.models.schemas import AlternativeChannel, SignalStatus, SourceRef, TaskSignal, WorkflowStep
 from app.services import source_service
 
 
@@ -70,6 +70,7 @@ def evaluate_tasks(ctx: RuleContext) -> list[TaskSignal]:
     results: list[TaskSignal] = []
     for node in graph["nodes"]:
         signal, reason = _evaluate_signal(node, ctx)
+        alt = node.get("alternative_channel")
         results.append(
             TaskSignal(
                 task_id=node["id"],
@@ -81,6 +82,7 @@ def evaluate_tasks(ctx: RuleContext) -> list[TaskSignal]:
                 responsible_org=node.get("responsible_org"),
                 actor=node.get("actor", "WORKER"),
                 sources=source_service.get_sources(node.get("source_refs", [])),
+                alternative_channel=AlternativeChannel(**alt) if alt else None,
             )
         )
     return results
