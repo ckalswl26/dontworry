@@ -1,0 +1,66 @@
+[
+  {
+    "guide_id": "wage_claim",
+    "title": { "ko": "임금체불 신고하기", "en": "Filing a wage claim", "vi": "Khiếu nại nợ lương" },
+    "summary": {
+      "ko": "월급을 못 받았거나 일부만 받았다면 고용노동부에 진정을 제기할 수 있습니다. 출국 여부와 관계없이 신청할 수 있어요.",
+      "en": "If you haven't been paid in full, you can file a wage claim with the Ministry of Employment and Labor - regardless of whether you're about to leave Korea.",
+      "vi": "Nếu chưa được trả đủ lương, bạn có thể nộp đơn khiếu nại lên Bộ Việc làm và Lao động - dù bạn sắp xuất cảnh hay không."
+    },
+    "steps": [
+      {
+        "ko": "고용노동부 노동포털(labor.moel.go.kr)에서 온라인으로 '임금체불 진정서'를 접수하거나, 사업장 관할 고용노동관서에 직접 방문해 접수합니다.",
+        "en": "File a wage claim online at the Labor Portal (labor.moel.go.kr), or in person at the employment office covering your workplace.",
+        "vi": "Nộp đơn khiếu nại trực tuyến tại Cổng thông tin Lao động (labor.moel.go.kr), hoặc trực tiếp tại văn phòng lao động quản lý nơi làm việc."
+      },
+      {
+        "ko": "전화 상담이 필요하면 고용노동부 고객상담센터 1350(유료, 평일 09:00~18:00)으로 문의할 수 있습니다.",
+        "en": "For phone support, call the Ministry's customer center at 1350 (paid call, weekdays 09:00-18:00).",
+        "vi": "Cần tư vấn qua điện thoại, gọi tổng đài 1350 của Bộ (có tính phí, ngày thường 09:00-18:00)."
+      },
+      {
+        "ko": "접수 후 근로감독관이 근로자와 사업주를 조사해 체불 여부와 금액을 확인합니다. 접수일로부터 25일 이내(1회 연장 가능) 처리됩니다.",
+        "en": "A labor inspector will investigate both you and your employer to confirm the unpaid amount. Cases are processed within 25 days of filing (extendable once).",
+        "vi": "Thanh tra lao động sẽ điều tra cả người lao động và người sử dụng lao động để xác nhận số tiền nợ. Hồ sơ được xử lý trong 25 ngày kể từ ngày nộp (có thể gia hạn một lần)."
+      }
+    ],
+    "note": {
+      "ko": "출국 예정이라면 귀국 전에 접수해두는 것이 좋습니다. 귀국 후에도 진행은 가능하지만 출석 조사에 어려움이 있을 수 있어요.",
+      "en": "If you're planning to leave Korea, it's best to file before departure. You can still file after leaving, but attending in-person investigation steps becomes harder.",
+      "vi": "Nếu bạn dự định xuất cảnh, tốt nhất nên nộp đơn trước khi về nước. Vẫn có thể nộp sau khi về nước, nhưng việc tham gia điều tra trực tiếp sẽ khó khăn hơn."
+    },
+    "source_ids": ["MOEL_WAGE_CLAIM_PROCESS", "MOEL_WAGE_CLAIM_FORM"]
+  },
+  {
+    "guide_id": "reentry_special_case",
+    "title": { "ko": "성실근로자 재입국 특례", "en": "Re-entry special case for diligent workers", "vi": "Trường hợp đặc biệt tái nhập cảnh cho lao động tận tụy" },
+    "summary": {
+      "ko": "취업활동기간(4년 10개월) 동안 사업장 변경 없이 성실히 근무하고 자진 귀국하면, 출국 후 1개월만 지나면 다시 입국해 일할 수 있는 제도입니다.",
+      "en": "If you complete your full work period (4 years 10 months) without changing workplaces and return home voluntarily, you can re-enter Korea for work just 1 month after departure.",
+      "vi": "Nếu hoàn thành trọn thời gian làm việc (4 năm 10 tháng) mà không đổi nơi làm việc và tự nguyện về nước, bạn có thể tái nhập cảnh làm việc chỉ sau 1 tháng kể từ khi xuất cảnh."
+    },
+    "steps": [
+      {
+        "ko": "요건: 취업활동기간 동안 사업장 변경 없이 성실근로 + 자진 귀국, 재입국 후 1년 이상 근로계약 체결, 사업장의 외국인 고용허가 요건 충족.",
+        "en": "Requirements: worked diligently at the same workplace for your full permitted period and returned voluntarily; a new contract of 1+ year upon re-entry; the employer must meet hiring-permit requirements.",
+        "vi": "Điều kiện: làm việc tận tụy tại cùng một nơi trong suốt thời gian được phép và tự nguyện về nước; hợp đồng mới từ 1 năm trở lên khi tái nhập cảnh; doanh nghiệp phải đáp ứng điều kiện cấp phép tuyển dụng."
+      },
+      {
+        "ko": "출국일로부터 1개월이 지나면 재입국해서 취업할 수 있습니다. 신청 접수일로부터 7일 이내에 고용허가서가 발급됩니다.",
+        "en": "You may re-enter for work once 1 month has passed since departure. The employment permit is issued within 7 days of application.",
+        "vi": "Bạn có thể tái nhập cảnh làm việc sau khi đã qua 1 tháng kể từ ngày xuất cảnh. Giấy phép tuyển dụng được cấp trong vòng 7 ngày kể từ ngày nộp đơn."
+      },
+      {
+        "ko": "이 특례는 평생 한 차례만 허용되며, 재입국 시 외국인 취업교육이 면제됩니다.",
+        "en": "This special case can only be used once in a lifetime, and foreign-worker orientation training is waived on re-entry.",
+        "vi": "Trường hợp đặc biệt này chỉ được áp dụng một lần trong đời, và được miễn đào tạo định hướng cho lao động nước ngoài khi tái nhập cảnh."
+      }
+    ],
+    "note": {
+      "ko": "사업주가 재입국 특례를 신청해야 하므로, 귀국 전에 현재 사업주와 미리 상의해두는 것이 좋습니다.",
+      "en": "Your employer is the one who applies for this special case, so it's best to discuss it with them before you leave.",
+      "vi": "Người sử dụng lao động là bên nộp đơn cho trường hợp đặc biệt này, vì vậy tốt nhất nên trao đổi với họ trước khi về nước."
+    },
+    "source_ids": ["EASYLAW_REENTRY_SPECIAL_CASE", "EPS_REENTRY_JOB_PROCESS"]
+  }
+]

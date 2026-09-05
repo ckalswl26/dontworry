@@ -406,6 +406,33 @@ class PushUnsubscribeRequest(BaseModel):
     endpoint: str
 
 
+# ---------- 임금체불 신고 / 재입국 특례 안내 ----------
+
+class GuideStep(BaseModel):
+    ko: str
+    en: str
+    vi: str
+
+
+class GuideContent(BaseModel):
+    guide_id: str
+    title: GuideStep
+    summary: GuideStep
+    steps: list[GuideStep]
+    note: GuideStep
+    sources: list[SourceRef] = Field(default_factory=list)
+
+
+# ---------- 최저임금 확인 ----------
+
+class MinWageInfo(BaseModel):
+    year: int
+    hourly_wage: int
+    standard_monthly_hours: int
+    sources: list[SourceRef] = Field(default_factory=list)
+    calculator_url: str
+
+
 # ---------- 다국어 상담 지점 찾기 (F 신규 3순위) ----------
 
 class MultilingualBranch(BaseModel):

@@ -249,6 +249,29 @@ export interface FxHistoryResponse {
   error?: string | null;
 }
 
+export interface TrilingualText {
+  ko: string;
+  en: string;
+  vi: string;
+}
+
+export interface GuideContent {
+  guide_id: string;
+  title: TrilingualText;
+  summary: TrilingualText;
+  steps: TrilingualText[];
+  note: TrilingualText;
+  sources: SourceRef[];
+}
+
+export interface MinWageInfo {
+  year: number;
+  hourly_wage: number;
+  standard_monthly_hours: number;
+  sources: SourceRef[];
+  calculator_url: string;
+}
+
 export interface MultilingualBranch {
   branch_id: string;
   bank: string;

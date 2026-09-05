@@ -187,5 +187,55 @@
     "source_url": "https://ecos.bok.or.kr/api/",
     "status": "ACTIVE",
     "last_verified_at": "2026-09-05"
+  },
+  {
+    "source_id": "MOEL_WAGE_CLAIM_PROCESS",
+    "organization": "고용노동부",
+    "title": "체불임금 해결 방법 (노동포털)",
+    "source_type": "OFFICIAL_GUIDE",
+    "authority_grade": "A",
+    "source_url": "https://labor.moel.go.kr/minwonSysInfo/wagesolway.do",
+    "status": "ACTIVE",
+    "last_verified_at": "2026-09-05"
+  },
+  {
+    "source_id": "MOEL_WAGE_CLAIM_FORM",
+    "organization": "고용노동부",
+    "title": "임금체불 진정서 온라인 신청 (노동포털 민원신청)",
+    "source_type": "OFFICIAL_GUIDE",
+    "authority_grade": "A",
+    "source_url": "https://labor.moel.go.kr/minwonApply/minwonFormat.do?searchVal=SN001",
+    "status": "ACTIVE",
+    "last_verified_at": "2026-09-05"
+  },
+  {
+    "source_id": "EASYLAW_REENTRY_SPECIAL_CASE",
+    "organization": "법제처",
+    "title": "재입국 취업 특례 (찾기쉬운 생활법령정보)",
+    "source_type": "OFFICIAL_GUIDE",
+    "authority_grade": "A",
+    "source_url": "https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&csmSeq=2042&ccfNo=3&cciNo=2&cnpClsNo=3",
+    "status": "ACTIVE",
+    "last_verified_at": "2026-09-05"
+  },
+  {
+    "source_id": "EPS_REENTRY_JOB_PROCESS",
+    "organization": "한국산업인력공단 (EPS)",
+    "title": "고용/취업절차 - 특례 외국인 (재입국 취업)",
+    "source_type": "OFFICIAL_GUIDE",
+    "authority_grade": "A",
+    "source_url": "https://www.eps.go.kr/eo/EmployJobProc.eo?tabGb=07",
+    "status": "ACTIVE",
+    "last_verified_at": "2026-09-05"
+  },
+  {
+    "source_id": "MOEL_MIN_WAGE_CALCULATOR",
+    "organization": "고용노동부",
+    "title": "최저임금 모의계산기",
+    "source_type": "OFFICIAL_TOOL",
+    "authority_grade": "A",
+    "source_url": "https://www.moel.go.kr/miniWageMain.do",
+    "status": "ACTIVE",
+    "last_verified_at": "2026-09-05"
   }
 ]

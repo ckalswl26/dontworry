@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store";
+import { OfflineBanner } from "@/components/OfflineBanner";
 
 export const metadata: Metadata = {
   title: "Don't ₩orry · 돈워리",
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko">
       <body>
         <StoreProvider>
+          <OfflineBanner />
           <div className="app-shell">{children}</div>
         </StoreProvider>
       </body>

@@ -196,6 +196,40 @@ export default function HomePage() {
         </Card>
       </div>
 
+      <div className="mt-6 flex flex-col gap-3">
+        <p className="text-sm font-semibold text-gray-500">도움이 필요하신가요?</p>
+
+        <Card>
+          <button className="flex w-full items-center justify-between" onClick={() => router.push("/wage-check")}>
+            <div className="text-left">
+              <p className="font-semibold text-brand-navy">💰 최저임금 확인하기</p>
+              <p className="text-xs text-gray-500">내 월급이 최저임금 기준인지 확인해보세요</p>
+            </div>
+            <span>›</span>
+          </button>
+        </Card>
+
+        <Card>
+          <button className="flex w-full items-center justify-between" onClick={() => router.push("/guides/wage_claim")}>
+            <div className="text-left">
+              <p className="font-semibold text-brand-navy">📋 임금을 못 받았어요</p>
+              <p className="text-xs text-gray-500">임금체불 신고 방법 안내</p>
+            </div>
+            <span>›</span>
+          </button>
+        </Card>
+
+        <Card>
+          <button className="flex w-full items-center justify-between" onClick={() => router.push("/guides/reentry_special_case")}>
+            <div className="text-left">
+              <p className="font-semibold text-brand-navy">🔁 다시 한국에서 일하고 싶어요</p>
+              <p className="text-xs text-gray-500">성실근로자 재입국 특례 안내</p>
+            </div>
+            <span>›</span>
+          </button>
+        </Card>
+      </div>
+
       <BottomNav />
     </div>
   );
