@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 import { Dropdown } from "@/components/Dropdown";
+import { KOREA_REGIONS, SIDO_LIST } from "@/lib/koreaRegions";
 import type { BranchLocation, Lang } from "@/lib/types";
 
 function formatDistance(m: number | null | undefined): string {
@@ -20,7 +21,11 @@ export function BranchPicker({
 }) {
   const [banks, setBanks] = useState<string[]>([]);
   const [bank, setBank] = useState("");
+  const [sido, setSido] = useState("");
+  const [sigungu, setSigungu] = useState("");
   const [query, setQuery] = useState("");
+  const regionQuery = [sido, sigungu].filter(Boolean).join(" ");
+  const combinedQuery = [regionQuery, query.trim()].filter(Boolean).join(" ");
   const [results, setResults] = useState<BranchLocation[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +36,7 @@ export function BranchPicker({
   }, []);
 
   useEffect(() => {
-    if (!bank || !query.trim()) {
+    if (!bank || !combinedQuery) {
       setResults(null);
       return;
     }
@@ -39,7 +44,7 @@ export function BranchPicker({
       setLoading(true);
       setError(null);
       api
-        .branchSearch(bank, query.trim())
+        .branchSearch(bank, combinedQuery)
         .then((res) => {
           if (!res.available) {
             setError(res.error || t(lang, "branchSearchUnavailable"));
@@ -52,7 +57,7 @@ export function BranchPicker({
         .finally(() => setLoading(false));
     }, 400);
     return () => clearTimeout(timer);
-  }, [bank, query, lang]);
+  }, [bank, combinedQuery, lang]);
 
   const findNearby = () => {
     if (!navigator.geolocation) {
@@ -99,6 +104,24 @@ export function BranchPicker({
         placeholder={t(lang, "bankSelectPlaceholder")}
       />
 
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <Dropdown
+          value={sido}
+          onChange={(v) => {
+            setSido(v);
+            setSigungu("");
+          }}
+          options={SIDO_LIST.map((s) => ({ value: s, label: s }))}
+          placeholder="시/도 선택"
+        />
+        <Dropdown
+          value={sigungu}
+          onChange={setSigungu}
+          options={(KOREA_REGIONS[sido] ?? []).map((s) => ({ value: s, label: s }))}
+          placeholder={sido ? "시/군/구 선택" : "시/도 먼저 선택"}
+        />
+      </div>
+
       <div className="mt-2 flex gap-2">
         <input
           type="text"
@@ -124,7 +147,7 @@ export function BranchPicker({
       {results && !loading && (
         <div className="mt-2 flex flex-col gap-1.5">
           {results.length === 0 && !error && <p className="text-xs text-gray-400">{t(lang, "noBranchResults")}</p>}
-          {results.slice(0, 8).map((branch, idx) => (
+          {results.slice(0, 12).map((branch, idx) => (
             <button
               key={`${branch.place_name}-${idx}`}
               type="button"
