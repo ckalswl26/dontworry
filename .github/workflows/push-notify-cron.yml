@@ -1,0 +1,16 @@
+name: Push notification daily check
+
+on:
+  schedule:
+    # 22:00 UTC = 07:00 KST
+    - cron: "0 22 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call /api/push/check
+        run: |
+          curl -sf -X POST "${{ secrets.PUSH_CHECK_URL }}" \
+            -H "X-Cron-Secret: ${{ secrets.PUSH_CRON_SECRET }}"

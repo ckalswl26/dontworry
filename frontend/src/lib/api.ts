@@ -50,4 +50,13 @@ export const api = {
     request<import("./types").BranchSearchResponse>(
       `/api/locations/branch-search?bank=${encodeURIComponent(bank)}&query=${encodeURIComponent(query)}`
     ),
+  pushVapidPublicKey: () => request<{ public_key: string; configured: boolean }>("/api/push/vapid-public-key"),
+  pushSubscribe: (body: {
+    endpoint: string;
+    keys: { p256dh: string; auth: string };
+    departure_date: string | null;
+    lang: string;
+  }) => request("/api/push/subscribe", { method: "POST", body: JSON.stringify(body) }),
+  pushUnsubscribe: (endpoint: string) =>
+    request("/api/push/unsubscribe", { method: "POST", body: JSON.stringify({ endpoint }) }),
 };

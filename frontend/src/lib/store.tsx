@@ -72,8 +72,11 @@ interface StoreContextValue {
   setAssetsHidden: (v: boolean) => void;
   setConsultation: (value: Partial<SessionState["consultation"]>) => void;
   loadDemo: (profile: UserProfile, planner: PlannerRequest, docs: string[]) => void;
+  restoreState: (data: Partial<SessionState>) => void;
   reset: () => void;
 }
+
+export type { SessionState };
 
 const StoreContext = createContext<StoreContextValue | null>(null);
 
@@ -83,7 +86,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const saved = JSON.parse(raw) as Partial<SessionState>;
         setState({
@@ -101,7 +104,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!hydrated) return;
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch {
       // storage unavailable (private mode etc.) - fail silently, app still works in-memory
     }
@@ -131,6 +134,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setState((s) => ({ ...s, consultation: { ...s.consultation, ...consultation } })),
       loadDemo: (profile, planner, docs) =>
         setState((s) => ({ ...s, profile, planner, documentsHeld: docs, onboarded: true })),
+      restoreState: (data) =>
+        setState((s) => ({
+          ...DEFAULT_STATE,
+          ...s,
+          ...data,
+          consultation: { ...DEFAULT_STATE.consultation, ...data.consultation },
+        })),
       reset: () => setState(DEFAULT_STATE),
     }),
     [state]

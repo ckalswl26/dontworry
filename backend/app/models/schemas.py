@@ -388,6 +388,24 @@ class BranchSearchResponse(BaseModel):
     attribution: str = "이 서비스는 카카오맵의 API를 이용하고 있습니다."
 
 
+# ---------- 웹 푸시 알림 ----------
+
+class PushKeys(BaseModel):
+    p256dh: str
+    auth: str
+
+
+class PushSubscribeRequest(BaseModel):
+    endpoint: str
+    keys: PushKeys
+    departure_date: date | None = None
+    lang: Literal["ko", "en", "vi"] = "ko"
+
+
+class PushUnsubscribeRequest(BaseModel):
+    endpoint: str
+
+
 # ---------- 다국어 상담 지점 찾기 (F 신규 3순위) ----------
 
 class MultilingualBranch(BaseModel):

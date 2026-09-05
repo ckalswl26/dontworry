@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     ecos_api_key: str = ""
     kakao_rest_api_key: str = ""
     justice_stats_api_key: str = ""
+    database_url: str = ""
+    vapid_private_key_b64: str = ""
+    vapid_public_key: str = ""
+    vapid_contact_email: str = "admin@example.com"
+    push_cron_secret: str = ""
     cors_allow_origins: str = "http://localhost:3000"
     # Vercel은 배포마다 새 임시 URL(frontend-<hash>-<team>.vercel.app)을 만든다.
     # 매번 정확한 URL을 allow_origins에 추가하지 않아도 되도록, 이 프로젝트의
