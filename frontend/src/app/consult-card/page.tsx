@@ -6,6 +6,7 @@ import { useStore } from "@/lib/store";
 import { codeLabel, t } from "@/lib/i18n";
 import { BackHeader, Card, ErrorNotice, PrimaryButton } from "@/components/Card";
 import { BranchPicker } from "@/components/BranchPicker";
+import { Dropdown } from "@/components/Dropdown";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
 import type { MultilingualBranch, RuleEvaluateResponse } from "@/lib/types";
@@ -18,6 +19,31 @@ function dayOperatingHours(dateStr: string, isSundayBranch: boolean): { open: st
   if (day === 0) return isSundayBranch ? { open: "10:00", close: "15:00" } : null;
   if (day === 6) return null;
   return { open: "09:00", close: "16:00" };
+}
+
+// 네이티브 시간 선택기(휠 스피너)는 영업시간 밖 값도 일단 스크롤로 골라지고 나서야
+// 막혀서 사용자가 뭘 골라야 할지 알기 어렵다. 실제로 고를 수 있는 시간만 30분 간격으로
+// 미리 만들어 목록으로 보여주면 헤매지 않는다.
+function timeSlots(hours: { open: string; close: string }): string[] {
+  const [openH, openM] = hours.open.split(":").map(Number);
+  const [closeH, closeM] = hours.close.split(":").map(Number);
+  const slots: string[] = [];
+  for (let h = openH, m = openM; h < closeH || (h === closeH && m <= closeM); ) {
+    slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+    m += 30;
+    if (m >= 60) {
+      m -= 60;
+      h += 1;
+    }
+  }
+  return slots;
+}
+
+function formatTimeLabel(time: string): string {
+  const [h, m] = time.split(":").map(Number);
+  const period = h < 12 ? "오전" : "오후";
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${period} ${hour12}:${String(m).padStart(2, "0")}`;
 }
 
 function daysUntil(dateStr: string | null | undefined): number | null {
@@ -110,10 +136,14 @@ export default function ConsultCardPage() {
                 </button>
               </div>
               <input id="branch" type="text" value={consultation.branch} onChange={(e) => setConsultation({ branch: e.target.value, branchIsSunday: false, ready: false })} placeholder="예: OO은행 OO지점" className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-brand-blue" />
-              {consultation.branchIsSunday && (
-                <span className="mt-1.5 inline-block rounded-full bg-brand-yellow/30 px-2 py-0.5 text-[11px] font-bold text-brand-navy">
-                  {t(lang, "sundayBranchBadge")}
-                </span>
+              {consultation.branch.trim() && (
+                consultation.branchIsSunday ? (
+                  <span className="mt-1.5 inline-block rounded-full bg-brand-yellow/30 px-2 py-0.5 text-[11px] font-bold text-brand-navy">
+                    ✓ {t(lang, "sundayBranchBadge")} 확인됨
+                  </span>
+                ) : (
+                  <p className="mt-1.5 text-[11px] text-slate-400">일요 영업 확인 안 됨 (신한은행 일부 지점만 확인 가능)</p>
+                )
               )}
               {pickerOpen && (
                 <BranchPicker
@@ -125,36 +155,38 @@ export default function ConsultCardPage() {
                 />
               )}
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label htmlFor="visit-date" className="text-xs font-semibold text-slate-600">방문 예정 날짜</label>
-                <input
-                  id="visit-date"
-                  type="date"
-                  value={consultation.visitDate}
-                  onChange={(e) => {
-                    const newDate = e.target.value;
-                    const newHours = dayOperatingHours(newDate, consultation.branchIsSunday);
-                    const timeStillValid =
-                      newHours && consultation.visitTime && consultation.visitTime >= newHours.open && consultation.visitTime <= newHours.close;
-                    setConsultation({ visitDate: newDate, visitTime: timeStillValid ? consultation.visitTime : "", ready: false });
-                  }}
-                  className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:border-brand-blue"
-                />
-              </div>
-              <div>
-                <label htmlFor="visit-time" className="text-xs font-semibold text-slate-600">방문 시간 <span className="font-normal text-slate-400">선택</span></label>
-                <input
-                  id="visit-time"
-                  type="time"
-                  value={consultation.visitTime}
-                  onChange={(e) => setConsultation({ visitTime: e.target.value, ready: false })}
-                  min={operatingHours?.open}
-                  max={operatingHours?.close}
-                  disabled={!operatingHours}
-                  className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:border-brand-blue disabled:bg-gray-50 disabled:text-gray-300"
-                />
-              </div>
+            <div>
+              <label htmlFor="visit-date" className="text-xs font-semibold text-slate-600">방문 예정 날짜</label>
+              <input
+                id="visit-date"
+                type="date"
+                value={consultation.visitDate}
+                onChange={(e) => {
+                  const newDate = e.target.value;
+                  const newHours = dayOperatingHours(newDate, consultation.branchIsSunday);
+                  const timeStillValid =
+                    newHours && consultation.visitTime && consultation.visitTime >= newHours.open && consultation.visitTime <= newHours.close;
+                  setConsultation({ visitDate: newDate, visitTime: timeStillValid ? consultation.visitTime : "", ready: false });
+                }}
+                className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:border-brand-blue"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-slate-600">방문 시간 <span className="font-normal text-slate-400">선택</span></label>
+              {operatingHours ? (
+                <div className="mt-1.5">
+                  <Dropdown
+                    value={consultation.visitTime}
+                    onChange={(v) => setConsultation({ visitTime: v, ready: false })}
+                    placeholder="시간 선택"
+                    options={timeSlots(operatingHours).map((slot) => ({ value: slot, label: formatTimeLabel(slot) }))}
+                  />
+                </div>
+              ) : (
+                <p className="mt-1.5 rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 text-sm text-slate-300">
+                  날짜를 먼저 선택해주세요
+                </p>
+              )}
             </div>
             {dateClosed && (
               <p className="text-xs font-semibold text-brand-red">
