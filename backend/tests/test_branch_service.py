@@ -51,6 +51,23 @@ def test_parse_document_tags_known_shinhan_sunday_branch():
     assert parsed.lng == 127.0123
 
 
+def test_parse_document_tags_sunday_branch_by_address_when_kakao_name_omits_jijeom():
+    """카카오 실제 데이터는 '동대문지점'이 아니라 '동대문'으로만 등록돼 있어
+    지점명 부분일치로는 놓친다 - 도로명 주소 대조로 잡아내야 한다."""
+    doc = {
+        "place_name": "신한은행 동대문",
+        "address_name": "서울 중구 신당동 775",
+        "road_address_name": "서울 중구 마장로 11",
+        "x": "127.0114",
+        "y": "37.5684",
+    }
+
+    parsed = branch_service._parse_document(doc)
+
+    assert parsed.sunday_branch is True
+    assert parsed.sunday_branch_source_id == "SHINHAN_SUNDAY_FOREIGN_BRANCHES"
+
+
 def test_parse_document_does_not_tag_unrelated_branch_as_sunday():
     doc = {
         "place_name": "신한은행 강남지점",

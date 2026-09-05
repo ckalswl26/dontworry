@@ -12,6 +12,9 @@ FORBIDDEN_LITERALS = [
 
 SKIP_DIRS = {".git", "node_modules", ".next", "__pycache__", ".venv", "venv", "dist", "build"}
 
+# 실제 키를 담도록 만들어진 로컬 전용 파일 (.gitignore로 커밋 자체가 막혀 있다 -
+# test_gitignore_excludes_env_files 참고). 이 검사는 "커밋될 수 있는 파일"만 대상으로 한다.
+SKIP_FILENAMES = {".env", ".env.local", ".env.production"}
 
 THIS_FILE = Path(__file__).resolve()
 
@@ -21,6 +24,8 @@ def _iter_text_files():
         if not path.is_file():
             continue
         if path == THIS_FILE:
+            continue
+        if path.name in SKIP_FILENAMES:
             continue
         if any(part in SKIP_DIRS for part in path.parts):
             continue

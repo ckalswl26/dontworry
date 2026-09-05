@@ -33,22 +33,49 @@ MAJOR_BANKS: list[str] = [
 ]
 
 
-def _find_sunday_note(bank: str | None, place_name: str) -> tuple[bool, str | None, str | None]:
+# 카카오 place_name은 "신한은행 동대문"처럼 "지점"을 생략하는 경우가 많아
+# 지점명 부분 일치만으로는 놓치기 쉽다. 주소(도로명)를 함께 대조해 더 안정적으로 판별한다.
+_ADMIN_PREFIXES = [
+    "서울특별시", "서울", "부산광역시", "부산", "대구광역시", "대구", "인천광역시", "인천",
+    "광주광역시", "광주", "대전광역시", "대전", "울산광역시", "울산", "세종특별자치시", "세종",
+    "경기도", "경기", "강원특별자치도", "강원", "충청북도", "충북", "충청남도", "충남",
+    "전라북도", "전북", "전라남도", "전남", "경상북도", "경북", "경상남도", "경남",
+    "제주특별자치도", "제주",
+]
+
+
+def _normalize_address(addr: str) -> str:
+    normalized = addr
+    for prefix in _ADMIN_PREFIXES:
+        normalized = normalized.replace(prefix, "")
+    return normalized.replace(" ", "")
+
+
+def _find_sunday_note(
+    bank: str | None, place_name: str, address: str | None, road_address: str | None
+) -> tuple[bool, str | None, str | None]:
     if not bank:
         return False, None, None
+    candidate_addresses = [_normalize_address(a) for a in (address, road_address) if a]
     for branch in get_multilingual_branches(bank=bank):
         if branch.source_id != "SHINHAN_SUNDAY_FOREIGN_BRANCHES":
             continue
         core_name = branch.branch_name.split("(")[0].strip()
         if core_name and core_name in place_name:
             return True, branch.note, branch.source_id
+        if branch.address:
+            branch_addr = _normalize_address(branch.address)
+            if branch_addr and any(branch_addr in a or a in branch_addr for a in candidate_addresses):
+                return True, branch.note, branch.source_id
     return False, None, None
 
 
 def _parse_document(doc: dict) -> BranchLocation:
     place_name = doc.get("place_name", "")
     bank = next((b for b in MAJOR_BANKS if b.replace("KB", "").strip() in place_name or b in place_name), None)
-    is_sunday, note, source_id = _find_sunday_note(bank, place_name)
+    address = doc.get("address_name")
+    road_address = doc.get("road_address_name")
+    is_sunday, note, source_id = _find_sunday_note(bank, place_name, address, road_address)
     distance = doc.get("distance")
     return BranchLocation(
         place_name=place_name,
