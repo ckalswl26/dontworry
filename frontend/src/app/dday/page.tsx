@@ -39,7 +39,7 @@ export default function DDayPage() {
             </div>
 
             <p className="mt-6 text-sm font-extrabold text-brand-navy">{t(lang, "todo")}</p>
-            <div className="relative mt-3 flex flex-col gap-6 border-l border-gray-200 pl-6">
+            <div className="relative mt-3 flex flex-col gap-4 border-l border-gray-200 pl-5">
               {data.items.map((item, i) => (
                 <button
                   key={i}
@@ -47,21 +47,21 @@ export default function DDayPage() {
                   className="relative text-left"
                 >
                   <span
-                    className={`absolute -left-[27px] top-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white ${
+                    className={`absolute -left-[25px] top-1 flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-white ${
                       item.requires_visit ? "bg-brand-red" : "bg-brand-blue"
                     }`}
                   >
                     {item.day_offset === 0 ? "0" : item.day_offset}
                   </span>
-                  <div className="flex items-center gap-1.5">
-                    <p className="font-semibold text-brand-navy">{item.label}</p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="min-w-0 flex-1 text-sm font-bold leading-5 text-brand-navy">{item.label}</p>
                     {item.requires_visit && (
-                      <span className="inline-flex items-center gap-0.5 rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-brand-red">
+                      <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-red-50 px-2 py-1 text-[9px] font-semibold text-brand-red">
                         📍 {t(lang, "signalRed")}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="mt-1 text-[11px] leading-4 text-gray-500">
                     {item.detail}
                     {item.is_recommended_not_legal && " (팀 권장 시점, 법정기한 아님)"}
                   </p>

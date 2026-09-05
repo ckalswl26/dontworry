@@ -4,7 +4,7 @@ from datetime import date
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class SignalStatus(str, Enum):
@@ -244,6 +244,11 @@ class ExpenseBreakdown(BaseModel):
     remittance: int = 0
     other: int = 0
 
+    @field_validator("housing", "food", "communication", "transportation", "remittance", "other", mode="before")
+    @classmethod
+    def parse_krw(cls, value: Any) -> Any:
+        return value.replace(",", "").replace("₩", "").strip() if isinstance(value, str) else value
+
     @property
     def total(self) -> int:
         return self.housing + self.food + self.communication + self.transportation + self.remittance + self.other
@@ -256,6 +261,11 @@ class PlannerRequest(BaseModel):
     monthly_income: int
     expenses: ExpenseBreakdown
     meals_housing_provided: bool = False
+
+    @field_validator("target_amount", "current_savings", "monthly_income", mode="before")
+    @classmethod
+    def parse_krw(cls, value: Any) -> Any:
+        return value.replace(",", "").replace("₩", "").strip() if isinstance(value, str) else value
 
 
 class PlannerResponse(BaseModel):

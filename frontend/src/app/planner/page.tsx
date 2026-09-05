@@ -8,6 +8,7 @@ import { BackHeader, Card, PrimaryButton } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
 import { api } from "@/lib/api";
 import type { ExpenseBreakdown, PlannerResponse } from "@/lib/types";
+import { formatKRW, formatKRWInput, parseKRW } from "@/lib/format";
 
 type ExpenseKey = keyof ExpenseBreakdown;
 
@@ -23,8 +24,7 @@ const EXPENSE_LABELS: Record<ExpenseKey, string> = {
 };
 
 function toNumber(value: string): number {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
+  return parseKRW(value);
 }
 
 export default function PlannerPage() {
@@ -95,33 +95,34 @@ export default function PlannerPage() {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-xs text-gray-500">{t(lang, "targetAmount")}</label>
-            <input
-              type="number"
+            <div className="relative"><input
+              type="text"
+              inputMode="numeric"
               value={targetAmount}
-              onChange={(e) => setTargetAmount(e.target.value)}
+              onChange={(e) => setTargetAmount(formatKRWInput(e.target.value))}
               placeholder="0"
-              className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-brand-blue"
-            />
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 pr-10 text-sm font-semibold shadow-sm focus:border-brand-blue"
+            /><span className="pointer-events-none absolute bottom-3 right-3 text-xs font-bold text-slate-400">원</span></div>
           </div>
           <div>
             <label className="text-xs text-gray-500">{t(lang, "monthsLeft")}</label>
             <input
-              type="number"
+              type="text" inputMode="numeric"
               value={monthsLeft}
-              onChange={(e) => setMonthsLeft(e.target.value)}
+              onChange={(e) => setMonthsLeft(e.target.value.replace(/\D/g, ""))}
               placeholder="0"
               className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-brand-blue"
             />
           </div>
           <div className="col-span-2">
             <label className="text-xs text-gray-500">{t(lang, "monthlyIncome")}</label>
-            <input
-              type="number"
+            <div className="relative"><input
+              type="text" inputMode="numeric"
               value={monthlyIncome}
-              onChange={(e) => setMonthlyIncome(e.target.value)}
+              onChange={(e) => setMonthlyIncome(formatKRWInput(e.target.value))}
               placeholder="0"
-              className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-brand-blue"
-            />
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 pr-10 text-sm font-semibold shadow-sm focus:border-brand-blue"
+            /><span className="pointer-events-none absolute bottom-3 right-3 text-xs font-bold text-slate-400">원</span></div>
           </div>
         </div>
 
@@ -152,14 +153,14 @@ export default function PlannerPage() {
                     {t(lang, "unknownExpense")}
                   </button>
                 </div>
-                <input
-                  type="number"
+                <div className="relative"><input
+                  type="text" inputMode="numeric"
                   value={expenses[key]}
-                  onChange={(e) => setExpenses({ ...expenses, [key]: e.target.value })}
+                  onChange={(e) => setExpenses({ ...expenses, [key]: formatKRWInput(e.target.value) })}
                   placeholder="0"
                   disabled={isUnknown}
-                  className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-brand-blue disabled:bg-gray-50 disabled:text-gray-300"
-                />
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 pr-9 text-sm font-semibold shadow-sm focus:border-brand-blue disabled:bg-gray-50 disabled:text-gray-300"
+                /><span className="pointer-events-none absolute bottom-3 right-3 text-[11px] font-bold text-slate-400">원</span></div>
               </div>
             );
           })}
@@ -181,15 +182,15 @@ export default function PlannerPage() {
             <div className="mt-3 flex justify-between">
               <div>
                 <p className="text-xs text-gray-500">{t(lang, "disposableIncome")}</p>
-                <p className="text-lg font-bold text-brand-navy">{result.disposable_income.toLocaleString()}원</p>
+                <p className="text-base font-bold text-brand-navy">{formatKRW(result.disposable_income)}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">{t(lang, "requiredSaving")}</p>
-                <p className="text-lg font-bold text-brand-navy">{result.required_monthly_saving.toLocaleString()}원</p>
+                <p className="text-base font-bold text-brand-navy">{formatKRW(result.required_monthly_saving)}</p>
               </div>
             </div>
             {!result.goal_met && (
-              <p className="mt-2 text-xs text-amber-700">부족액: {result.shortfall_amount.toLocaleString()}원</p>
+              <p className="mt-2 text-xs text-amber-700">부족액: {formatKRW(result.shortfall_amount)}</p>
             )}
             {excludedLabels.length > 0 && (
               <p className="mt-3 rounded-lg bg-white/60 px-2.5 py-2 text-xs text-amber-700">

@@ -41,8 +41,8 @@ function TriToggle({
 }) {
   return (
     <div>
-      <p className="text-xs text-gray-500">{label}</p>
-      <div className="mt-1 flex gap-1.5">
+      <p className="text-xs font-semibold text-slate-600">{label}</p>
+      <div className="mt-2 grid grid-cols-3 gap-1 rounded-xl bg-slate-50 p-1">
         {[
           { v: true as boolean | null, key: "yesLabel" },
           { v: false as boolean | null, key: "noLabel" },
@@ -51,8 +51,8 @@ function TriToggle({
           <button
             key={String(opt.v)}
             onClick={() => onChange(opt.v)}
-            className={`rounded-full border px-3 py-1 text-xs ${
-              value === opt.v ? "border-brand-navy bg-brand-navy text-white" : "border-gray-200 text-gray-600"
+            className={`rounded-lg px-2 py-2 text-xs font-bold ${
+              value === opt.v ? "bg-brand-navy text-white shadow-sm" : "text-slate-500 hover:bg-white"
             }`}
           >
             {t(lang, opt.key)}
@@ -116,16 +116,16 @@ export default function FinancePage() {
       <div className="flex-1 px-5 pb-28 pt-6">
         <p className="text-xs text-gray-400">{t(lang, "productDisclaimer")}</p>
 
-        <Card className="mt-4">
-          <div className="flex flex-col gap-3">
+        <Card className="mt-4 !p-4">
+          <div className="flex flex-col gap-4">
             <TriToggle label={t(lang, "hasArcLabel")} value={hasArc} onChange={setHasArc} lang={lang} />
             <TriToggle label={t(lang, "isTaxResidentLabel")} value={isTaxResident} onChange={setIsTaxResident} lang={lang} />
             <div>
-              <p className="text-xs text-gray-500">{t(lang, "purposeLabel")}</p>
-              <div className="mt-1 flex flex-wrap gap-1.5">
+              <p className="text-xs font-semibold text-slate-600">{t(lang, "purposeLabel")}</p>
+              <div className="mt-2 flex flex-wrap gap-2">
                 <button
                   onClick={() => setPurpose(null)}
-                  className={`rounded-full border px-3 py-1 text-xs ${
+                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
                     purpose === null ? "border-brand-navy bg-brand-navy text-white" : "border-gray-200 text-gray-600"
                   }`}
                 >
@@ -135,7 +135,7 @@ export default function FinancePage() {
                   <button
                     key={tag.value}
                     onClick={() => setPurpose(purpose === tag.value ? null : tag.value)}
-                    className={`rounded-full border px-3 py-1 text-xs ${
+                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
                       purpose === tag.value ? "border-brand-navy bg-brand-navy text-white" : "border-gray-200 text-gray-600"
                     }`}
                   >
@@ -151,7 +151,7 @@ export default function FinancePage() {
         {!aiGenerated && !recLoading && recommendations.length > 0 && (
           <p className="mt-1 text-[11px] text-gray-400">{t(lang, "ruleBasedFallbackNote")}</p>
         )}
-        {recLoading && <p className="mt-2 text-sm text-gray-400">...</p>}
+        {recLoading && <div className="mt-3 h-24 animate-pulse rounded-xl2 bg-slate-100" />}
         {!recLoading && recError && <ErrorNotice message={recError} />}
         {!recLoading && !recError && recommendations.length === 0 && (
           <div className="mt-2 rounded-xl2 border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
@@ -165,15 +165,15 @@ export default function FinancePage() {
         )}
         <div className="mt-2 flex flex-col gap-3">
           {recommendations.map((r) => (
-            <Card key={r.product_id}>
-              <p className="font-semibold text-brand-navy">{r.product_name}</p>
-              <p className="text-xs text-gray-500">
+            <Card key={r.product_id} className="!p-4">
+              <p className="text-[15px] font-bold text-brand-navy">{r.product_name}</p>
+              <p className="mt-0.5 text-[11px] text-gray-500">
                 {r.institution} · {r.category}
               </p>
               <span className="mt-2 inline-block rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-medium text-brand-blue">
                 {r.eligibility_badge_ko}
               </span>
-              <p className="mt-2 text-sm text-gray-600">{r.reason_ko}</p>
+              <p className="mt-2 text-xs leading-5 text-gray-600">{r.reason_ko}</p>
               {r.caution_ko && (
                 <p className="mt-2 rounded-lg bg-amber-50 px-2.5 py-2 text-xs text-amber-700">⚠ {r.caution_ko}</p>
               )}
@@ -200,8 +200,8 @@ export default function FinancePage() {
         )}
         <div className="mt-2 flex flex-col gap-3">
           {savings.slice(0, 15).map((p) => (
-            <Card key={p.product_id}>
-              <p className="font-semibold text-brand-navy">{p.product_name}</p>
+            <Card key={p.product_id} className="!p-4">
+              <p className="text-[15px] font-bold text-brand-navy">{p.product_name}</p>
               <p className="text-xs text-gray-500">{p.bank}</p>
               {(p.base_rate || p.max_rate) && (
                 <p className="mt-1 text-sm text-brand-blue">
