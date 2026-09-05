@@ -68,6 +68,12 @@ body {
   .app-shell > * {
     min-height: 100%;
   }
+
+  /* 스플래시 화면은 프레임 실제 높이(뷰포트 100dvh보다 작을 수 있음)에 맞춰야
+     스크롤 없이 한 화면에 들어간다. */
+  .app-shell .splash-main {
+    height: 100%;
+  }
 }
 
 button, a, input, select { transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
