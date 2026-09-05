@@ -349,6 +349,20 @@ class FxRatesResponse(BaseModel):
     error: str | None = None
 
 
+class FxHistoryPoint(BaseModel):
+    date: str
+    rate: float
+
+
+class FxHistoryResponse(BaseModel):
+    currency: str
+    base: str = "KRW"
+    points: list[FxHistoryPoint] = Field(default_factory=list)
+    sources: list[SourceRef] = Field(default_factory=list)
+    available: bool = True
+    error: str | None = None
+
+
 # ---------- 은행 지점 검색 / GPS 근처 지점 찾기 ----------
 
 class BranchLocation(BaseModel):

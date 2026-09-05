@@ -10,6 +10,16 @@ import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
 import type { RuleEvaluateResponse } from "@/lib/types";
 
+// 은행 표준 영업시간(평일 09:00~16:00, 토/일 휴무)이 기준. 일요일 전용 영업점으로
+// 확인된 지점(BranchPicker에서 표시)만 예외로 일요일 10:00~15:00을 추가로 연다.
+function dayOperatingHours(dateStr: string, isSundayBranch: boolean): { open: string; close: string } | null {
+  if (!dateStr) return null;
+  const day = new Date(`${dateStr}T00:00:00`).getDay();
+  if (day === 0) return isSundayBranch ? { open: "10:00", close: "15:00" } : null;
+  if (day === 6) return null;
+  return { open: "09:00", close: "16:00" };
+}
+
 function daysUntil(dateStr: string | null | undefined): number | null {
   if (!dateStr) return null;
   const date = new Date(dateStr);
@@ -48,7 +58,9 @@ export default function ConsultCardPage() {
   const heldDocs = requiredDocs.filter((doc) => state.documentsHeld.includes(doc));
   const missingDocs = requiredDocs.filter((doc) => !state.documentsHeld.includes(doc));
   const readiness = requiredDocs.length ? Math.round((heldDocs.length / requiredDocs.length) * 100) : 100;
-  const hasSchedule = Boolean(consultation.branch.trim() && consultation.visitDate);
+  const operatingHours = dayOperatingHours(consultation.visitDate, consultation.branchIsSunday);
+  const dateClosed = Boolean(consultation.visitDate) && operatingHours === null;
+  const hasSchedule = Boolean(consultation.branch.trim() && consultation.visitDate && !dateClosed);
   const scheduleText = hasSchedule
     ? `${consultation.branch.trim()} 방문 예정 · ${consultation.visitDate}${consultation.visitTime ? ` ${consultation.visitTime}` : ""}`
     : "방문 일정을 입력해주세요";
@@ -112,9 +124,46 @@ export default function ConsultCardPage() {
               )}
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div><label htmlFor="visit-date" className="text-xs font-semibold text-slate-600">방문 예정 날짜</label><input id="visit-date" type="date" value={consultation.visitDate} onChange={(e) => setConsultation({ visitDate: e.target.value, ready: false })} className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:border-brand-blue" /></div>
-              <div><label htmlFor="visit-time" className="text-xs font-semibold text-slate-600">방문 시간 <span className="font-normal text-slate-400">선택</span></label><input id="visit-time" type="time" value={consultation.visitTime} onChange={(e) => setConsultation({ visitTime: e.target.value, ready: false })} className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:border-brand-blue" /></div>
+              <div>
+                <label htmlFor="visit-date" className="text-xs font-semibold text-slate-600">방문 예정 날짜</label>
+                <input
+                  id="visit-date"
+                  type="date"
+                  value={consultation.visitDate}
+                  onChange={(e) => {
+                    const newDate = e.target.value;
+                    const newHours = dayOperatingHours(newDate, consultation.branchIsSunday);
+                    const timeStillValid =
+                      newHours && consultation.visitTime && consultation.visitTime >= newHours.open && consultation.visitTime <= newHours.close;
+                    setConsultation({ visitDate: newDate, visitTime: timeStillValid ? consultation.visitTime : "", ready: false });
+                  }}
+                  className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:border-brand-blue"
+                />
+              </div>
+              <div>
+                <label htmlFor="visit-time" className="text-xs font-semibold text-slate-600">방문 시간 <span className="font-normal text-slate-400">선택</span></label>
+                <input
+                  id="visit-time"
+                  type="time"
+                  value={consultation.visitTime}
+                  onChange={(e) => setConsultation({ visitTime: e.target.value, ready: false })}
+                  min={operatingHours?.open}
+                  max={operatingHours?.close}
+                  disabled={!operatingHours}
+                  className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:border-brand-blue disabled:bg-gray-50 disabled:text-gray-300"
+                />
+              </div>
             </div>
+            {dateClosed && (
+              <p className="text-xs font-semibold text-brand-red">
+                이 날짜는 영업일이 아니에요. {consultation.branchIsSunday ? "평일 또는 일요일(10:00~15:00)로 선택해주세요." : "평일로 선택해주세요."}
+              </p>
+            )}
+            {operatingHours && (
+              <p className="text-[11px] text-slate-400">
+                영업시간 {operatingHours.open}~{operatingHours.close}
+              </p>
+            )}
           </div>
         </Card>
 

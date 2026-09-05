@@ -16,7 +16,7 @@ from datetime import date, timedelta
 import httpx
 
 from app.config import get_settings
-from app.models.schemas import FxRate, FxRatesResponse
+from app.models.schemas import FxHistoryPoint, FxHistoryResponse, FxRate, FxRatesResponse
 from app.services.source_service import get_sources
 
 logger = logging.getLogger(__name__)
@@ -125,3 +125,68 @@ def get_fx_rates() -> FxRatesResponse:
         available=True,
         error=None,
     )
+
+
+# ECOS는 하루 1회 고시라 일중(시간별) 데이터가 없다 - "1일/5일" 같은 일중 탭 대신
+# 날짜 단위 구간만 제공한다. "max"는 실제로는 최근 10년으로 제한한다(그 이전은
+# 환율 추세 확인 목적에 비해 과도한 범위라 판단).
+FX_HISTORY_RANGES: dict[str, int] = {
+    "1m": 31,
+    "3m": 92,
+    "1y": 366,
+    "5y": 366 * 5,
+    "max": 366 * 10,
+}
+
+
+def get_fx_history(currency: str, range_key: str) -> FxHistoryResponse:
+    settings = get_settings()
+    sources = get_sources(["BOK_ECOS_FX_RATES"])
+
+    if currency in UNSUPPORTED_CURRENCIES:
+        return FxHistoryResponse(
+            currency=currency, sources=sources, available=False,
+            error="이 통화는 아직 실시간 환율을 제공하지 않습니다.",
+        )
+    item_code = CURRENCY_ITEM_CODES.get(currency)
+    if not item_code:
+        return FxHistoryResponse(currency=currency, sources=sources, available=False, error="지원하지 않는 통화입니다.")
+    if not settings.ecos_api_key:
+        return FxHistoryResponse(
+            currency=currency, sources=sources, available=False,
+            error="환율 API 인증키가 설정되지 않아 그래프를 불러올 수 없습니다.",
+        )
+
+    days = FX_HISTORY_RANGES.get(range_key, FX_HISTORY_RANGES["1m"])
+    end = date.today()
+    start = end - timedelta(days=days)
+    count = min(days + 5, 4000)
+    url = (
+        f"{ECOS_BASE_URL}/{settings.ecos_api_key}/json/kr/1/{count}/{ECOS_STAT_CODE}/D/"
+        f"{start:%Y%m%d}/{end:%Y%m%d}/{item_code}"
+    )
+
+    try:
+        with httpx.Client() as client:
+            resp = client.get(url, timeout=8.0)
+            resp.raise_for_status()
+            payload = resp.json()
+    except Exception:
+        logger.exception("ECOS history fetch failed for %s", currency)
+        return FxHistoryResponse(currency=currency, sources=sources, available=False, error="환율 히스토리를 불러올 수 없습니다.")
+
+    rows = (payload.get("StatisticSearch") or {}).get("row") or []
+    scale = CURRENCY_UNIT_SCALE.get(currency, 1)
+    points: list[FxHistoryPoint] = []
+    for row in rows:
+        try:
+            value = float(row["DATA_VALUE"]) / scale
+        except (KeyError, ValueError, TypeError):
+            continue
+        time_str = str(row["TIME"])
+        points.append(FxHistoryPoint(date=f"{time_str[0:4]}-{time_str[4:6]}-{time_str[6:8]}", rate=value))
+
+    if not points:
+        return FxHistoryResponse(currency=currency, sources=sources, available=False, error="환율 히스토리를 불러올 수 없습니다.")
+
+    return FxHistoryResponse(currency=currency, points=points, sources=sources, available=True)

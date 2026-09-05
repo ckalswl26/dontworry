@@ -235,6 +235,20 @@ export interface BranchSearchResponse {
   attribution: string;
 }
 
+export interface FxHistoryPoint {
+  date: string;
+  rate: number;
+}
+
+export interface FxHistoryResponse {
+  currency: string;
+  base: string;
+  points: FxHistoryPoint[];
+  sources: SourceRef[];
+  available: boolean;
+  error?: string | null;
+}
+
 export interface MultilingualBranch {
   branch_id: string;
   bank: string;

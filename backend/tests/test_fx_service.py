@@ -128,3 +128,70 @@ def test_get_fx_rates_reports_unavailable_when_every_fetch_fails(monkeypatch):
     assert result.available is False
     assert result.error
     assert result.rates == []
+
+
+class _FakeHistClient:
+    def __init__(self, payload):
+        self._payload = payload
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+    def get(self, url, timeout=8.0):
+        class _Resp:
+            def raise_for_status(_self):
+                pass
+
+            def json(_self):
+                return self._payload
+
+        return _Resp()
+
+
+def test_get_fx_history_rejects_unsupported_currency(monkeypatch):
+    monkeypatch.setattr(fx_service, "get_settings", lambda: _FakeSettings())
+    result = fx_service.get_fx_history("KHR", "1m")
+    assert result.available is False
+    assert result.error
+    assert result.points == []
+
+
+def test_get_fx_history_missing_api_key_returns_unavailable(monkeypatch):
+    monkeypatch.setattr(fx_service, "get_settings", lambda: _FakeSettings(ecos_api_key=""))
+    result = fx_service.get_fx_history("VND", "1m")
+    assert result.available is False
+    assert result.error
+
+
+def test_get_fx_history_parses_points_with_unit_scale(monkeypatch):
+    monkeypatch.setattr(fx_service, "get_settings", lambda: _FakeSettings())
+    payload = {
+        "StatisticSearch": {
+            "row": [
+                {"TIME": "20260901", "DATA_VALUE": "5.20"},
+                {"TIME": "20260902", "DATA_VALUE": "5.25"},
+            ]
+        }
+    }
+    monkeypatch.setattr(fx_service.httpx, "Client", lambda: _FakeHistClient(payload))
+
+    result = fx_service.get_fx_history("VND", "1m")
+
+    assert result.available is True
+    assert len(result.points) == 2
+    assert result.points[0].date == "2026-09-01"
+    assert result.points[0].rate == pytest.approx(0.052)
+    assert result.points[1].rate == pytest.approx(0.0525)
+
+
+def test_get_fx_history_no_rows_returns_unavailable(monkeypatch):
+    monkeypatch.setattr(fx_service, "get_settings", lambda: _FakeSettings())
+    monkeypatch.setattr(fx_service.httpx, "Client", lambda: _FakeHistClient({"StatisticSearch": {"row": []}}))
+
+    result = fx_service.get_fx_history("VND", "5y")
+
+    assert result.available is False
+    assert result.error
