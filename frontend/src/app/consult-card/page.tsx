@@ -8,7 +8,7 @@ import { BackHeader, Card, ErrorNotice, PrimaryButton } from "@/components/Card"
 import { BranchPicker } from "@/components/BranchPicker";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
-import type { RuleEvaluateResponse } from "@/lib/types";
+import type { MultilingualBranch, RuleEvaluateResponse } from "@/lib/types";
 
 // 은행 표준 영업시간(평일 09:00~16:00, 토/일 휴무)이 기준. 일요일 전용 영업점으로
 // 확인된 지점(BranchPicker에서 표시)만 예외로 일요일 10:00~15:00을 추가로 연다.
@@ -50,6 +50,8 @@ export default function ConsultCardPage() {
   const { data, loading, error } = useFetch<RuleEvaluateResponse>(
     () => api.rulesEvaluate({ profile: state.profile, documents_held: state.documentsHeld }), []
   );
+  const { data: branchData } = useFetch<{ branches: MultilingualBranch[] }>(() => api.multilingualBranches(), []);
+  const interpretationCenter = branchData?.branches.find((b) => b.branch_id === "KB_FOREIGN_CALL_CENTER");
 
   const days = daysUntil(state.profile.departure_date);
   const visitTask = data?.tasks.find((task) => task.task_id === "account_closure")
@@ -166,6 +168,22 @@ export default function ConsultCardPage() {
             )}
           </div>
         </Card>
+
+        {interpretationCenter && (
+          <Card className="mt-3 border-brand-blue/15 bg-brand-sky/30">
+            <p className="text-xs font-semibold text-brand-blue">💬 말이 안 통할 때</p>
+            <p className="mt-1 text-sm font-bold text-brand-navy">{interpretationCenter.branch_name}</p>
+            <p className="mt-1 text-xs leading-5 text-slate-600">
+              {interpretationCenter.languages.join(" · ")} 지원. 창구 방문 시에도 3자 전화통역 요청이 가능해요.
+            </p>
+            <a
+              href={`tel:${interpretationCenter.phone}`}
+              className="mt-3 block w-full rounded-xl bg-brand-blue py-2.5 text-center text-sm font-bold text-white"
+            >
+              📞 {interpretationCenter.phone}
+            </a>
+          </Card>
+        )}
 
         {loading && <p className="mt-4 text-sm text-gray-400">상담 정보를 확인하고 있어요...</p>}
         {!loading && error && <div className="mt-4"><ErrorNotice message={error} /></div>}

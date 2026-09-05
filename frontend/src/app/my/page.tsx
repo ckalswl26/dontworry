@@ -7,8 +7,10 @@ import type { SessionState } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { BackHeader, Card } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
+import { Dropdown } from "@/components/Dropdown";
 import { getExistingSubscription, isPushSupported, subscribeToPush, unsubscribeFromPush } from "@/lib/push";
-import type { Lang } from "@/lib/types";
+import { LANGS } from "@/lib/languages";
+import { AUTO_TRANSLATED_LANGS, type Lang } from "@/lib/types";
 
 export default function MyPage() {
   const router = useRouter();
@@ -108,19 +110,14 @@ export default function MyPage() {
 
         <Card className="mt-4">
           <p className="mb-3 text-sm font-bold text-brand-navy">{t(lang, "langSelect")}</p>
-          <div className="grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-1.5">
-            {(["ko", "en", "vi"] as Lang[]).map((l) => (
-              <button
-                key={l}
-                onClick={() => setLang(l)}
-                className={`rounded-lg py-2.5 text-sm font-bold ${
-                  lang === l ? "bg-brand-navy text-white shadow-sm" : "text-slate-500 hover:bg-white"
-                }`}
-              >
-                {l.toUpperCase()}
-              </button>
-            ))}
-          </div>
+          <Dropdown
+            value={lang}
+            onChange={(code) => setLang(code as Lang)}
+            options={LANGS.map((l) => ({ value: l.code, label: `${l.greeting} · ${l.label}` }))}
+          />
+          {AUTO_TRANSLATED_LANGS.includes(lang) && (
+            <p className="mt-1.5 text-[11px] text-amber-600">⚠ 자동번역 - 오류가 있을 수 있어요</p>
+          )}
         </Card>
 
         {isPushSupported() && (

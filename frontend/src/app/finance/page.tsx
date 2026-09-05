@@ -8,7 +8,7 @@ import { BackHeader, Card, ErrorNotice } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
-import type { FinanceProduct, ProductRecommendationResponse } from "@/lib/types";
+import { pickLang3, type FinanceProduct, type Lang, type ProductRecommendationResponse } from "@/lib/types";
 
 function monthsUntil(dateStr: string | null | undefined): number | null {
   if (!dateStr) return null;
@@ -37,7 +37,7 @@ function TriToggle({
   label: string;
   value: boolean | null;
   onChange: (v: boolean | null) => void;
-  lang: "ko" | "en" | "vi";
+  lang: Lang;
 }) {
   return (
     <div>
@@ -139,7 +139,7 @@ export default function FinancePage() {
                       purpose === tag.value ? "border-brand-navy bg-brand-navy text-white" : "border-gray-200 text-gray-600"
                     }`}
                   >
-                    {tag[lang] ?? tag.ko}
+                    {pickLang3(tag, lang)}
                   </button>
                 ))}
               </div>

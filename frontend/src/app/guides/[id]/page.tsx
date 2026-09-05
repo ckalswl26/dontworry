@@ -5,7 +5,7 @@ import { useStore } from "@/lib/store";
 import { BackHeader, Card, ErrorNotice } from "@/components/Card";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
-import type { GuideContent } from "@/lib/types";
+import { pickLang3, type GuideContent } from "@/lib/types";
 
 export default function GuidePage() {
   const router = useRouter();
@@ -17,13 +17,13 @@ export default function GuidePage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <BackHeader title={data?.title[lang] ?? "..."} onBack={() => router.back()} />
+      <BackHeader title={data ? pickLang3(data.title, lang) : "..."} onBack={() => router.back()} />
       <div className="flex-1 px-5 py-5">
         {loading && <p className="text-sm text-gray-400">...</p>}
         {!loading && error && <ErrorNotice message={error} />}
         {!loading && !error && data && (
           <>
-            <p className="text-sm leading-6 text-slate-600">{data.summary[lang]}</p>
+            <p className="text-sm leading-6 text-slate-600">{pickLang3(data.summary, lang)}</p>
 
             <div className="mt-4 flex flex-col gap-3">
               {data.steps.map((step, i) => (
@@ -32,14 +32,14 @@ export default function GuidePage() {
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-navy text-xs font-bold text-white">
                       {i + 1}
                     </span>
-                    <p className="text-sm leading-6 text-slate-700">{step[lang]}</p>
+                    <p className="text-sm leading-6 text-slate-700">{pickLang3(step, lang)}</p>
                   </div>
                 </Card>
               ))}
             </div>
 
             <Card className="mt-3 border-amber-100 bg-amber-50/60">
-              <p className="text-sm leading-6 text-amber-800">{data.note[lang]}</p>
+              <p className="text-sm leading-6 text-amber-800">{pickLang3(data.note, lang)}</p>
             </Card>
 
             {data.sources.length > 0 && (

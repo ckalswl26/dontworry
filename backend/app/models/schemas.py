@@ -34,7 +34,7 @@ class UserProfile(BaseModel):
     nps_insured_months: int | None = None
     tenure_months: int | None = None
     industry: str | None = None
-    language: Literal["ko", "en", "vi"] = "ko"
+    language: Literal["ko", "en", "vi", "km", "id", "lo", "my", "bn", "ne", "ur", "si", "ky", "tg", "uz", "zh", "mn"] = "ko"
 
 
 # ---------- F1 Intent ----------
@@ -399,7 +399,7 @@ class PushSubscribeRequest(BaseModel):
     endpoint: str
     keys: PushKeys
     departure_date: date | None = None
-    lang: Literal["ko", "en", "vi"] = "ko"
+    lang: Literal["ko", "en", "vi", "km", "id", "lo", "my", "bn", "ne", "ur", "si", "ky", "tg", "uz", "zh", "mn"] = "ko"
 
 
 class PushUnsubscribeRequest(BaseModel):

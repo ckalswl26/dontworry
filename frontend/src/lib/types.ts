@@ -1,4 +1,13 @@
-export type Lang = "ko" | "en" | "vi";
+export type Lang = "ko" | "en" | "vi" | "km" | "id" | "lo" | "my" | "bn" | "ne" | "ur" | "si" | "ky" | "tg" | "uz" | "zh" | "mn";
+
+// 자동번역(기계번역)으로 채워진 언어 - 사람이 검증하지 않았으므로 화면에 경고 배지를 띄운다.
+export const AUTO_TRANSLATED_LANGS: Lang[] = ["km", "id", "lo", "my", "bn", "ne", "ur", "si", "ky", "tg", "uz", "zh", "mn"];
+
+// 국적명/통화명 등 ko/en/vi로만 채워진 보조 데이터를 나머지 13개 언어로 볼 때
+// 안전하게 한국어로 대체한다 (본문 UI 텍스트는 dictionaries에 16개 언어 모두 있음).
+export function pickLang3<T extends { ko: string; en: string; vi: string }>(obj: T, lang: Lang): string {
+  return (obj as unknown as Record<string, string>)[lang] ?? obj.ko;
+}
 
 export interface UserProfile {
   /** 서버에 저장되지 않는 프론트엔드 전용 필드. 화면 인사말 등 표시용으로만 쓴다. */

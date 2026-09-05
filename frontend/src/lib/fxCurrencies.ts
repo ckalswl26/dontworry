@@ -1,4 +1,4 @@
-import type { Lang } from "@/lib/types";
+import { pickLang3, type Lang } from "@/lib/types";
 
 // EPS 17개국 중 동티모르(USD, 자체 통화 없음)를 제외한 16개 통화.
 // 실제로 실시간 환율을 받아오는지 여부는 백엔드 unsupported 목록으로 판단하고,
@@ -30,7 +30,7 @@ export const NATIONALITY_TO_CURRENCY: Record<string, string> = {
 
 export function currencyLabel(lang: Lang, code: string): string {
   const entry = FX_CURRENCIES.find((c) => c.code === code);
-  return entry ? `${entry[lang] ?? entry.ko} (${code})` : code;
+  return entry ? `${pickLang3(entry, lang)} (${code})` : code;
 }
 
 export function formatFxNumber(value: number): string {

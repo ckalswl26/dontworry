@@ -7,6 +7,7 @@ import { t } from "@/lib/i18n";
 import { BackHeader, PrimaryButton } from "@/components/Card";
 import { Dropdown } from "@/components/Dropdown";
 import { NATIONALITIES, VISA_TYPES } from "@/lib/profileOptions";
+import { pickLang3 } from "@/lib/types";
 
 export default function MyEditPage() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function MyEditPage() {
             <Dropdown
               value={draft.nationality}
               onChange={(v) => setDraft({ ...draft, nationality: v })}
-              options={NATIONALITIES.map((n) => ({ value: n.code, label: n[lang] ?? n.ko }))}
+              options={NATIONALITIES.map((n) => ({ value: n.code, label: pickLang3(n, lang) }))}
             />
           </div>
 

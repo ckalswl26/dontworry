@@ -9,6 +9,7 @@ import { Dropdown } from "@/components/Dropdown";
 import { LogoWordmark, Mascot } from "@/components/Logo";
 import { api } from "@/lib/api";
 import { NATIONALITIES, VISA_TYPES, VISIT_TIMES } from "@/lib/profileOptions";
+import { pickLang3 } from "@/lib/types";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -71,7 +72,7 @@ export default function OnboardingPage() {
           <Dropdown
             value={profile.nationality}
             onChange={(v) => setLocalProfile({ ...profile, nationality: v })}
-            options={NATIONALITIES.map((n) => ({ value: n.code, label: n[lang] ?? n.ko }))}
+            options={NATIONALITIES.map((n) => ({ value: n.code, label: pickLang3(n, lang) }))}
           />
         </div>
 

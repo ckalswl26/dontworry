@@ -5,25 +5,47 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { LogoWordmark, Mascot } from "@/components/Logo";
 import { PrimaryButton } from "@/components/Card";
+import { Dropdown } from "@/components/Dropdown";
 import { t } from "@/lib/i18n";
-import type { Lang } from "@/lib/types";
-
-const LANGS: { code: Lang; label: string; greeting: string }[] = [
-  { code: "ko", label: "한국어", greeting: "안녕하세요" },
-  { code: "en", label: "English", greeting: "Welcome" },
-  { code: "vi", label: "Tiếng Việt", greeting: "Xin chào" },
-];
+import { LANGS } from "@/lib/languages";
+import { AUTO_TRANSLATED_LANGS, type Lang } from "@/lib/types";
 
 const SPLASH_TITLE: Record<Lang, string> = {
   ko: "한국 생활의 금융 고민,\n돈워리가 함께 해결해요",
   en: "Money worries in Korea,\nDon't Worry solves them with you",
   vi: "Nỗi lo tài chính khi ở Hàn Quốc,\nDon't Worry cùng bạn giải quyết",
+  km: "កូរ៉េនៅរស់នៅដោះស្រាយបញ្ហាហិរញ្ញវត្ថុ,\nDon't Worry នឹងជួយអ្នក",
+  id: "Kekhawatiran keuangan di Korea,\nDon't Worry menyelesaikannya bersama Anda",
+  lo: "ຄວາມກັງວົນທາງການເງິນໃນເກົາຫຼີ,\nDon't Worry ຊ່ວຍແກ້ໄຂພ້ອມທ່ານ",
+  my: "ကိုရီးယားမှာနေထိုင်စဉ် ငွေကြေးစိုးရိမ်မှုများ,\nDon't Worry နှင့်အတူဖြေရှင်းပါ",
+  bn: "কোরিয়ায় জীবনযাত্রার আর্থিক দুশ্চিন্তা,\nDon't Worry আপনার সাথে সমাধান করবে",
+  ne: "कोरियामा जीवनको आर्थिक चिन्ता,\nDon't Worry ले तपाईंसँगै समाधान गर्छ",
+  ur: "کوریا میں زندگی کی مالی پریشانیاں,\nDon't Worry آپ کے ساتھ حل کرے گا",
+  si: "කොරියාවේ ජීවිතයේ මූල්‍ය කනස්සල්ල,\nDon't Worry ඔබ සමඟ විසඳයි",
+  ky: "Кореяда жашоонун каржылык тынчсыздануулары,\nDon't Worry сиз менен чечет",
+  tg: "Нигаронии молиявии зиндагӣ дар Корея,\nDon't Worry онро якҷоя бо шумо ҳал мекунад",
+  uz: "Koreyada hayotning moliyaviy tashvishlari,\nDon't Worry siz bilan birga hal qiladi",
+  zh: "在韩生活的财务烦恼,\nDon't Worry与您一起解决",
+  mn: "Солонгост амьдрах үеийн санхүүгийн санаа зовнил,\nDon't Worry тантай хамт шийднэ",
 };
 
 const SPLASH_TAGLINE: Record<Lang, string> = {
   ko: "외국인 근로자를 위한 금융 서비스",
   en: "A financial service for foreign workers",
   vi: "Dịch vụ tài chính dành cho lao động nước ngoài",
+  km: "សេវាហិរញ្ញវត្ថុសម្រាប់កម្មករបរទេស",
+  id: "Layanan keuangan untuk pekerja asing",
+  lo: "ບໍລິການທາງການເງິນສຳລັບແຮງງານຕ່າງປະເທດ",
+  my: "နိုင်ငံခြားသားလုပ်သားများအတွက် ငွေကြေးဝန်ဆောင်မှု",
+  bn: "বিদেশি শ্রমিকদের জন্য আর্থিক সেবা",
+  ne: "विदेशी कामदारहरूका लागि वित्तीय सेवा",
+  ur: "غیر ملکی کارکنوں کے لیے مالیاتی خدمت",
+  si: "විදේශීය සේවකයින් සඳහා මූල්‍ය සේවාවක්",
+  ky: "Чет элдик жумушчулар үчүн каржылык кызмат",
+  tg: "Хидмати молиявӣ барои коргарони хориҷӣ",
+  uz: "Xorijiy ishchilar uchun moliyaviy xizmat",
+  zh: "为外国劳动者提供的金融服务",
+  mn: "Гадаад ажилчдад зориулсан санхүүгийн үйлчилгээ",
 };
 
 export default function SplashPage() {
@@ -39,6 +61,8 @@ export default function SplashPage() {
       router.replace("/home");
     }
   }, [ready, state.onboarded, router]);
+
+  const isAutoTranslated = AUTO_TRANSLATED_LANGS.includes(selected);
 
   return (
     <main className="splash-main relative flex h-dvh flex-col overflow-hidden px-6 py-5 text-center">
@@ -62,18 +86,16 @@ export default function SplashPage() {
         <p className="mb-2 text-left text-sm font-bold text-brand-navy">
           {t(selected, "langSelect")} <span className="font-normal text-slate-400">Select language</span>
         </p>
-        <div className="grid grid-cols-3 gap-2">
-          {LANGS.map((l) => (
-            <button
-              key={l.code}
-              onClick={() => setSelected(l.code)}
-              className={`flex h-[70px] flex-col items-center justify-center rounded-xl2 border px-2 text-center ${selected === l.code ? "border-brand-blue bg-brand-sky shadow-sm" : "border-slate-200 bg-white"}`}
-            >
-              <span className="block text-xs text-slate-400">{l.greeting}</span>
-              <span className="mt-1 block text-sm font-bold text-brand-navy">{l.label}</span>
-            </button>
-          ))}
-        </div>
+        <Dropdown
+          value={selected}
+          onChange={(code) => setSelected(code as Lang)}
+          options={LANGS.map((l) => ({ value: l.code, label: `${l.greeting} · ${l.label}` }))}
+        />
+        {isAutoTranslated && (
+          <p className="mt-1.5 text-left text-[11px] text-amber-600">
+            ⚠ 자동번역 - 오류가 있을 수 있어요 / Auto-translated - may contain errors
+          </p>
+        )}
         <div className="mt-3">
           <PrimaryButton onClick={() => { setLang(selected); router.push("/onboarding"); }}>
             {t(selected, "start")}
