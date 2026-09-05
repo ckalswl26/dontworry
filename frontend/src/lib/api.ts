@@ -39,4 +39,11 @@ export const api = {
   multilingualBranches: () =>
     request<{ branches: import("./types").MultilingualBranch[] }>("/api/locations/multilingual-branches"),
   fxRates: () => request<import("./types").FxRatesResponse>("/api/fx/rates"),
+  bankList: () => request<{ banks: string[] }>("/api/locations/bank-list"),
+  nearbyBanks: (lat: number, lng: number) =>
+    request<import("./types").BranchSearchResponse>(`/api/locations/nearby-banks?lat=${lat}&lng=${lng}`),
+  branchSearch: (bank: string, query: string) =>
+    request<import("./types").BranchSearchResponse>(
+      `/api/locations/branch-search?bank=${encodeURIComponent(bank)}&query=${encodeURIComponent(query)}`
+    ),
 };

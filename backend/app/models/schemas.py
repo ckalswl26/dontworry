@@ -339,6 +339,31 @@ class FxRatesResponse(BaseModel):
     error: str | None = None
 
 
+# ---------- 은행 지점 검색 / GPS 근처 지점 찾기 ----------
+
+class BranchLocation(BaseModel):
+    """카카오 로컬 API가 실시간으로 반환한 실제 지점 정보만 담는다 - 좌표/주소를 추측하지 않는다."""
+    place_name: str
+    bank: str | None = None
+    address: str | None = None
+    road_address: str | None = None
+    phone: str | None = None
+    lat: float
+    lng: float
+    distance_m: int | None = None
+    place_url: str | None = None
+    sunday_branch: bool = False
+    sunday_branch_note: str | None = None
+    sunday_branch_source_id: str | None = None
+
+
+class BranchSearchResponse(BaseModel):
+    branches: list[BranchLocation] = Field(default_factory=list)
+    available: bool = True
+    error: str | None = None
+    attribution: str = "이 서비스는 카카오맵의 API를 이용하고 있습니다."
+
+
 # ---------- 다국어 상담 지점 찾기 (F 신규 3순위) ----------
 
 class MultilingualBranch(BaseModel):

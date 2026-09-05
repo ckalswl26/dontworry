@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     fss_api_key: str = ""
     anthropic_api_key: str = ""
     ecos_api_key: str = ""
+    kakao_rest_api_key: str = ""
     justice_stats_api_key: str = ""
     cors_allow_origins: str = "http://localhost:3000"
     # Vercel은 배포마다 새 임시 URL(frontend-<hash>-<team>.vercel.app)을 만든다.

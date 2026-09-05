@@ -39,6 +39,7 @@ interface SessionState {
   assetsHidden: boolean;
   consultation: {
     branch: string;
+    branchIsSunday: boolean;
     visitDate: string;
     visitTime: string;
     memo: string;
@@ -55,7 +56,7 @@ const DEFAULT_STATE: SessionState = {
   lastConfirmedIntent: null,
   conversationContext: {},
   assetsHidden: false,
-  consultation: { branch: "", visitDate: "", visitTime: "", memo: "", ready: false },
+  consultation: { branch: "", branchIsSunday: false, visitDate: "", visitTime: "", memo: "", ready: false },
 };
 
 interface StoreContextValue {

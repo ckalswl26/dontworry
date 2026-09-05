@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { codeLabel, t } from "@/lib/i18n";
 import { BackHeader, Card, ErrorNotice, PrimaryButton } from "@/components/Card";
+import { BranchPicker } from "@/components/BranchPicker";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
 import type { RuleEvaluateResponse } from "@/lib/types";
@@ -35,6 +36,7 @@ export default function ConsultCardPage() {
   const lang = state.profile.language;
   const consultation = state.consultation;
   const [notice, setNotice] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
   const { data, loading, error } = useFetch<RuleEvaluateResponse>(
     () => api.rulesEvaluate({ profile: state.profile, documents_held: state.documentsHeld }), []
   );
@@ -86,7 +88,29 @@ export default function ConsultCardPage() {
         <Card className="border-brand-blue/15 bg-brand-sky/40">
           <div className="flex items-start justify-between gap-3"><div><p className="font-extrabold text-brand-navy">방문 예약 정보</p><p className="mt-1 text-xs leading-5 text-slate-500">예약한 은행과 방문 일정을 직접 입력해주세요.</p></div>{hasSchedule && <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-brand-blue">입력 완료</span>}</div>
           <div className="mt-4 space-y-3">
-            <div><label htmlFor="branch" className="text-xs font-semibold text-slate-600">방문 은행/지점명</label><input id="branch" type="text" value={consultation.branch} onChange={(e) => setConsultation({ branch: e.target.value, ready: false })} placeholder="예: OO은행 OO지점" className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-brand-blue" /></div>
+            <div>
+              <div className="flex items-center justify-between">
+                <label htmlFor="branch" className="text-xs font-semibold text-slate-600">방문 은행/지점명</label>
+                <button type="button" onClick={() => setPickerOpen((v) => !v)} className="text-xs font-semibold text-brand-blue">
+                  {t(lang, "findBranchButton")}
+                </button>
+              </div>
+              <input id="branch" type="text" value={consultation.branch} onChange={(e) => setConsultation({ branch: e.target.value, branchIsSunday: false, ready: false })} placeholder="예: OO은행 OO지점" className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-brand-blue" />
+              {consultation.branchIsSunday && (
+                <span className="mt-1.5 inline-block rounded-full bg-brand-yellow/30 px-2 py-0.5 text-[11px] font-bold text-brand-navy">
+                  {t(lang, "sundayBranchBadge")}
+                </span>
+              )}
+              {pickerOpen && (
+                <BranchPicker
+                  lang={lang}
+                  onSelect={(text, isSunday) => {
+                    setConsultation({ branch: text, branchIsSunday: isSunday, ready: false });
+                    setPickerOpen(false);
+                  }}
+                />
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div><label htmlFor="visit-date" className="text-xs font-semibold text-slate-600">방문 예정 날짜</label><input id="visit-date" type="date" value={consultation.visitDate} onChange={(e) => setConsultation({ visitDate: e.target.value, ready: false })} className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:border-brand-blue" /></div>
               <div><label htmlFor="visit-time" className="text-xs font-semibold text-slate-600">방문 시간 <span className="font-normal text-slate-400">선택</span></label><input id="visit-time" type="time" value={consultation.visitTime} onChange={(e) => setConsultation({ visitTime: e.target.value, ready: false })} className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:border-brand-blue" /></div>
@@ -97,7 +121,7 @@ export default function ConsultCardPage() {
         {loading && <p className="mt-4 text-sm text-gray-400">상담 정보를 확인하고 있어요...</p>}
         {!loading && error && <div className="mt-4"><ErrorNotice message={error} /></div>}
         {!loading && !error && <>
-          <Card className="mt-4"><div className="flex items-center gap-3"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-navy font-bold text-white">{state.profile.nationality.slice(0, 1)}</div><div className="min-w-0"><p className="font-bold text-brand-navy">{state.profile.nationality} · {state.profile.visa_type}</p><p className={`mt-1 text-xs font-semibold ${hasSchedule ? "text-brand-blue" : "text-slate-500"}`}>{scheduleText}</p><p className="mt-1 text-xs text-slate-500">{days === null ? "출국예정일 미입력" : `출국 예정일까지 D-${days}`}</p>{visitTimeLabels.length > 0 && <p className="mt-1 text-xs text-slate-500">방문 가능 시간: {visitTimeLabels.join(", ")}</p>}</div></div></Card>
+          <Card className="mt-4"><div className="flex items-center gap-3"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-navy font-bold text-white">{state.profile.nationality.slice(0, 1)}</div><div className="min-w-0"><p className="font-bold text-brand-navy">{state.profile.nationality} · {state.profile.visa_type}</p><p className={`mt-1 text-xs font-semibold ${hasSchedule ? "text-brand-blue" : "text-slate-500"}`}>{scheduleText}{consultation.branchIsSunday && ` · ${t(lang, "sundayBranchBadge")}`}</p><p className="mt-1 text-xs text-slate-500">{days === null ? "출국예정일 미입력" : `출국 예정일까지 D-${days}`}</p>{visitTimeLabels.length > 0 && <p className="mt-1 text-xs text-slate-500">방문 가능 시간: {visitTimeLabels.join(", ")}</p>}</div></div></Card>
           <Card className="mt-3"><div className="flex items-center justify-between gap-4"><span className="text-sm text-gray-500">{t(lang, "visitPurpose")}</span><span className="text-right font-semibold text-brand-red">{visitTask?.label ?? "확인 필요"}</span></div><div className="mt-3 flex items-center justify-between"><span className="text-sm text-gray-500">{t(lang, "readiness")}</span><span className="font-bold">{readiness}% ({missingDocs.length}{t(lang, "missingCount")})</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-brand-blue" style={{ width: `${readiness}%` }} /></div></Card>
           {missingDocs.length > 0 && <Card className="mt-3"><p className="text-sm font-semibold text-gray-500">{t(lang, "insufficientDocs")}</p><ul className="mt-2 space-y-1.5 text-sm text-brand-red">{missingDocs.map((doc) => <li key={doc} className="flex gap-2"><span>•</span><span>{codeLabel(lang, doc)}</span></li>)}</ul></Card>}
           <Card className="mt-3"><p className="text-xs font-semibold text-gray-400">{t(lang, "judgementBasis")}</p><p className={`mt-1 text-sm ${sourceText === "확인 필요" ? "font-semibold text-amber-700" : "text-gray-600"}`}>{sourceText}</p></Card>

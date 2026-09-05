@@ -213,6 +213,28 @@ export interface FxRatesResponse {
   error?: string | null;
 }
 
+export interface BranchLocation {
+  place_name: string;
+  bank?: string | null;
+  address?: string | null;
+  road_address?: string | null;
+  phone?: string | null;
+  lat: number;
+  lng: number;
+  distance_m?: number | null;
+  place_url?: string | null;
+  sunday_branch: boolean;
+  sunday_branch_note?: string | null;
+  sunday_branch_source_id?: string | null;
+}
+
+export interface BranchSearchResponse {
+  branches: BranchLocation[];
+  available: boolean;
+  error?: string | null;
+  attribution: string;
+}
+
 export interface MultilingualBranch {
   branch_id: string;
   bank: string;
