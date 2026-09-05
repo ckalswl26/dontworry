@@ -198,6 +198,21 @@ export interface ProductRecommendationResponse {
   ai_generated: boolean;
 }
 
+export interface FxRate {
+  currency: string;
+  rate: number;
+  as_of: string;
+}
+
+export interface FxRatesResponse {
+  base: string;
+  rates: FxRate[];
+  unsupported: string[];
+  sources: SourceRef[];
+  available: boolean;
+  error?: string | null;
+}
+
 export interface MultilingualBranch {
   branch_id: string;
   bank: string;

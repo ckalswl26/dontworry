@@ -177,5 +177,15 @@
     "source_url": "https://thetracker.co.kr/View.aspx?No=4030742",
     "status": "ACTIVE",
     "last_verified_at": "2026-09-05"
+  },
+  {
+    "source_id": "BOK_ECOS_FX_RATES",
+    "organization": "한국은행",
+    "title": "ECOS 경제통계시스템 - 주요국 통화의 대원화환율(매매기준율, 731Y001)",
+    "source_type": "OFFICIAL_API",
+    "authority_grade": "A",
+    "source_url": "https://ecos.bok.or.kr/api/",
+    "status": "ACTIVE",
+    "last_verified_at": "2026-09-05"
   }
 ]

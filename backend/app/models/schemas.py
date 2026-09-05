@@ -321,6 +321,24 @@ class ScenarioResponse(BaseModel):
     delta_required_monthly_saving: float
 
 
+# ---------- 실시간 환율 계산기 ----------
+
+class FxRate(BaseModel):
+    currency: str
+    rate: float
+    as_of: str
+
+
+class FxRatesResponse(BaseModel):
+    """환율 숫자는 항상 ECOS 실제 응답값만 담는다 - 추정치를 채우지 않는다."""
+    base: str = "KRW"
+    rates: list[FxRate] = Field(default_factory=list)
+    unsupported: list[str] = Field(default_factory=list)
+    sources: list[SourceRef] = Field(default_factory=list)
+    available: bool = True
+    error: str | None = None
+
+
 # ---------- 다국어 상담 지점 찾기 (F 신규 3순위) ----------
 
 class MultilingualBranch(BaseModel):

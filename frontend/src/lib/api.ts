@@ -38,4 +38,5 @@ export const api = {
   source: (id: string) => request(`/api/sources/${id}`),
   multilingualBranches: () =>
     request<{ branches: import("./types").MultilingualBranch[] }>("/api/locations/multilingual-branches"),
+  fxRates: () => request<import("./types").FxRatesResponse>("/api/fx/rates"),
 };

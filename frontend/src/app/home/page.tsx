@@ -7,6 +7,7 @@ import { t } from "@/lib/i18n";
 import { Card } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
 import { LogoWordmark, Mascot } from "@/components/Logo";
+import { FxCalculatorCard } from "@/components/FxCalculatorCard";
 
 function daysUntil(dateStr: string | null | undefined): number | null {
   if (!dateStr) return null;
@@ -136,6 +137,8 @@ export default function HomePage() {
           </button>
         )}
       </Card>
+
+      <FxCalculatorCard />
 
       <div id="ai-chat" className="mt-5 scroll-mt-6">
         <p className="mb-2 text-sm font-bold text-brand-navy">{t(lang, "aiChatbotTitle")}</p>
