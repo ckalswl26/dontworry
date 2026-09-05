@@ -1,18 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { BackHeader, ErrorNotice } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
+import { DDayCalendar } from "@/components/DDayCalendar";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
-import type { DDayResponse } from "@/lib/types";
+import type { DDayItem, DDayResponse } from "@/lib/types";
 
 export default function DDayPage() {
   const router = useRouter();
   const { state } = useStore();
   const lang = state.profile.language;
+  const [selectedDate, setSelectedDate] = useState<{ key: string; items: DDayItem[] } | null>(null);
 
   const { data, loading, error } = useFetch<DDayResponse | null>(
     () => (state.profile.departure_date ? api.dday(state.profile.departure_date) : Promise.resolve(null)),
@@ -37,6 +40,36 @@ export default function DDayPage() {
               <p className="text-xs text-white/70">{data.departure_date} 출국 예정</p>
               <p className="mt-1 text-4xl font-black">D-{data.days_left}</p>
             </div>
+
+            <div className="mt-4">
+              <DDayCalendar
+                departureDate={data.departure_date}
+                items={data.items}
+                onSelectDate={(key, itemsOnDate) => setSelectedDate({ key, items: itemsOnDate })}
+              />
+            </div>
+
+            {selectedDate && (
+              <div className="mt-3 rounded-xl2 bg-brand-sky/40 p-4">
+                <p className="text-xs font-semibold text-brand-navy">{selectedDate.key}</p>
+                {selectedDate.items.length === 0 ? (
+                  <p className="mt-1 text-xs text-slate-500">이 날짜엔 예정된 할 일이 없어요.</p>
+                ) : (
+                  <div className="mt-2 flex flex-col gap-2">
+                    {selectedDate.items.map((item, i) => (
+                      <button
+                        key={i}
+                        onClick={() => item.task_id && router.push(`/tasks/${item.task_id}`)}
+                        className="text-left text-sm font-bold text-brand-navy"
+                      >
+                        {item.requires_visit && "📍 "}
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             <p className="mt-6 text-sm font-extrabold text-brand-navy">{t(lang, "todo")}</p>
             <div className="relative mt-3 flex flex-col gap-4 border-l border-gray-200 pl-5">
