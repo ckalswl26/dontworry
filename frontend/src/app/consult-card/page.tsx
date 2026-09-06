@@ -90,6 +90,10 @@ export default function ConsultCardPage() {
     `출국 예정일: ${state.profile.departure_date ?? "미입력"}`,
     `서류 준비도: ${readiness}% (${missingDocs.length}개 부족)`,
     missingDocs.length ? `부족한 서류: ${missingDocs.map((doc) => codeLabel(lang, doc)).join(", ")}` : "필요 서류 준비 완료",
+    consultation.productName.trim() ? `희망 상품: ${consultation.productName.trim()} (${consultation.productReasonKo.trim()})` : "",
+    consultation.productName.trim() && state.profile.departure_date
+      ? `요청사항: 만기를 ${state.profile.departure_date} 이전으로 설정 요청`
+      : "",
     consultation.memo.trim() ? `상담 메모: ${consultation.memo.trim()}` : "",
   ].filter(Boolean).join("\n");
 
@@ -181,6 +185,45 @@ export default function ConsultCardPage() {
             )}
           </div>
         </Card>
+
+        {consultation.productName.trim() && (
+          <Card className="mt-3 border-emerald-100 bg-emerald-50/40">
+            <div className="flex items-start justify-between gap-3">
+              <p className="font-extrabold text-brand-navy">예금/적금 가입 상담 정보</p>
+              <button
+                type="button"
+                onClick={() => setConsultation({ productName: "", productReasonKo: "", productEligibilityBadgeKo: "" })}
+                className="text-[11px] font-semibold text-slate-400 underline"
+              >
+                지우기
+              </button>
+            </div>
+            <p className="mt-2 text-sm font-bold text-brand-navy">{consultation.productName}</p>
+            <p className="mt-1 text-xs leading-5 text-slate-600">{consultation.productReasonKo}</p>
+
+            {consultation.productEligibilityBadgeKo && (
+              <div className="mt-3">
+                <p className="text-xs font-semibold text-slate-500">이미 충족한 조건</p>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {consultation.productEligibilityBadgeKo.split(" · ").map((cond) => (
+                    <span key={cond} className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-emerald-700">
+                      ✓ {cond}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {state.profile.departure_date && (
+              <div className="mt-3 rounded-xl bg-white px-3 py-2.5">
+                <p className="text-xs font-semibold text-slate-500">요청사항 (창구에서 보여주세요)</p>
+                <p className="mt-1 text-sm font-bold text-brand-navy">
+                  만기를 {state.profile.departure_date} 이전으로 설정 요청
+                </p>
+              </div>
+            )}
+          </Card>
+        )}
 
         {interpretationCenter && (
           <Card className="mt-3 border-brand-blue/15 bg-brand-sky/30">

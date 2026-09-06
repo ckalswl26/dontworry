@@ -7,9 +7,16 @@ import { t } from "@/lib/i18n";
 import { BackHeader, Card, ErrorNotice } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
 import { RemoteAccountOpeningCard } from "@/components/RemoteAccountOpeningCard";
+import { TermFitBadge } from "@/components/SignalBadge";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
-import { pickLang3, type FinanceProduct, type Lang, type ProductRecommendationResponse } from "@/lib/types";
+import {
+  pickLang3,
+  type FinanceProduct,
+  type Lang,
+  type ProductRecommendation,
+  type ProductRecommendationResponse,
+} from "@/lib/types";
 
 function monthsUntil(dateStr: string | null | undefined): number | null {
   if (!dateStr) return null;
@@ -66,12 +73,13 @@ function TriToggle({
 
 export default function FinancePage() {
   const router = useRouter();
-  const { state } = useStore();
+  const { state, setConsultation } = useStore();
   const lang = state.profile.language;
 
   const [hasArc, setHasArc] = useState<boolean | null>(null);
   const [isTaxResident, setIsTaxResident] = useState<boolean | null>(null);
   const [purpose, setPurpose] = useState<string | null>(null);
+  const [confirmingRedId, setConfirmingRedId] = useState<string | null>(null);
 
   const { data: savingsData, loading: savingsLoading, error: savingsFetchError } = useFetch(
     () => api.financeSavings(),
@@ -96,6 +104,7 @@ export default function FinancePage() {
         tenure_months: state.profile.tenure_months,
         visa_remaining_months: visaRemainingMonths,
         purpose,
+        departure_date: state.profile.departure_date,
       }),
     [
       hasArc,
@@ -104,11 +113,27 @@ export default function FinancePage() {
       state.profile.nationality,
       state.profile.visa_type,
       state.profile.tenure_months,
+      state.profile.departure_date,
       visaRemainingMonths,
     ]
   );
   const recommendations = recData?.recommendations ?? [];
   const aiGenerated = recData?.ai_generated ?? false;
+
+  const addToConsultCard = (r: ProductRecommendation) => {
+    if (r.term_fit === "RED" && confirmingRedId !== r.product_id) {
+      setConfirmingRedId(r.product_id);
+      return;
+    }
+    setConfirmingRedId(null);
+    setConsultation({
+      productName: r.product_name,
+      productReasonKo: r.reason_ko,
+      productEligibilityBadgeKo: r.eligibility_badge_ko,
+      ready: false,
+    });
+    router.push("/consult-card");
+  };
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -173,9 +198,12 @@ export default function FinancePage() {
               <p className="mt-0.5 text-[11px] text-gray-500">
                 {r.institution} · {r.category}
               </p>
-              <span className="mt-2 inline-block rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-medium text-brand-blue">
-                {r.eligibility_badge_ko}
-              </span>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                <span className="inline-block rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-medium text-brand-blue">
+                  {r.eligibility_badge_ko}
+                </span>
+                {r.term_fit && <TermFitBadge termFit={r.term_fit} />}
+              </div>
               <p className="mt-2 text-xs leading-5 text-gray-600">{r.reason_ko}</p>
               {r.caution_ko && (
                 <p className="mt-2 rounded-lg bg-amber-50 px-2.5 py-2 text-xs text-amber-700">⚠ {r.caution_ko}</p>
@@ -190,6 +218,36 @@ export default function FinancePage() {
                   {t(lang, "sourceDetail")}
                 </a>
               )}
+
+              {confirmingRedId === r.product_id && (
+                <p className="mt-2 rounded-lg bg-red-50 px-2.5 py-2 text-xs leading-5 text-brand-red">
+                  이 상품은 출국예정일 이후에 만기가 도래해요. 만기 전에 해지하면 약정금리 대신 중도해지 이자율이
+                  적용돼 손실이 발생할 수 있어요. 정확한 중도해지 조건은 반드시 가입 시 은행에 확인하세요.
+                </p>
+              )}
+
+              <div className={`mt-2 grid ${confirmingRedId === r.product_id ? "grid-cols-2" : "grid-cols-1"} gap-2`}>
+                <button
+                  type="button"
+                  onClick={() => addToConsultCard(r)}
+                  className={`w-full rounded-xl py-2 text-xs font-bold ${
+                    confirmingRedId === r.product_id
+                      ? "bg-brand-red text-white"
+                      : "border border-brand-blue text-brand-blue"
+                  }`}
+                >
+                  {confirmingRedId === r.product_id ? "그래도 상담카드에 담기" : "🏦 상담카드에 담기"}
+                </button>
+                {confirmingRedId === r.product_id && (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmingRedId(null)}
+                    className="w-full rounded-xl border border-slate-200 py-2 text-xs font-bold text-slate-500"
+                  >
+                    취소
+                  </button>
+                )}
+              </div>
             </Card>
           ))}
         </div>

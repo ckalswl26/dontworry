@@ -189,7 +189,10 @@ export interface UserFinanceProfile {
   tenure_months?: number | null;
   visa_remaining_months?: number | null;
   purpose?: string | null;
+  departure_date?: string | null;
 }
+
+export type TermFit = "GREEN" | "AMBER" | "RED";
 
 export interface ProductRecommendation {
   product_id: string;
@@ -200,6 +203,7 @@ export interface ProductRecommendation {
   eligibility_badge_ko: string;
   caution_ko?: string | null;
   source_url?: string | null;
+  term_fit?: TermFit | null;
 }
 
 export interface ProductRecommendationResponse {

@@ -216,6 +216,7 @@ class UserFinanceProfile(BaseModel):
     tenure_months: int | None = None
     visa_remaining_months: int | None = None
     purpose: str | None = Field(None, description="선택: 저축/청약/송금/대출/보장/외화예금 등 목적 태그")
+    departure_date: date | None = Field(None, description="만기-체류기간 적합성(term_fit) 판정에 사용")
 
 
 class ProductRecommendation(BaseModel):
@@ -227,6 +228,9 @@ class ProductRecommendation(BaseModel):
     eligibility_badge_ko: str
     caution_ko: str | None = None
     source_url: str | None = None
+    term_fit: Literal["GREEN", "AMBER", "RED"] | None = Field(
+        None, description="상품 만기가 출국예정일 대비 적합한지 - 만기/출국일 정보가 없으면 null"
+    )
 
 
 class ProductRecommendationResponse(BaseModel):

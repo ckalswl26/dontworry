@@ -14,7 +14,7 @@ import logging
 
 from app.config import get_settings
 from app.models.schemas import ActionItem, FinanceProduct, IntentResult, ProductRecommendation, UserFinanceProfile, UserProfile
-from app.services.product_matcher import build_eligibility_badge
+from app.services.product_matcher import build_eligibility_badge, compute_term_fit
 
 logger = logging.getLogger(__name__)
 
@@ -306,6 +306,7 @@ def _fallback_product_recommendations(
             eligibility_badge_ko=build_eligibility_badge(p, profile),
             caution_ko=p.caution_ko,
             source_url=p.source_url,
+            term_fit=compute_term_fit(p, profile.departure_date),
         )
         for p in candidates[:MAX_RECOMMENDATIONS]
     ]
@@ -381,6 +382,7 @@ def generate_product_recommendations(
                 eligibility_badge_ko=build_eligibility_badge(products_by_id[pid], profile),
                 caution_ko=products_by_id[pid].caution_ko,
                 source_url=products_by_id[pid].source_url,
+                term_fit=compute_term_fit(products_by_id[pid], profile.departure_date),
             )
             for pid in ranked_ids[:MAX_RECOMMENDATIONS]
         ]

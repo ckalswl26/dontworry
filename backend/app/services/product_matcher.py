@@ -9,7 +9,14 @@ candidates 리스트 밖의 상품은 이후 GEN/GUARD 단계에서도 절대 �
 """
 from __future__ import annotations
 
+from datetime import date, timedelta
+
 from app.models.schemas import FinanceProduct, UserFinanceProfile
+
+# calculator.py의 RECOMMENDED_DDAY_OFFSETS에서 만기보험(maturity_insurance) 관련
+# 권장 시점에 이미 -30일(1개월) 여유를 두고 있다 - term_fit도 같은 기준을 쓴다.
+TERM_FIT_BUFFER_DAYS = 30
+DAYS_PER_MONTH_APPROX = 30  # 이 프로젝트 전반에서 쓰는 근사치(플래너 등)와 동일하게 맞춘다.
 
 
 def _passes_eligibility(product: FinanceProduct, profile: UserFinanceProfile) -> bool:
@@ -69,3 +76,36 @@ def build_eligibility_badge(product: FinanceProduct, profile: UserFinanceProfile
         parts.append(f"체류만료 {elig.min_visa_remaining_months}개월 초과 남음")
 
     return " · ".join(parts) if parts else "조건 확인됨"
+
+
+def _minimum_term_months(product: FinanceProduct) -> int | None:
+    """예금/적금은 contract_months(단일값), 대출/ISA 등은 term_months_range.min을 쓴다
+    (실제 시드 데이터 형태가 상품 종류별로 다르다 - 둘 다 확인한다)."""
+    if product.contract_months is not None:
+        return product.contract_months
+    if product.term_months_range is not None and product.term_months_range.min is not None:
+        return product.term_months_range.min
+    return None
+
+
+def compute_term_fit(product: FinanceProduct, departure_date: date | None) -> str | None:
+    """상품의 최소 만기가 출국예정일 대비 적합한지 판정한다.
+
+    - 만기/출국예정일 중 하나라도 확인 안 되면 판정하지 않는다(None) - 낙관적으로
+      GREEN을 주지 않는다.
+    - GREEN: 만기가 출국예정일보다 1개월(TERM_FIT_BUFFER_DAYS) 이상 여유 있게 이전
+    - AMBER: 만기가 출국예정일 전후 1개월 이내로 근접
+    - RED: 만기가 출국예정일보다 1개월 넘게 이후 (중도해지 위험)
+    """
+    term_months = _minimum_term_months(product)
+    if term_months is None or departure_date is None:
+        return None
+
+    maturity_date = date.today() + timedelta(days=term_months * DAYS_PER_MONTH_APPROX)
+    slack_days = (departure_date - maturity_date).days
+
+    if slack_days >= TERM_FIT_BUFFER_DAYS:
+        return "GREEN"
+    if slack_days >= -TERM_FIT_BUFFER_DAYS:
+        return "AMBER"
+    return "RED"
