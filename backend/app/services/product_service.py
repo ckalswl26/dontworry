@@ -55,14 +55,33 @@ def get_whitelisted_products(product_type: str | None = None) -> list[FinancePro
     return products
 
 
+_BANK_NAME_NOISE = ["주식회사", "㈜", "(주)", " "]
+
+
+def _normalize_bank_name(name: str) -> str:
+    for token in _BANK_NAME_NOISE:
+        name = name.replace(token, "")
+    return name
+
+
 @lru_cache
 def _whitelisted_bank_names() -> frozenset[str]:
-    """product_whitelist.json에 등재된 구체적 은행명 집합. '전 은행/증권사' 같은
+    """product_whitelist.json에 등재된 구체적 은행명 집합(정규화됨). '전 은행/증권사' 같은
     포괄 표현은 특정 은행을 가리키지 않으므로 매칭 대상에서 제외한다."""
     generic_labels = {"전 은행/증권사", "주택도시기금 수탁은행 전체", "서민금융진흥원 협약 금융회사"}
     return frozenset(
-        row["bank"] for row in _load_whitelist() if row.get("bank") and row["bank"] not in generic_labels
+        _normalize_bank_name(row["bank"]) for row in _load_whitelist() if row.get("bank") and row["bank"] not in generic_labels
     )
+
+
+def _is_whitelisted_bank(bank: str | None) -> bool:
+    """FSS 공시 데이터의 공식 상호명(예: '국민은행', '농협은행주식회사')과 whitelist의
+    통칭(예: 'KB국민은행', 'NH농협은행')은 표기가 달라 정확히 일치하지 않는 경우가 많다.
+    법인형태 표기를 제거한 뒤 서로 포함관계인지로 판단한다."""
+    if not bank:
+        return False
+    normalized = _normalize_bank_name(bank)
+    return any(normalized in wl or wl in normalized for wl in _whitelisted_bank_names())
 
 
 def _min_contract_months(options: list[str]) -> int | None:
@@ -91,8 +110,7 @@ def get_fss_savings() -> dict:
 
 def _normalize_fss_result(result: dict, product_type: str) -> dict:
     if result.get("error"):
-        return {"products": [], "error": result["error"]}
-    bank_whitelist = _whitelisted_bank_names()
+        return {"products": [], "error": result["error"], "is_sample_data": result.get("is_sample_data", False)}
     is_sample = result.get("is_sample_data", False)
     products = [
         FinanceProduct(
@@ -105,8 +123,8 @@ def _normalize_fss_result(result: dict, product_type: str) -> dict:
             rate_as_of=p.get("rate_as_of"),
             contract_months=_min_contract_months(p.get("contract_months_options", [])),
             status="ACTIVE",
-            is_whitelisted=p.get("bank") in bank_whitelist,
-            notes_ko="" if p.get("bank") in bank_whitelist else "외국인 가입 가능 여부 확인 필요",
+            is_whitelisted=_is_whitelisted_bank(p.get("bank")),
+            notes_ko="" if _is_whitelisted_bank(p.get("bank")) else "외국인 가입 가능 여부 확인 필요",
             is_sample_data=is_sample,
         )
         for p in result["products"]

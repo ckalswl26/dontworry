@@ -74,6 +74,46 @@ def test_fss_with_api_key_returns_real_flag_and_matches_whitelisted_bank(monkeyp
     assert "확인 필요" in by_id["REAL0002:P2"].notes_ko
 
 
+def test_fss_bank_name_matches_whitelist_despite_different_official_naming(monkeypatch):
+    # FSS 공시의 공식 상호명은 whitelist의 통칭과 표기가 다르다
+    # (예: FSS "국민은행" vs whitelist "KB국민은행", FSS "농협은행주식회사" vs whitelist "NH농협은행").
+    # 법인형태/약칭 차이로 인해 실제로는 화이트리스트 은행인데 미확인으로 잘못 표시되면 안 된다.
+    monkeypatch.setattr(fss_service, "get_settings", lambda: Settings(fss_api_key="dummy-real-key"))
+    monkeypatch.setattr(
+        fss_service,
+        "_fetch_all_pages",
+        lambda endpoint: [
+            {
+                "product_id": "KB0001:P1",
+                "product_name": "국민 정기예금",
+                "bank": "국민은행",
+                "contract_months_options": ["12"],
+                "status": "ACTIVE",
+            },
+            {
+                "product_id": "NH0001:P2",
+                "product_name": "농협 정기예금",
+                "bank": "농협은행주식회사",
+                "contract_months_options": ["12"],
+                "status": "ACTIVE",
+            },
+            {
+                "product_id": "HANA0001:P3",
+                "product_name": "하나 정기예금",
+                "bank": "주식회사 하나은행",
+                "contract_months_options": ["12"],
+                "status": "ACTIVE",
+            },
+        ],
+    )
+
+    result = product_service.get_fss_deposits()
+    by_id = {p.product_id: p for p in result["products"]}
+    assert by_id["KB0001:P1"].is_whitelisted is True
+    assert by_id["NH0001:P2"].is_whitelisted is True
+    assert by_id["HANA0001:P3"].is_whitelisted is True
+
+
 def test_get_all_matchable_products_combines_whitelist_and_fss():
     products = product_service.get_all_matchable_products()
     whitelist_ids = {p.product_id for p in product_service.get_whitelisted_products()}
