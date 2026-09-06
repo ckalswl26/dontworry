@@ -126,13 +126,22 @@ export default function PassportPrepPage() {
               않습니다.
             </p>
 
-            <button
-              type="button"
-              onClick={handleShare}
-              className="mt-3 w-full rounded-xl2 border border-brand-blue py-2.5 text-sm font-bold text-brand-blue"
-            >
-              공유하기
-            </button>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleShare}
+                className="w-full rounded-xl2 border border-brand-blue py-2.5 text-sm font-bold text-brand-blue"
+              >
+                공유하기
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push("/passport-prep/demo")}
+                className="w-full rounded-xl2 bg-brand-navy py-2.5 text-sm font-bold text-white"
+              >
+                전자여권 사전 확인 (데모)
+              </button>
+            </div>
             {notice && (
               <p role="status" className="mt-2 rounded-xl bg-brand-sky px-3 py-2 text-center text-xs font-semibold text-brand-navy">
                 {notice}

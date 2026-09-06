@@ -82,7 +82,7 @@ export default function SplashPage() {
         </h1>
       </div>
 
-      <div className="relative w-full shrink-0">
+      <div className="relative mt-8 w-full shrink-0">
         <p className="mb-2 text-left text-sm font-bold text-brand-navy">
           {t(selected, "langSelect")} <span className="font-normal text-slate-400">Select language</span>
         </p>
