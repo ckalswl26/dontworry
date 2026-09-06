@@ -9,6 +9,7 @@ import { BranchPicker } from "@/components/BranchPicker";
 import { Dropdown } from "@/components/Dropdown";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
+import { shareOrCopy } from "@/lib/share";
 import type { MultilingualBranch, RuleEvaluateResponse } from "@/lib/types";
 
 // 은행 표준 영업시간(평일 09:00~16:00, 토/일 휴무)이 기준. 일요일 전용 영업점으로
@@ -53,19 +54,6 @@ function daysUntil(dateStr: string | null | undefined): number | null {
   return Math.round((date.getTime() - new Date().setHours(0, 0, 0, 0)) / 86_400_000);
 }
 
-function copyToClipboard(text: string): Promise<void> {
-  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
-  const textarea = document.createElement("textarea");
-  textarea.value = text;
-  textarea.style.position = "fixed";
-  textarea.style.opacity = "0";
-  document.body.appendChild(textarea);
-  textarea.select();
-  document.execCommand("copy");
-  textarea.remove();
-  return Promise.resolve();
-}
-
 export default function ConsultCardPage() {
   const router = useRouter();
   const { state, setConsultation } = useStore();
@@ -107,17 +95,10 @@ export default function ConsultCardPage() {
 
   const handleShare = async () => {
     try {
-      if (navigator.share) {
-        await navigator.share({ title: "Don't ₩orry 사전상담 카드", text: shareText });
-        setNotice("공유 화면을 열었어요.");
-      } else {
-        await copyToClipboard(shareText);
-        setNotice("카드 내용이 복사되었습니다.");
-      }
-    } catch (shareError) {
-      if (shareError instanceof DOMException && shareError.name === "AbortError") return;
-      await copyToClipboard(shareText);
-      setNotice("카드 내용이 복사되었습니다.");
+      const result = await shareOrCopy("Don't ₩orry 사전상담 카드", shareText);
+      setNotice(result === "shared" ? "공유 화면을 열었어요." : "카드 내용이 복사되었습니다.");
+    } catch {
+      // 공유 취소 - 조용히 무시
     }
   };
 

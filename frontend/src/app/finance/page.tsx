@@ -6,6 +6,7 @@ import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { BackHeader, Card, ErrorNotice } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
+import { RemoteAccountOpeningCard } from "@/components/RemoteAccountOpeningCard";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
 import { pickLang3, type FinanceProduct, type Lang, type ProductRecommendationResponse } from "@/lib/types";
@@ -115,6 +116,8 @@ export default function FinancePage() {
 
       <div className="flex-1 px-5 pb-28 pt-6">
         <p className="text-xs text-gray-400">{t(lang, "productDisclaimer")}</p>
+
+        <RemoteAccountOpeningCard />
 
         <Card className="mt-4 !p-4">
           <div className="flex flex-col gap-4">

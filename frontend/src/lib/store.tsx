@@ -45,6 +45,15 @@ interface SessionState {
     memo: string;
     ready: boolean;
   };
+  // 여권 등 민감정보 - 이 필드는 state.profile과 분리해서 어떤 API 요청 payload에도
+  // 절대 섞여 들어가지 않게 한다 (state.profile은 그대로 서버로 전송되는 필드라서).
+  passportPrep: {
+    englishName: string;
+    passportNumber: string;
+    passportExpiry: string;
+    address: string;
+    phone: string;
+  };
 }
 
 const DEFAULT_STATE: SessionState = {
@@ -57,6 +66,7 @@ const DEFAULT_STATE: SessionState = {
   conversationContext: {},
   assetsHidden: false,
   consultation: { branch: "", branchIsSunday: false, visitDate: "", visitTime: "", memo: "", ready: false },
+  passportPrep: { englishName: "", passportNumber: "", passportExpiry: "", address: "", phone: "" },
 };
 
 interface StoreContextValue {
@@ -71,6 +81,7 @@ interface StoreContextValue {
   setLang: (l: Lang) => void;
   setAssetsHidden: (v: boolean) => void;
   setConsultation: (value: Partial<SessionState["consultation"]>) => void;
+  setPassportPrep: (value: Partial<SessionState["passportPrep"]>) => void;
   loadDemo: (profile: UserProfile, planner: PlannerRequest, docs: string[]) => void;
   restoreState: (data: Partial<SessionState>) => void;
   reset: () => void;
@@ -93,6 +104,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ...DEFAULT_STATE,
           ...saved,
           consultation: { ...DEFAULT_STATE.consultation, ...saved.consultation },
+          passportPrep: { ...DEFAULT_STATE.passportPrep, ...saved.passportPrep },
         });
       }
     } catch {
@@ -132,6 +144,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setAssetsHidden: (v) => setState((s) => ({ ...s, assetsHidden: v })),
       setConsultation: (consultation) =>
         setState((s) => ({ ...s, consultation: { ...s.consultation, ...consultation } })),
+      setPassportPrep: (passportPrep) =>
+        setState((s) => ({ ...s, passportPrep: { ...s.passportPrep, ...passportPrep } })),
       loadDemo: (profile, planner, docs) =>
         setState((s) => ({ ...s, profile, planner, documentsHeld: docs, onboarded: true })),
       restoreState: (data) =>
@@ -140,6 +154,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ...s,
           ...data,
           consultation: { ...DEFAULT_STATE.consultation, ...data.consultation },
+          passportPrep: { ...DEFAULT_STATE.passportPrep, ...data.passportPrep },
         })),
       reset: () => setState(DEFAULT_STATE),
     }),

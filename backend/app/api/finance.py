@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from app.models.schemas import ProductRecommendationResponse, UserFinanceProfile
-from app.services import ai_service, product_matcher, product_service
+from app.models.schemas import ProductRecommendationResponse, RemoteAccountOpening, UserFinanceProfile
+from app.services import ai_service, product_matcher, product_service, remote_account_service
 
 router = APIRouter(prefix="/api/finance", tags=["finance"])
 products_router = APIRouter(prefix="/api/products", tags=["products"])
@@ -31,6 +31,11 @@ def get_savings():
 def get_whitelist():
     products = product_service.get_whitelisted_products()
     return {"products": [p.model_dump() for p in products]}
+
+
+@router.get("/remote-account-opening", response_model=list[RemoteAccountOpening])
+def get_remote_account_opening() -> list[RemoteAccountOpening]:
+    return remote_account_service.get_remote_account_opening()
 
 
 @products_router.post("/recommend", response_model=ProductRecommendationResponse)

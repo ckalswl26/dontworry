@@ -175,6 +175,13 @@ export default function MyPage() {
         </button>
 
         <button
+          onClick={() => router.push("/passport-prep")}
+          className="mt-3 flex w-full items-center justify-between rounded-xl2 border border-brand-blue/20 bg-brand-sky px-5 py-4 text-left text-sm font-bold text-brand-navy shadow-sm"
+        >
+          <span><span className="mr-2">📝</span>비대면 계좌개설 준비</span><span className="text-brand-blue">›</span>
+        </button>
+
+        <button
           onClick={() => {
             reset();
             router.push("/");

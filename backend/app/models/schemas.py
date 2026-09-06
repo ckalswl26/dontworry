@@ -388,6 +388,18 @@ class BranchSearchResponse(BaseModel):
     attribution: str = "이 서비스는 카카오맵의 API를 이용하고 있습니다."
 
 
+# ---------- 여권 기반 비대면 계좌개설 안내 ----------
+
+class RemoteAccountOpening(BaseModel):
+    """규제 샌드박스 등 계속 바뀔 수 있는 진행 중인 사안 - 반드시 출처·확인일을 함께 표시한다."""
+    institution: str
+    supported: Literal["yes", "pilot", "unconfirmed"]
+    method_ko: str
+    conditions_ko: str
+    source_url: str
+    verified_at: str
+
+
 # ---------- 웹 푸시 알림 ----------
 
 class PushKeys(BaseModel):

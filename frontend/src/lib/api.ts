@@ -59,6 +59,7 @@ export const api = {
   }) => request("/api/push/subscribe", { method: "POST", body: JSON.stringify(body) }),
   pushUnsubscribe: (endpoint: string) =>
     request("/api/push/unsubscribe", { method: "POST", body: JSON.stringify({ endpoint }) }),
+  remoteAccountOpening: () => request<import("./types").RemoteAccountOpening[]>("/api/finance/remote-account-opening"),
   guides: () => request<import("./types").GuideContent[]>("/api/guides"),
   guide: (id: string) => request<import("./types").GuideContent>(`/api/guides/${id}`),
   minWage: () => request<import("./types").MinWageInfo>("/api/wage/min-wage"),

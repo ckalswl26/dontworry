@@ -281,6 +281,15 @@ export interface MinWageInfo {
   calculator_url: string;
 }
 
+export interface RemoteAccountOpening {
+  institution: string;
+  supported: "yes" | "pilot" | "unconfirmed";
+  method_ko: string;
+  conditions_ko: string;
+  source_url: string;
+  verified_at: string;
+}
+
 export interface MultilingualBranch {
   branch_id: string;
   bank: string;
