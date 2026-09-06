@@ -69,11 +69,11 @@ export default function MenuPage() {
               <Card key={item.href}>
                 <button className="flex w-full items-center justify-between gap-2" onClick={() => router.push(item.href)}>
                   <div className="min-w-0 flex-1 text-left">
-                    <p className="flex items-center gap-1.5 whitespace-nowrap text-[13px] font-bold tracking-[-0.035em] text-brand-navy">
-                      <span className="shrink-0 text-base" aria-hidden="true">{item.icon}</span>
-                      <span>{t(lang, item.labelKey)}</span>
+                    <p className="flex min-w-0 items-center gap-1 whitespace-nowrap text-[12px] font-bold tracking-[-0.045em] text-brand-navy">
+                      <span className="shrink-0 text-[15px]" aria-hidden="true">{item.icon}</span>
+                      <span className="min-w-0">{t(lang, item.labelKey)}</span>
                     </p>
-                    <p className="mt-0.5 text-[11px] leading-4 text-gray-500">{t(lang, item.descKey)}</p>
+                    <p className="mt-0.5 text-[10.5px] leading-4 text-gray-500">{t(lang, item.descKey)}</p>
                   </div>
                   <span className="shrink-0 text-sm text-brand-navy" aria-hidden="true">›</span>
                 </button>
