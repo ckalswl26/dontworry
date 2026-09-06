@@ -18,11 +18,62 @@ function formatWon(amount: number): string {
   return `${amount.toLocaleString()}원`;
 }
 
+interface TimelineEntry {
+  id: string;
+  label: string;
+  date: string;
+  daysLeft: number;
+  route: string;
+}
+
+// F13: 홈 화면에 흩어져 있던 D-Day류 표시(출국일, 적금 만기)에 비자·여권 만료일까지
+// 더해 날짜 있는 항목을 전부 하나의 정렬된 목록으로 모은다. 새 화면은 만들지 않고
+// 각 항목은 이미 있는 화면(D-Day/금융상품/내 정보/여권 준비)으로 라우팅만 한다.
+function buildTimeline(state: ReturnType<typeof useStore>["state"]): TimelineEntry[] {
+  const entries: TimelineEntry[] = [];
+  const push = (id: string, label: string, date: string | null | undefined, route: string) => {
+    if (!date) return;
+    const d = daysUntil(date);
+    if (d === null) return;
+    entries.push({ id, label, date, daysLeft: d, route });
+  };
+  push("departure", "출국 예정일", state.profile.departure_date, "/dday");
+  push("savings", `${state.savingsTracking.productName || "적금"} 만기`, state.savingsTracking.maturityDate, "/finance");
+  push("visa", "체류자격(비자) 만료일", state.profile.visa_expiry_date, "/my/edit");
+  push("passport", "여권 만료일", state.passportPrep.passportExpiry, "/passport-prep");
+  return entries.sort((a, b) => a.daysLeft - b.daysLeft);
+}
+
+function TimelineRow({ entry, onClick, highlighted }: { entry: TimelineEntry; onClick: () => void; highlighted?: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex w-full items-center justify-between rounded-xl2 border px-4 py-3 text-left shadow-sm ${
+        highlighted ? "border-brand-blue/20 bg-brand-sky/40" : "border-slate-100 bg-white"
+      }`}
+    >
+      <div className="min-w-0">
+        <p className="truncate text-sm font-semibold text-brand-navy">{entry.label}</p>
+        <p className="mt-0.5 text-[11px] text-slate-400">{entry.date}</p>
+      </div>
+      <span
+        className={`shrink-0 text-sm font-black ${
+          entry.daysLeft < 0 ? "text-slate-400" : highlighted ? "text-brand-blue" : "text-slate-500"
+        }`}
+      >
+        {entry.daysLeft >= 0 ? `D-${entry.daysLeft}` : `D+${-entry.daysLeft}`}
+      </span>
+    </button>
+  );
+}
+
 export default function HomePage() {
   const router = useRouter();
   const { state, setAssetsHidden } = useStore();
   const lang = state.profile.language;
   const [mounted, setMounted] = useState(false);
+  const [showMoreTimeline, setShowMoreTimeline] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -35,6 +86,9 @@ export default function HomePage() {
 
   const days = daysUntil(state.profile.departure_date);
   const maturityDays = daysUntil(state.savingsTracking.maturityDate);
+  const timeline = buildTimeline(state);
+  const urgentTimeline = timeline.filter((e) => e.daysLeft >= 0 && e.daysLeft <= 30);
+  const laterTimeline = timeline.filter((e) => !(e.daysLeft >= 0 && e.daysLeft <= 30));
   const greeting = state.profile.name
     ? t(lang, "greetingWithName").replace("{name}", state.profile.name)
     : t(lang, "greetingNoName");
@@ -109,6 +163,39 @@ export default function HomePage() {
             </p>
           </Card>
         )
+      )}
+
+      {timeline.length > 0 && (
+        <div className="mt-6">
+          <p className="text-sm font-semibold text-gray-500">다가오는 일정</p>
+          {urgentTimeline.length > 0 ? (
+            <div className="mt-2 flex flex-col gap-2">
+              {urgentTimeline.map((entry) => (
+                <TimelineRow key={entry.id} entry={entry} highlighted onClick={() => router.push(entry.route)} />
+              ))}
+            </div>
+          ) : (
+            <p className="mt-2 text-xs text-slate-400">앞으로 30일 안에 예정된 일정은 없어요.</p>
+          )}
+          {laterTimeline.length > 0 && (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowMoreTimeline((v) => !v)}
+                className="mt-2 text-xs font-semibold text-brand-blue"
+              >
+                {showMoreTimeline ? "접기" : `더보기 (${laterTimeline.length})`}
+              </button>
+              {showMoreTimeline && (
+                <div className="mt-2 flex flex-col gap-2">
+                  {laterTimeline.map((entry) => (
+                    <TimelineRow key={entry.id} entry={entry} onClick={() => router.push(entry.route)} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
       )}
 
       <Card className="mt-3">
