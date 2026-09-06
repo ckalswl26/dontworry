@@ -8,7 +8,7 @@ import { PrimaryButton } from "@/components/Card";
 import { Dropdown } from "@/components/Dropdown";
 import { LogoWordmark, Mascot } from "@/components/Logo";
 import { api } from "@/lib/api";
-import { NATIONALITIES, VISA_TYPES, VISIT_TIMES } from "@/lib/profileOptions";
+import { NATIONALITIES, VISA_TYPES, VISA_TYPE_LABELS, VISIT_TIMES } from "@/lib/profileOptions";
 import { pickLang3 } from "@/lib/types";
 
 export default function OnboardingPage() {
@@ -49,8 +49,7 @@ export default function OnboardingPage() {
         <div className="min-w-0 pr-2">
           <LogoWordmark height={20} />
           <p className="mt-1 text-[10px] font-semibold text-slate-500">외국인 근로자를 위한 금융 서비스</p>
-          <h1 className="mt-3 text-[17px] font-black leading-tight tracking-[-0.03em] text-brand-navy">맞춤 금융 안내를 시작해요</h1>
-          <p className="mt-1.5 text-[11px] leading-4 text-slate-500">필요한 정보만 확인할게요.<br />언제든 내 정보에서 수정할 수 있어요.</p>
+          <h1 className="mt-3 text-[17px] font-black leading-tight tracking-[-0.03em] text-brand-navy">맞춤 금융 안내를<br />시작해요</h1>
         </div>
         <Mascot size={64} className="h-16 w-16 shrink-0 object-contain" />
       </div>
@@ -81,7 +80,7 @@ export default function OnboardingPage() {
           <Dropdown
             value={profile.visa_type}
             onChange={(v) => setLocalProfile({ ...profile, visa_type: v })}
-            options={VISA_TYPES.map((v) => ({ value: v, label: v }))}
+            options={VISA_TYPES.map((v) => ({ value: v, label: VISA_TYPE_LABELS[v] ?? v }))}
           />
         </div>
 
@@ -128,12 +127,12 @@ export default function OnboardingPage() {
 
         <div>
           <label className="mb-1.5 block text-xs font-medium text-gray-600">{t(lang, "visitTime")}</label>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="grid grid-cols-3 gap-1.5">
             {VISIT_TIMES.map((vt) => (
               <button
                 key={vt.code}
                 onClick={() => toggleVisitTime(vt.code)}
-                className={`rounded-full border px-3 py-1.5 text-xs ${
+                className={`whitespace-nowrap rounded-full border px-2 py-1.5 text-xs ${
                   profile.available_visit_time.includes(vt.code)
                     ? "border-brand-navy bg-brand-navy text-white"
                     : "border-gray-200 text-gray-600"

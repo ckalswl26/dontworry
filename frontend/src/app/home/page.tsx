@@ -82,6 +82,14 @@ export default function HomePage() {
     <div className="flex min-h-dvh flex-col px-5 pb-28 pt-6">
       <div className="flex items-center justify-between">
         <LogoWordmark height={28} />
+        <button
+          type="button"
+          onClick={() => router.push("/my")}
+          aria-label="내 정보"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-navy text-[10px] font-black text-white shadow-sm"
+        >
+          MY
+        </button>
       </div>
 
       <p className="mt-4 text-lg font-bold text-brand-navy">{greeting}</p>
@@ -118,18 +126,18 @@ export default function HomePage() {
           <p className="text-sm font-medium text-gray-500">{t(lang, "myAssets")}</p>
           <button
             onClick={() => setAssetsHidden(!state.assetsHidden)}
-            aria-label={state.assetsHidden ? "show assets" : "hide assets"}
-            className="text-lg text-gray-400"
+            aria-label={state.assetsHidden ? "금액 보기" : "금액 숨김"}
+            className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500 hover:bg-brand-sky hover:text-brand-blue"
           >
-            {state.assetsHidden ? "🙈" : "👁"}
+            {state.assetsHidden ? "보기" : "숨김"}
           </button>
         </div>
-        <p className="mt-1 text-2xl font-black text-brand-navy">
-          {state.assetsHidden ? "●●●●●●원" : formatWon(state.planner.current_savings)}
+        <p className={`mt-1 ${state.assetsHidden ? "text-sm font-semibold text-slate-400" : "text-2xl font-black text-brand-navy"}`}>
+          {state.assetsHidden ? "금액 숨김" : formatWon(state.planner.current_savings)}
         </p>
         {state.planner.target_amount > 0 ? (
           <p className="mt-1 text-xs text-gray-400">
-            {t(lang, "savingsGoalLabel")} {state.assetsHidden ? "●●●●●●원" : formatWon(state.planner.target_amount)}
+            {t(lang, "savingsGoalLabel")} {state.assetsHidden ? "금액 숨김" : formatWon(state.planner.target_amount)}
           </p>
         ) : (
           <button onClick={() => router.push("/planner")} className="mt-1 text-xs text-brand-blue">

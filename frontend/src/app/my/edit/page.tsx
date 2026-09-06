@@ -6,7 +6,7 @@ import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { BackHeader, PrimaryButton } from "@/components/Card";
 import { Dropdown } from "@/components/Dropdown";
-import { NATIONALITIES, VISA_TYPES } from "@/lib/profileOptions";
+import { NATIONALITIES, VISA_TYPES, VISA_TYPE_LABELS } from "@/lib/profileOptions";
 import { pickLang3 } from "@/lib/types";
 
 export default function MyEditPage() {
@@ -51,7 +51,7 @@ export default function MyEditPage() {
             <Dropdown
               value={draft.visa_type}
               onChange={(v) => setDraft({ ...draft, visa_type: v })}
-              options={VISA_TYPES.map((v) => ({ value: v, label: v }))}
+              options={VISA_TYPES.map((v) => ({ value: v, label: VISA_TYPE_LABELS[v] ?? v }))}
             />
           </div>
 

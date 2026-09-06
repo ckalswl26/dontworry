@@ -73,6 +73,7 @@ body {
      스크롤 없이 한 화면에 들어간다. */
   .app-shell .splash-main {
     height: 100%;
+    min-height: 100%;
   }
 }
 

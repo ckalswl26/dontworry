@@ -21,6 +21,13 @@ export const NATIONALITIES = [
 
 export const VISA_TYPES = ["E-9", "H-2", "E-8_LEGACY_TRAINING_EMPLOYMENT", "E-8_SEASONAL_WORK"];
 
+export const VISA_TYPE_LABELS: Record<string, string> = {
+  "E-9": "E-9",
+  "H-2": "H-2",
+  "E-8_LEGACY_TRAINING_EMPLOYMENT": "E-8 · 연수취업",
+  "E-8_SEASONAL_WORK": "E-8 · 계절근로",
+};
+
 export const VISIT_TIMES = [
   { code: "weekday_daytime", key: "weekday" },
   { code: "saturday", key: "saturday" },

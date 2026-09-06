@@ -65,12 +65,12 @@ export default function SplashPage() {
   const isAutoTranslated = AUTO_TRANSLATED_LANGS.includes(selected);
 
   return (
-    <main className="splash-main relative flex h-dvh flex-col overflow-hidden px-6 py-5 text-center">
+    <main className="splash-main relative flex min-h-dvh flex-col overflow-x-hidden overflow-y-auto px-6 py-5 text-center">
       <div className="absolute -right-24 -top-28 h-72 w-72 rounded-full bg-brand-sky" />
-      <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-1">
+      <div className="relative flex shrink-0 flex-col items-center gap-1">
         <LogoWordmark height={32} />
         <p className="text-xs font-semibold text-slate-500">{SPLASH_TAGLINE[selected]}</p>
-        <div className="relative flex w-full flex-1 items-center justify-center">
+        <div className="relative flex h-[245px] w-full items-center justify-center">
           <Mascot
             size={208}
             className="mascot-float relative z-[1] h-[min(24vh,190px)] w-[min(24vh,190px)] object-contain drop-shadow-[0_18px_24px_rgba(17,28,78,0.22)]"
@@ -90,6 +90,7 @@ export default function SplashPage() {
           value={selected}
           onChange={(code) => setSelected(code as Lang)}
           options={LANGS.map((l) => ({ value: l.code, label: `${l.greeting} · ${l.label}` }))}
+          placement="up"
         />
         {isAutoTranslated && (
           <p className="mt-1.5 text-left text-[11px] text-amber-600">

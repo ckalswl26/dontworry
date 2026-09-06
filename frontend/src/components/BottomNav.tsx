@@ -11,7 +11,7 @@ const ITEMS = [
   { href: "/finance", icon: "🏦", key: "financeTab" },
   { href: "/planner", icon: "📊", key: "planner" },
   { href: "/dday", icon: "📅", key: "dday" },
-  { href: "/my", icon: "👤", key: "myInfo" },
+  { href: "/menu", icon: "☰", key: "menuTab" },
 ];
 
 export function BottomNav() {
