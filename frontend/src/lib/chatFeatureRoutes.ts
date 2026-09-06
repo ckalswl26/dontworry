@@ -34,6 +34,18 @@ function normalize(value: string): string {
   return value.toLocaleLowerCase().normalize("NFKC").replace(/[\s·,./!?()[\]{}'"_-]+/g, "");
 }
 
+const GREETINGS = [
+  "안녕", "안녕하세요", "반가워", "하이",
+  "hi", "hello", "hey", "good morning", "good afternoon", "good evening",
+  "xin chào", "chào", "សួស្តី", "halo", "hai", "ສະບາຍດີ", "မင်္ဂလာပါ",
+  "হ্যালো", "নমস্কার", "नमस्ते", "سلام", "ہیلو", "ආයුබෝවන්", "салам",
+  "салом", "salom", "你好", "您好", "сайн байна уу",
+].map(normalize);
+
+export function isChatGreeting(text: string): boolean {
+  return GREETINGS.includes(normalize(text));
+}
+
 export function resolveChatFeature(text: string, lang: Lang): string | null {
   const input = normalize(text);
   if (!input) return null;
