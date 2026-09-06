@@ -13,6 +13,7 @@ def get_deposits():
     return {
         "products": [p.model_dump() for p in result["products"]],
         "error": result["error"],
+        "is_sample_data": result.get("is_sample_data", False),
         "data_as_of_note": "금융감독원 금융상품 통합비교공시 최신 공시 기준",
     }
 
@@ -23,6 +24,7 @@ def get_savings():
     return {
         "products": [p.model_dump() for p in result["products"]],
         "error": result["error"],
+        "is_sample_data": result.get("is_sample_data", False),
         "data_as_of_note": "금융감독원 금융상품 통합비교공시 최신 공시 기준",
     }
 

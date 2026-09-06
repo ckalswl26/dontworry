@@ -4,6 +4,8 @@
 - 응답은 fin_co_no + fin_prdt_cd 기준으로 baseList/optionList를 병합해 정규화한다.
 - 장애/타임아웃 시 앱 전체가 죽지 않도록 빈 리스트 + 에러 플래그로 우아하게 실패한다.
 - 응답은 짧게 인메모리 캐시한다 (외부 API 호출 최소화).
+- FSS_API_KEY가 없는 동안은 실제 응답과 동일한 모양의 샘플 데이터를 반환하고
+  is_sample_data=True로 표시한다. 키가 채워지면 코드 변경 없이 바로 실제 데이터로 전환된다.
 """
 from __future__ import annotations
 
@@ -115,17 +117,58 @@ def _merge(base_list: list[dict], option_list: list[dict]) -> list[dict]:
     return merged
 
 
+_MOCK_DEPOSIT_PRODUCTS: list[dict] = [
+    {
+        "product_id": "SAMPLE0001:SD001",
+        "product_name": "(샘플) 정기예금",
+        "bank": "샘플은행A",
+        "join_way": "인터넷,스마트폰,영업점",
+        "join_member": "실명의 개인",
+        "join_deny": "1",
+        "spcl_cnd": "실제 상품이 아닌 화면 확인용 샘플 데이터입니다.",
+        "base_rate": 3.0,
+        "max_rate": 3.5,
+        "contract_months_options": ["6", "12", "24"],
+        "rate_as_of": "202601",
+        "status": "ACTIVE",
+    },
+]
+
+_MOCK_SAVINGS_PRODUCTS: list[dict] = [
+    {
+        "product_id": "SAMPLE0002:SS001",
+        "product_name": "(샘플) 자유적금",
+        "bank": "샘플은행B",
+        "join_way": "인터넷,스마트폰",
+        "join_member": "실명의 개인",
+        "join_deny": "1",
+        "spcl_cnd": "실제 상품이 아닌 화면 확인용 샘플 데이터입니다.",
+        "base_rate": 3.2,
+        "max_rate": 4.0,
+        "contract_months_options": ["6", "12"],
+        "rate_as_of": "202601",
+        "status": "ACTIVE",
+    },
+]
+
+
 def get_deposit_products() -> dict:
+    settings = get_settings()
+    if not settings.fss_api_key:
+        return {"products": _MOCK_DEPOSIT_PRODUCTS, "error": None, "is_sample_data": True}
     try:
         products = _fetch_all_pages("depositProductsSearch.json")
-        return {"products": products, "error": None}
+        return {"products": products, "error": None, "is_sample_data": False}
     except (httpx.HTTPError, FssServiceError):
-        return {"products": [], "error": "FSS_UNAVAILABLE"}
+        return {"products": [], "error": "FSS_UNAVAILABLE", "is_sample_data": False}
 
 
 def get_savings_products() -> dict:
+    settings = get_settings()
+    if not settings.fss_api_key:
+        return {"products": _MOCK_SAVINGS_PRODUCTS, "error": None, "is_sample_data": True}
     try:
         products = _fetch_all_pages("savingProductsSearch.json")
-        return {"products": products, "error": None}
+        return {"products": products, "error": None, "is_sample_data": False}
     except (httpx.HTTPError, FssServiceError):
-        return {"products": [], "error": "FSS_UNAVAILABLE"}
+        return {"products": [], "error": "FSS_UNAVAILABLE", "is_sample_data": False}

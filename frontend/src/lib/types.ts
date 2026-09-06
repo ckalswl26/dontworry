@@ -160,6 +160,10 @@ export interface FinanceProduct {
   status: string;
   disclaimer: string;
   sources: SourceRef[];
+  is_whitelisted: boolean;
+  remote_opening_available?: boolean | null;
+  is_sample_data: boolean;
+  notes_ko?: string;
 }
 
 export interface IntentResult {

@@ -55,9 +55,28 @@ def get_whitelisted_products(product_type: str | None = None) -> list[FinancePro
     return products
 
 
+@lru_cache
+def _whitelisted_bank_names() -> frozenset[str]:
+    """product_whitelist.json에 등재된 구체적 은행명 집합. '전 은행/증권사' 같은
+    포괄 표현은 특정 은행을 가리키지 않으므로 매칭 대상에서 제외한다."""
+    generic_labels = {"전 은행/증권사", "주택도시기금 수탁은행 전체", "서민금융진흥원 협약 금융회사"}
+    return frozenset(
+        row["bank"] for row in _load_whitelist() if row.get("bank") and row["bank"] not in generic_labels
+    )
+
+
+def _min_contract_months(options: list[str]) -> int | None:
+    months = [int(o) for o in options if str(o).isdigit()]
+    return min(months) if months else None
+
+
 def get_all_matchable_products() -> list[FinanceProduct]:
-    """F5 추천/점수 엔진에 넣을 후보 전체. 화이트리스트 우선, 이후 3순위(FSS 결합)에서 확장."""
-    return get_whitelisted_products()
+    """F5 추천/점수 엔진에 넣을 후보 전체. 화이트리스트 상품 + FSS 공시 예적금(은행명 기준
+    화이트리스트 매칭으로 is_whitelisted 판정)을 합쳐서 돌려준다."""
+    whitelisted = get_whitelisted_products()
+    fss_savings = get_fss_savings()["products"]
+    fss_deposits = get_fss_deposits()["products"]
+    return whitelisted + fss_savings + fss_deposits
 
 
 def get_fss_deposits() -> dict:
@@ -73,6 +92,8 @@ def get_fss_savings() -> dict:
 def _normalize_fss_result(result: dict, product_type: str) -> dict:
     if result.get("error"):
         return {"products": [], "error": result["error"]}
+    bank_whitelist = _whitelisted_bank_names()
+    is_sample = result.get("is_sample_data", False)
     products = [
         FinanceProduct(
             product_id=p["product_id"],
@@ -82,9 +103,13 @@ def _normalize_fss_result(result: dict, product_type: str) -> dict:
             base_rate=p.get("base_rate"),
             max_rate=p.get("max_rate"),
             rate_as_of=p.get("rate_as_of"),
+            contract_months=_min_contract_months(p.get("contract_months_options", [])),
             status="ACTIVE",
+            is_whitelisted=p.get("bank") in bank_whitelist,
+            notes_ko="" if p.get("bank") in bank_whitelist else "외국인 가입 가능 여부 확인 필요",
+            is_sample_data=is_sample,
         )
         for p in result["products"]
         if p.get("status", "ACTIVE") == "ACTIVE"
     ]
-    return {"products": products, "error": None}
+    return {"products": products, "error": None, "is_sample_data": is_sample}

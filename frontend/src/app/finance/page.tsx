@@ -386,15 +386,30 @@ export default function FinancePage() {
             지금은 실시간 상품 조회를 불러올 수 없어요. 잠시 후 다시 시도해주세요.
           </p>
         )}
+        {!savingsLoading && !savingsError && savings.some((p) => p.is_sample_data) && (
+          <p className="mt-1 text-[11px] font-semibold text-amber-600">
+            ⚠ 실제 공시 데이터를 아직 연동하지 못해 샘플 데이터로 보여드리고 있어요.
+          </p>
+        )}
         <div className="mt-2 flex flex-col gap-3">
           {savings.slice(0, 15).map((p) => (
             <Card key={p.product_id} className="!p-4">
-              <p className="text-[15px] font-bold text-brand-navy">{p.product_name}</p>
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-[15px] font-bold text-brand-navy">{p.product_name}</p>
+                {p.is_sample_data && (
+                  <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                    샘플 데이터
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-gray-500">{p.bank}</p>
               {(p.base_rate || p.max_rate) && (
                 <p className="mt-1 text-sm text-brand-blue">
                   {p.base_rate}% ~ {p.max_rate}%
                 </p>
+              )}
+              {!p.is_whitelisted && (
+                <p className="mt-1.5 text-[11px] text-amber-600">⚠ 외국인 가입 가능 여부 확인 필요</p>
               )}
             </Card>
           ))}
