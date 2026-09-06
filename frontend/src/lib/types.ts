@@ -190,6 +190,7 @@ export interface UserFinanceProfile {
   visa_remaining_months?: number | null;
   purpose?: string | null;
   departure_date?: string | null;
+  monthly_savings_target?: number | null;
 }
 
 export type TermFit = "GREEN" | "AMBER" | "RED";
@@ -204,11 +205,16 @@ export interface ProductRecommendation {
   caution_ko?: string | null;
   source_url?: string | null;
   term_fit?: TermFit | null;
+  term_fit_score: number;
+  term_fit_score_reasons: string[];
+  is_sample_data: boolean;
 }
 
 export interface ProductRecommendationResponse {
   recommendations: ProductRecommendation[];
   ai_generated: boolean;
+  usable_window_months?: number | null;
+  usable_window_message_ko?: string | null;
 }
 
 export interface FxRate {

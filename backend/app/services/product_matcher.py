@@ -109,3 +109,85 @@ def compute_term_fit(product: FinanceProduct, departure_date: date | None) -> st
     if slack_days >= -TERM_FIT_BUFFER_DAYS:
         return "AMBER"
     return "RED"
+
+
+def compute_usable_window_months(departure_date: date | None) -> int | None:
+    """출국까지 남은 기간에서 여유기간(TERM_FIT_BUFFER_DAYS)을 뺀, 안전하게 가입할 수
+    있는 최대 만기 개월수. 출국예정일이 없으면 계산하지 않는다(None)."""
+    if departure_date is None:
+        return None
+    usable_days = (departure_date - date.today()).days - TERM_FIT_BUFFER_DAYS
+    return max(0, usable_days // DAYS_PER_MONTH_APPROX)
+
+
+def compute_usable_window_message(departure_date: date | None) -> str | None:
+    months = compute_usable_window_months(departure_date)
+    if months is None:
+        return None
+    if months <= 0:
+        return "출국 예정일이 얼마 남지 않아, 지금은 안전하게 가입할 수 있는 만기의 상품이 없어요. 이미 가입한 상품이 있다면 만기와 출국일을 비교해보세요."
+    return f"출국까지 {months}개월보다 긴 상품은 중도해지 가능성이 있어 추천하지 않을게요."
+
+
+# 100점 만점 배점 (전부 결정론적 계산 - LLM이 점수를 매기거나 조정하지 않는다)
+_SCORE_MATURITY_BEFORE_DEPARTURE = 40
+_SCORE_COMFORTABLE_BUFFER = 20
+_SCORE_WHITELISTED = 20
+_SCORE_WITHIN_SAVINGS_TARGET = 10
+_SCORE_REMOTE_OPENING = 10
+
+
+def compute_term_fit_score(product: FinanceProduct, profile: UserFinanceProfile) -> tuple[int, list[str]]:
+    """체류기간 적합도 100점 배점. (점수, 산정 근거 문구 리스트)를 반환한다.
+
+    배점: 만기가 출국 전(40) + 여유기간 이상 남기고 만기(20) + 화이트리스트 등재(20)
+    + 목표 저축액이 납입한도 안(10) + 비대면 가입 가능(10). 확인 안 된 항목은
+    낙관적으로 점수를 주지 않고 0점 + 이유를 남긴다.
+    """
+    score = 0
+    reasons: list[str] = []
+
+    fit = compute_term_fit(product, profile.departure_date)
+    if fit in ("GREEN", "AMBER"):
+        score += _SCORE_MATURITY_BEFORE_DEPARTURE
+        reasons.append(f"만기가 출국 예정일 이전이에요 (+{_SCORE_MATURITY_BEFORE_DEPARTURE})")
+    elif fit == "RED":
+        reasons.append("만기가 출국 예정일 이후예요 (0)")
+    else:
+        reasons.append("만기 또는 출국예정일 정보가 없어 확인할 수 없어요 (0)")
+
+    if fit == "GREEN":
+        score += _SCORE_COMFORTABLE_BUFFER
+        reasons.append(f"만기 후에도 출국까지 {TERM_FIT_BUFFER_DAYS}일 이상 여유가 있어요 (+{_SCORE_COMFORTABLE_BUFFER})")
+    else:
+        reasons.append("만기 후 여유기간이 부족하거나 확인할 수 없어요 (0)")
+
+    if product.is_whitelisted:
+        score += _SCORE_WHITELISTED
+        reasons.append(f"외국인 가입이 확인된 상품이에요 (+{_SCORE_WHITELISTED})")
+    else:
+        reasons.append("외국인 가입 가능 여부가 아직 확인되지 않았어요 (0)")
+
+    if profile.monthly_savings_target is not None:
+        min_amt = product.monthly_min_amount
+        max_amt = product.monthly_max_amount
+        if min_amt is None and max_amt is None:
+            score += _SCORE_WITHIN_SAVINGS_TARGET
+            reasons.append(f"납입 한도 제한이 없어요 (+{_SCORE_WITHIN_SAVINGS_TARGET})")
+        elif (min_amt is None or profile.monthly_savings_target >= min_amt) and (
+            max_amt is None or profile.monthly_savings_target <= max_amt
+        ):
+            score += _SCORE_WITHIN_SAVINGS_TARGET
+            reasons.append(f"목표 저축액이 납입 한도 안에 들어와요 (+{_SCORE_WITHIN_SAVINGS_TARGET})")
+        else:
+            reasons.append("목표 저축액이 납입 한도를 벗어나요 (0)")
+    else:
+        reasons.append("목표 저축액 정보가 없어 확인할 수 없어요 (0)")
+
+    if product.remote_opening_available is True:
+        score += _SCORE_REMOTE_OPENING
+        reasons.append(f"비대면(모바일) 가입이 가능해요 (+{_SCORE_REMOTE_OPENING})")
+    else:
+        reasons.append("비대면 가입 가능 여부가 확인되지 않았어요 (0)")
+
+    return score, reasons

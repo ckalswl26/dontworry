@@ -45,7 +45,12 @@ def recommend_products(profile: UserFinanceProfile) -> ProductRecommendationResp
     LLM은 product_matcher가 이미 자격 조건으로 걸러낸 candidates 안에서만
     설명 문구를 만들 수 있고, 그 목록 밖의 상품을 추천하는 것은 구조적으로 불가능하다.
     """
-    all_products = product_service.get_whitelisted_products()
+    all_products = product_service.get_all_matchable_products()
     candidates = product_matcher.get_candidate_products(profile, all_products)
     recommendations, ai_generated = ai_service.generate_product_recommendations(candidates, profile)
-    return ProductRecommendationResponse(recommendations=recommendations, ai_generated=ai_generated)
+    return ProductRecommendationResponse(
+        recommendations=recommendations,
+        ai_generated=ai_generated,
+        usable_window_months=product_matcher.compute_usable_window_months(profile.departure_date),
+        usable_window_message_ko=product_matcher.compute_usable_window_message(profile.departure_date),
+    )

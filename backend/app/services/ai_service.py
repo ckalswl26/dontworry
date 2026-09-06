@@ -14,7 +14,7 @@ import logging
 
 from app.config import get_settings
 from app.models.schemas import ActionItem, FinanceProduct, IntentResult, ProductRecommendation, UserFinanceProfile, UserProfile
-from app.services.product_matcher import build_eligibility_badge, compute_term_fit
+from app.services.product_matcher import build_eligibility_badge, compute_term_fit, compute_term_fit_score
 
 logger = logging.getLogger(__name__)
 
@@ -296,6 +296,9 @@ MAX_RECOMMENDATIONS = 6
 def _fallback_product_recommendations(
     candidates: list[FinanceProduct], profile: UserFinanceProfile
 ) -> list[ProductRecommendation]:
+    scored = [(p, *compute_term_fit_score(p, profile)) for p in candidates]
+    # AI 랭킹이 없을 때는 체류기간 적합도 점수 순으로 정렬한다 (결정론적 대체 기준).
+    scored.sort(key=lambda row: row[1], reverse=True)
     return [
         ProductRecommendation(
             product_id=p.product_id,
@@ -307,8 +310,11 @@ def _fallback_product_recommendations(
             caution_ko=p.caution_ko,
             source_url=p.source_url,
             term_fit=compute_term_fit(p, profile.departure_date),
+            term_fit_score=score,
+            term_fit_score_reasons=reasons,
+            is_sample_data=p.is_sample_data,
         )
-        for p in candidates[:MAX_RECOMMENDATIONS]
+        for p, score, reasons in scored[:MAX_RECOMMENDATIONS]
     ]
 
 
@@ -372,20 +378,26 @@ def generate_product_recommendations(
 
         reasoning_map = {r["product_id"]: r["why"] for r in payload.get("reasoning_per_product", [])}
         products_by_id = {p.product_id: p for p in candidates}
-        recommendations = [
-            ProductRecommendation(
-                product_id=pid,
-                institution=products_by_id[pid].bank,
-                product_name=products_by_id[pid].product_name,
-                category=products_by_id[pid].product_type,
-                reason_ko=reasoning_map.get(pid, products_by_id[pid].notes_ko),
-                eligibility_badge_ko=build_eligibility_badge(products_by_id[pid], profile),
-                caution_ko=products_by_id[pid].caution_ko,
-                source_url=products_by_id[pid].source_url,
-                term_fit=compute_term_fit(products_by_id[pid], profile.departure_date),
+        recommendations = []
+        for pid in ranked_ids[:MAX_RECOMMENDATIONS]:
+            product = products_by_id[pid]
+            score, reasons = compute_term_fit_score(product, profile)
+            recommendations.append(
+                ProductRecommendation(
+                    product_id=pid,
+                    institution=product.bank,
+                    product_name=product.product_name,
+                    category=product.product_type,
+                    reason_ko=reasoning_map.get(pid, product.notes_ko),
+                    eligibility_badge_ko=build_eligibility_badge(product, profile),
+                    caution_ko=product.caution_ko,
+                    source_url=product.source_url,
+                    term_fit=compute_term_fit(product, profile.departure_date),
+                    term_fit_score=score,
+                    term_fit_score_reasons=reasons,
+                    is_sample_data=product.is_sample_data,
+                )
             )
-            for pid in ranked_ids[:MAX_RECOMMENDATIONS]
-        ]
         return recommendations, True
     except Exception:
         logger.exception("Anthropic product recommendation failed, using fallback")

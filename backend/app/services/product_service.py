@@ -37,6 +37,8 @@ def _row_to_product(row: dict) -> FinanceProduct:
         notes_ko=row.get("notes_ko", ""),
         caution_ko=row.get("caution_ko"),
         source_url=row.get("source_url"),
+        is_whitelisted=True,
+        remote_opening_available=row.get("channels", {}).get("mobile", {}).get("available"),
     )
 
 
@@ -51,6 +53,11 @@ def get_whitelisted_products(product_type: str | None = None) -> list[FinancePro
             continue
         products.append(_row_to_product(row))
     return products
+
+
+def get_all_matchable_products() -> list[FinanceProduct]:
+    """F5 추천/점수 엔진에 넣을 후보 전체. 화이트리스트 우선, 이후 3순위(FSS 결합)에서 확장."""
+    return get_whitelisted_products()
 
 
 def get_fss_deposits() -> dict:

@@ -206,6 +206,9 @@ class FinanceProduct(BaseModel):
     notes_ko: str = ""
     caution_ko: str | None = Field(None, description="가입 가능하지만 실질 혜택이 제한적인 경우의 주의 문구(예: 청약 당첨 기회 제한)")
     source_url: str | None = None
+    is_whitelisted: bool = Field(True, description="외국인 가입 가능 여부가 확인된(product_whitelist.json 등재) 상품인지")
+    remote_opening_available: bool | None = Field(None, description="비대면(모바일) 가입 가능 여부 - 확인 안 되면 None")
+    is_sample_data: bool = Field(False, description="FSS_API_KEY 미설정 시의 목데이터 여부 - 화면에 반드시 표시")
 
 
 class UserFinanceProfile(BaseModel):
@@ -217,6 +220,7 @@ class UserFinanceProfile(BaseModel):
     visa_remaining_months: int | None = None
     purpose: str | None = Field(None, description="선택: 저축/청약/송금/대출/보장/외화예금 등 목적 태그")
     departure_date: date | None = Field(None, description="만기-체류기간 적합성(term_fit) 판정에 사용")
+    monthly_savings_target: int | None = Field(None, description="F6 플래너의 필요 월 저축액 - 납입한도 적합성 채점에 사용")
 
 
 class ProductRecommendation(BaseModel):
@@ -231,11 +235,18 @@ class ProductRecommendation(BaseModel):
     term_fit: Literal["GREEN", "AMBER", "RED"] | None = Field(
         None, description="상품 만기가 출국예정일 대비 적합한지 - 만기/출국일 정보가 없으면 null"
     )
+    term_fit_score: int = Field(0, description="체류기간 적합도 100점 배점 - 100% 결정론적 계산, LLM 관여 없음")
+    term_fit_score_reasons: list[str] = Field(default_factory=list, description="점수 산정 근거 (항목별 +점수/0점 문구)")
+    is_sample_data: bool = Field(False, description="FSS 목데이터 기반 상품인 경우 화면에 표시")
 
 
 class ProductRecommendationResponse(BaseModel):
     recommendations: list[ProductRecommendation]
     ai_generated: bool = False
+    usable_window_months: int | None = Field(
+        None, description="출국예정일 기준 여유기간을 뺀, 안전하게 가입 가능한 최대 만기 개월수"
+    )
+    usable_window_message_ko: str | None = None
 
 
 # ---------- F6 Planner ----------
