@@ -24,8 +24,8 @@ const LABEL_KEY: Record<SignalStatus, string> = {
 
 export function SignalBadge({ signal, lang }: { signal: SignalStatus; lang: Lang }) {
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${STYLES[signal]}`}>
-      <span className={`h-2 w-2 rounded-full ${DOTS[signal]}`} />
+    <span className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1.5 text-[11px] font-bold leading-none ${STYLES[signal]}`}>
+      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${DOTS[signal]}`} />
       {t(lang, LABEL_KEY[signal])}
     </span>
   );

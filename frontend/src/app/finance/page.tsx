@@ -74,7 +74,7 @@ function TriToggle({
 
 export default function FinancePage() {
   const router = useRouter();
-  const { state, setConsultation } = useStore();
+  const { state, setConsultation, setSavingsTracking } = useStore();
   const lang = state.profile.language;
 
   const [hasArc, setHasArc] = useState<boolean | null>(null);
@@ -82,6 +82,8 @@ export default function FinancePage() {
   const [purpose, setPurpose] = useState<string | null>(null);
   const [confirmingRedId, setConfirmingRedId] = useState<string | null>(null);
   const [expandedScoreId, setExpandedScoreId] = useState<string | null>(null);
+  const [maturityEditId, setMaturityEditId] = useState<string | null>(null);
+  const [maturityDraft, setMaturityDraft] = useState("");
 
   const hasPlannerGoal = state.planner.target_amount > 0;
   const { data: plannerResult } = useFetch<PlannerResponse | null>(
@@ -152,6 +154,13 @@ export default function FinancePage() {
     router.push("/consult-card");
   };
 
+  const saveMaturity = (r: ProductRecommendation) => {
+    if (!maturityDraft) return;
+    setSavingsTracking({ productName: r.product_name, maturityDate: maturityDraft });
+    setMaturityEditId(null);
+    setMaturityDraft("");
+  };
+
   const renderProductCard = (r: ProductRecommendation) => (
     <Card key={r.product_id} className="!p-4">
       <div className="flex items-start justify-between gap-2">
@@ -213,6 +222,46 @@ export default function FinancePage() {
           이 상품은 출국예정일 이후에 만기가 도래해요. 만기 전에 해지하면 약정금리 대신 중도해지 이자율이
           적용돼 손실이 발생할 수 있어요. 정확한 중도해지 조건은 반드시 가입 시 은행에 확인하세요.
         </p>
+      )}
+
+      {state.savingsTracking.productName === r.product_name && state.savingsTracking.maturityDate ? (
+        <p className="mt-2 rounded-lg bg-emerald-50 px-2.5 py-2 text-xs font-semibold text-emerald-700">
+          ✓ 만기일 저장됨: {state.savingsTracking.maturityDate} (홈 화면에서 D-Day로 확인할 수 있어요)
+          <button
+            type="button"
+            onClick={() => setSavingsTracking({ productName: "", maturityDate: null })}
+            className="ml-2 text-emerald-600 underline"
+          >
+            삭제
+          </button>
+        </p>
+      ) : maturityEditId === r.product_id ? (
+        <div className="mt-2 flex items-center gap-2">
+          <input
+            type="date"
+            value={maturityDraft}
+            onChange={(e) => setMaturityDraft(e.target.value)}
+            className="min-w-0 flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-xs"
+          />
+          <button
+            type="button"
+            onClick={() => saveMaturity(r)}
+            className="shrink-0 rounded-lg bg-brand-navy px-3 py-1.5 text-xs font-bold text-white"
+          >
+            저장
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            setMaturityEditId(r.product_id);
+            setMaturityDraft("");
+          }}
+          className="mt-2 text-xs text-brand-blue underline"
+        >
+          이 상품 가입하면 만기일 저장하기
+        </button>
       )}
 
       <div className={`mt-2 grid ${confirmingRedId === r.product_id ? "grid-cols-2" : "grid-cols-1"} gap-2`}>

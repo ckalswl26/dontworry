@@ -6,8 +6,7 @@ import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { Card } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
-import { LogoWordmark, Mascot } from "@/components/Logo";
-import { FxCalculatorCard } from "@/components/FxCalculatorCard";
+import { LogoWordmark } from "@/components/Logo";
 
 function daysUntil(dateStr: string | null | undefined): number | null {
   if (!dateStr) return null;
@@ -19,30 +18,14 @@ function formatWon(amount: number): string {
   return `${amount.toLocaleString()}원`;
 }
 
-interface SpeechRecognitionLike {
-  lang: string;
-  interimResults: boolean;
-  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
-  onend: (() => void) | null;
-  onerror: (() => void) | null;
-  start: () => void;
-}
-
-type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
-
 export default function HomePage() {
   const router = useRouter();
-  const { state, setLastQuestion, setAssetsHidden } = useStore();
+  const { state, setAssetsHidden } = useStore();
   const lang = state.profile.language;
-  const [question, setQuestion] = useState("");
   const [mounted, setMounted] = useState(false);
-  const [speechSupported, setSpeechSupported] = useState(false);
-  const [listening, setListening] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const speechWindow = window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor; webkitSpeechRecognition?: SpeechRecognitionConstructor };
-    setSpeechSupported(Boolean(speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition));
   }, []);
   useEffect(() => {
     if (mounted && !state.onboarded) router.replace("/");
@@ -51,32 +34,10 @@ export default function HomePage() {
   if (!mounted) return null;
 
   const days = daysUntil(state.profile.departure_date);
+  const maturityDays = daysUntil(state.savingsTracking.maturityDate);
   const greeting = state.profile.name
     ? t(lang, "greetingWithName").replace("{name}", state.profile.name)
     : t(lang, "greetingNoName");
-
-  const submitQuestion = () => {
-    if (!question.trim()) {
-      router.push("/tasks");
-      return;
-    }
-    setLastQuestion(question);
-    router.push("/intent");
-  };
-
-  const startVoiceInput = () => {
-    const speechWindow = window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor; webkitSpeechRecognition?: SpeechRecognitionConstructor };
-    const Recognition = speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition;
-    if (!Recognition) return;
-    const recognition = new Recognition();
-    recognition.lang = lang === "ko" ? "ko-KR" : lang === "vi" ? "vi-VN" : "en-US";
-    recognition.interimResults = false;
-    recognition.onresult = (event) => setQuestion(event.results[0][0].transcript);
-    recognition.onend = () => setListening(false);
-    recognition.onerror = () => setListening(false);
-    setListening(true);
-    recognition.start();
-  };
 
   return (
     <div className="flex min-h-dvh flex-col px-5 pb-28 pt-6">
@@ -116,10 +77,39 @@ export default function HomePage() {
             />
           </div>
         )}
+        {state.savingsTracking.maturityDate && (
+          <div className="mt-3 flex items-center justify-between border-t border-white/15 pt-3">
+            <p className="text-xs text-white/70">{state.savingsTracking.productName || "저축 상품"} 만기</p>
+            <p className="text-lg font-black">
+              {maturityDays !== null ? `D-${maturityDays}` : state.savingsTracking.maturityDate}
+            </p>
+          </div>
+        )}
         <p className="mt-3 text-xs text-white/70">
           {state.profile.nationality} · {state.profile.visa_type}
         </p>
       </div>
+
+      {state.savingsTracking.maturityDate && days !== null && maturityDays !== null && (
+        maturityDays <= days ? (
+          <Card className="mt-3 border-brand-blue/15 bg-brand-sky/40">
+            <p className="text-sm leading-6 text-brand-navy">
+              만기 후 출국까지 <span className="font-black">{days - maturityDays}일</span> 남아요. 귀국 전 송금을
+              준비할 수 있어요.
+            </p>
+            <button onClick={() => router.push("/tasks/overseas_remittance")} className="mt-1 text-xs font-semibold text-brand-blue">
+              해외송금 안내 보기 ›
+            </button>
+          </Card>
+        ) : (
+          <Card className="mt-3 border-brand-red/20 bg-red-50">
+            <p className="text-sm leading-6 text-brand-red">
+              ⚠ 적금 만기가 출국일보다 <span className="font-black">{maturityDays - days}일</span> 늦어요. 중도해지
+              조건을 확인하세요.
+            </p>
+          </Card>
+        )
+      )}
 
       <Card className="mt-3">
         <div className="flex items-center justify-between">
@@ -146,62 +136,26 @@ export default function HomePage() {
         )}
       </Card>
 
-      <FxCalculatorCard />
-
-      <div id="ai-chat" className="mt-5 scroll-mt-6">
-        <p className="mb-2 text-sm font-bold text-brand-navy">{t(lang, "aiChatbotTitle")}</p>
-        <div className="flex items-center gap-3 rounded-xl2 border border-brand-blue/20 bg-brand-sky/50 p-3 shadow-sm">
-          <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 border-white bg-white shadow-sm"><Mascot size={44} className="h-full w-full scale-125 object-contain" /></div>
-          <input
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && submitQuestion()}
-            placeholder={t(lang, "aiChatbotPlaceholder")}
-            className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-          />
-          {speechSupported && (
-            <button type="button" onClick={startVoiceInput} aria-label="음성으로 입력" className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${listening ? "bg-red-50 text-brand-red" : "bg-white text-brand-navy"}`}>
-              🎙️
-            </button>
-          )}
-          <button onClick={submitQuestion} className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-blue text-white shadow-sm" aria-label="submit">
-            ➤
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-6 flex flex-col gap-3">
+      <div className="mt-6">
         <p className="text-sm font-semibold text-gray-500">{t(lang, "quickLinks")}</p>
-
-        <Card className="flex cursor-pointer items-center justify-between" >
-          <button className="flex w-full items-center justify-between" onClick={() => router.push("/planner")}>
-            <div className="text-left">
-              <p className="font-semibold text-brand-navy">{t(lang, "plannerShortcut")}</p>
-              <p className="text-xs text-gray-500">{t(lang, "plannerShortcutDesc")}</p>
-            </div>
-            <span>›</span>
-          </button>
-        </Card>
-
-        <Card>
-          <button className="flex w-full items-center justify-between" onClick={() => router.push("/dday")}>
-            <div className="text-left">
-              <p className="font-semibold text-brand-navy">{t(lang, "ddayShortcut")}</p>
-              <p className="text-xs text-gray-500">{t(lang, "ddayShortcutDesc")}</p>
-            </div>
-            <span>›</span>
-          </button>
-        </Card>
-
-        <Card>
-          <button className="flex w-full items-center justify-between" onClick={() => router.push("/briefing")}>
-            <div className="text-left">
-              <p className="font-semibold text-brand-navy">{t(lang, "briefingTitle")}</p>
-              <p className="text-xs text-gray-500">{t(lang, "consultShortcutDesc")}</p>
-            </div>
-            <span>›</span>
-          </button>
-        </Card>
+        <div className="mt-3 grid grid-cols-4 gap-2">
+          {[
+            { icon: "💱", label: "환율 계산", href: "/fx", tone: "bg-blue-50" },
+            { icon: "📊", label: "자산 플래너", href: "/planner", tone: "bg-violet-50" },
+            { icon: "📅", label: "D-Day", href: "/dday", tone: "bg-amber-50" },
+            { icon: "📋", label: "재무 브리핑", href: "/briefing", tone: "bg-emerald-50" },
+          ].map((item) => (
+            <button
+              key={item.href}
+              type="button"
+              onClick={() => router.push(item.href)}
+              className="flex min-w-0 flex-col items-center gap-2 rounded-2xl border border-slate-100 bg-white px-1 py-4 text-center shadow-[0_8px_24px_rgba(17,28,78,0.07)] transition active:scale-95"
+            >
+              <span className={`flex h-11 w-11 items-center justify-center rounded-2xl text-xl ${item.tone}`} aria-hidden="true">{item.icon}</span>
+              <span className="whitespace-nowrap text-[11px] font-bold text-brand-navy">{item.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="mt-6 flex flex-col gap-3">

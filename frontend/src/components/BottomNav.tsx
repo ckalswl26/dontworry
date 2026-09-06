@@ -25,9 +25,9 @@ export function BottomNav() {
       {/* AI 챗봇 진입 FAB - 원형 배경 없이 마스코트가 그대로 떠 있는 느낌, 탭바 위 우측 하단 고정 */}
       <button
         type="button"
-        onClick={() => router.push("/home#ai-chat")}
+        onClick={() => router.push("/chat")}
         aria-label={t(lang, "aiChatbotTitle")}
-        className="absolute bottom-[68px] right-4 z-30 transition-transform hover:-translate-y-1"
+        className="absolute bottom-[68px] right-4 z-30 transition-transform hover:-translate-y-1 active:scale-95"
       >
         <Mascot
           size={72}

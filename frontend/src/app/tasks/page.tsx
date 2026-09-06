@@ -63,9 +63,9 @@ export default function TasksPage() {
               onClick={() => router.push(`/tasks/${task.task_id}`)}
               className="flex items-center justify-between rounded-xl2 border border-gray-100 px-4 py-4 text-left shadow-sm"
             >
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="font-semibold text-brand-navy">{task.label}</p>
-                <p className="mt-1 max-w-[220px] text-xs text-gray-500">{task.reason}</p>
+                <p className="mt-1 text-xs text-gray-500">{task.reason}</p>
               </div>
               <SignalBadge signal={task.signal} lang={lang} />
             </button>

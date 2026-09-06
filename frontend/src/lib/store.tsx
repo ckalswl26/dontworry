@@ -58,6 +58,12 @@ interface SessionState {
     address: string;
     phone: string;
   };
+  // F5에서 사용자가 고른 상품의 만기일 - 서버에 저장하지 않고 로컬에만 보관해
+  // 홈 화면 D-Day 옆에 "OO적금 만기 D-45"로 보여준다.
+  savingsTracking: {
+    productName: string;
+    maturityDate: string | null;
+  };
 }
 
 const DEFAULT_STATE: SessionState = {
@@ -81,6 +87,7 @@ const DEFAULT_STATE: SessionState = {
     productEligibilityBadgeKo: "",
   },
   passportPrep: { englishName: "", passportNumber: "", passportExpiry: "", address: "", phone: "" },
+  savingsTracking: { productName: "", maturityDate: null },
 };
 
 interface StoreContextValue {
@@ -96,6 +103,7 @@ interface StoreContextValue {
   setAssetsHidden: (v: boolean) => void;
   setConsultation: (value: Partial<SessionState["consultation"]>) => void;
   setPassportPrep: (value: Partial<SessionState["passportPrep"]>) => void;
+  setSavingsTracking: (value: Partial<SessionState["savingsTracking"]>) => void;
   loadDemo: (profile: UserProfile, planner: PlannerRequest, docs: string[]) => void;
   restoreState: (data: Partial<SessionState>) => void;
   reset: () => void;
@@ -119,6 +127,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ...saved,
           consultation: { ...DEFAULT_STATE.consultation, ...saved.consultation },
           passportPrep: { ...DEFAULT_STATE.passportPrep, ...saved.passportPrep },
+          savingsTracking: { ...DEFAULT_STATE.savingsTracking, ...saved.savingsTracking },
         });
       }
     } catch {
@@ -160,6 +169,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setState((s) => ({ ...s, consultation: { ...s.consultation, ...consultation } })),
       setPassportPrep: (passportPrep) =>
         setState((s) => ({ ...s, passportPrep: { ...s.passportPrep, ...passportPrep } })),
+      setSavingsTracking: (savingsTracking) =>
+        setState((s) => ({ ...s, savingsTracking: { ...s.savingsTracking, ...savingsTracking } })),
       loadDemo: (profile, planner, docs) =>
         setState((s) => ({ ...s, profile, planner, documentsHeld: docs, onboarded: true })),
       restoreState: (data) =>
@@ -169,6 +180,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ...data,
           consultation: { ...DEFAULT_STATE.consultation, ...data.consultation },
           passportPrep: { ...DEFAULT_STATE.passportPrep, ...data.passportPrep },
+          savingsTracking: { ...DEFAULT_STATE.savingsTracking, ...data.savingsTracking },
         })),
       reset: () => setState(DEFAULT_STATE),
     }),
