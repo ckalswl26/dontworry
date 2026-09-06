@@ -85,6 +85,7 @@ export default function FinancePage() {
   const [expandedScoreId, setExpandedScoreId] = useState<string | null>(null);
   const [maturityEditId, setMaturityEditId] = useState<string | null>(null);
   const [maturityDraft, setMaturityDraft] = useState("");
+  const [showRemoteOpening, setShowRemoteOpening] = useState(false);
 
   const hasPlannerGoal = state.planner.target_amount > 0;
   const { data: plannerResult } = useFetch<PlannerResponse | null>(
@@ -308,8 +309,6 @@ export default function FinancePage() {
           </Card>
         )}
 
-        <RemoteAccountOpeningCard />
-
         <Card className="mt-4 !p-4">
           <div className="flex flex-col gap-4">
             <TriToggle label={t(lang, "hasArcLabel")} value={hasArc} onChange={setHasArc} lang={lang} />
@@ -340,6 +339,26 @@ export default function FinancePage() {
             </div>
           </div>
         </Card>
+
+        <button
+          type="button"
+          onClick={() => setShowRemoteOpening((visible) => !visible)}
+          aria-expanded={showRemoteOpening}
+          className="mt-3 flex w-full items-center justify-between rounded-xl2 border border-brand-blue/20 bg-white px-4 py-3.5 text-left shadow-[0_8px_24px_rgba(17,28,78,0.06)] transition active:scale-[0.99]"
+        >
+          <span className="flex min-w-0 items-center gap-2.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-sky text-lg" aria-hidden="true">📱</span>
+            <span>
+              <span className="block text-sm font-extrabold text-brand-navy">
+                {t(lang, "signalGreen")} {t(lang, "menuPassportPrepTitle")}
+              </span>
+              <span className="mt-0.5 block text-[11px] text-slate-500">{t(lang, "menuPassportPrepDesc")}</span>
+            </span>
+          </span>
+          <span className={`shrink-0 text-sm text-brand-blue transition-transform ${showRemoteOpening ? "rotate-90" : ""}`} aria-hidden="true">›</span>
+        </button>
+
+        {showRemoteOpening && <RemoteAccountOpeningCard />}
 
         <p className="mt-6 text-sm font-extrabold text-brand-navy">{t(lang, "myRecommendedProducts")}</p>
         {!aiGenerated && !recLoading && recommendations.length > 0 && (

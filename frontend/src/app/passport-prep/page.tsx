@@ -132,16 +132,17 @@ export default function PassportPrepPage() {
               <button
                 type="button"
                 onClick={handleShare}
-                className="w-full rounded-xl2 border border-brand-blue py-2.5 text-sm font-bold text-brand-blue"
+                className="min-h-[58px] w-full rounded-xl2 border border-brand-blue px-2 py-2 text-sm font-bold text-brand-blue"
               >
                 공유하기
               </button>
               <button
                 type="button"
                 onClick={() => router.push("/passport-prep/demo")}
-                className="w-full rounded-xl2 bg-brand-navy py-2.5 text-sm font-bold text-white"
+                className="flex min-h-[58px] w-full flex-col items-center justify-center rounded-xl2 bg-brand-navy px-2 py-2 text-[13px] font-bold leading-5 text-white"
               >
-                전자여권 사전 확인 (데모)
+                <span>전자여권</span>
+                <span>사진 확인 <span className="text-[10px] font-semibold text-white/65">(데모)</span></span>
               </button>
             </div>
             {notice && (
