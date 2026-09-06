@@ -6,7 +6,17 @@ type Feature = { route: string; keys: string[]; aliases: string[] };
 const FEATURES: Feature[] = [
   { route: "/fx", keys: ["menuFxTitle", "menuFxDesc", "fxCalculatorTitle"], aliases: ["환율", "환전", "exchange rate", "currency converter", "tỷ giá", "đổi tiền", "汇率", "换汇", "বিনিময় হার"] },
   { route: "/planner", keys: ["menuPlannerTitle", "menuPlannerDesc", "plannerTitle"], aliases: ["자산 계획", "저축 계획", "asset planner", "savings plan", "kế hoạch tiết kiệm", "资产规划", "储蓄计划", "সঞ্চয় পরিকল্পনা"] },
-  { route: "/finance", keys: ["menuFinanceTitle", "menuFinanceDesc", "relatedProducts"], aliases: ["금융 상품", "예금", "적금", "financial product", "deposit product", "sản phẩm tài chính", "金融产品", "আর্থিক পণ্য"] },
+  {
+    route: "/finance",
+    keys: ["menuFinanceTitle", "menuFinanceDesc", "relatedProducts", "myRecommendedProducts"],
+    aliases: [
+      "금융 상품", "상품 추천", "상품을 추천", "추천 상품", "맞는 상품", "예금 추천", "적금 추천", "예금", "적금",
+      "recommend a product", "recommend products", "product recommendation", "financial product", "deposit product", "savings product",
+      "gợi ý sản phẩm", "đề xuất sản phẩm", "sản phẩm phù hợp", "sản phẩm tài chính",
+      "推荐产品", "产品推荐", "适合的产品", "金融产品",
+      "পণ্য সুপারিশ", "আর্থিক পণ্য সুপারিশ", "উপযুক্ত পণ্য", "আর্থিক পণ্য",
+    ],
+  },
   { route: "/settlement-checklist", keys: ["menuSettlementTitle", "menuSettlementDesc"], aliases: ["귀국 정산", "정산 체크", "return settlement", "departure settlement", "quyết toán về nước", "回国结算", "ফেরার হিসাব"] },
   { route: "/wage-slip-check", keys: ["menuWageSlipTitle", "menuWageSlipDesc"], aliases: ["급여명세서", "수당 계산", "payslip", "wage slip", "phiếu lương", "工资单", "বেতন স্লিপ"] },
   { route: "/wage-check", keys: ["minWageCheckTitle", "minWageCheckDesc"], aliases: ["최저임금", "최저시급", "minimum wage", "lương tối thiểu", "最低工资", "ন্যূনতম মজুরি"] },
