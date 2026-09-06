@@ -15,6 +15,7 @@ const CATEGORIES: { title: string; items: { icon: string; label: string; desc: s
       { icon: "🏦", label: "금융상품", desc: "내 조건에 맞는 상품 찾기", href: "/finance" },
       { icon: "🧳", label: "귀국 전 정산 체크리스트", desc: "받을 수 있는 돈, 어디서 신청하는지 정리", href: "/settlement-checklist" },
       { icon: "💰", label: "최저임금 확인하기", desc: "내 월급이 최저임금 기준인지 확인", href: "/wage-check" },
+      { icon: "🧾", label: "급여명세서 체크", desc: "연장·야간·휴일수당 예상액 계산해보기", href: "/wage-slip-check" },
       { icon: "📝", label: "계좌개설 준비", desc: "비대면 계좌개설 정보 미리 정리하기", href: "/passport-prep" },
     ],
   },
