@@ -75,6 +75,20 @@ export interface RuleEvaluateResponse {
   pension: PensionResult;
 }
 
+export interface ConsultCardTranslateRequest {
+  visit_purpose_ko: string;
+  required_documents_ko: string[];
+  judgement_basis_ko: string;
+  target_lang: string;
+}
+
+export interface ConsultCardTranslateResponse {
+  visit_purpose: string;
+  required_documents: string[];
+  judgement_basis: string;
+  translated: boolean;
+}
+
 export interface WorkflowStep {
   step: number;
   task_id: string;

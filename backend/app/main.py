@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import briefing, demo, documents, finance, fx, guides, health, intent, locations, planner, push, rules, sources
+from app.api import briefing, consult_card, demo, documents, finance, fx, guides, health, intent, locations, planner, push, rules, sources
 from app.config import get_settings
 
 settings = get_settings()
@@ -31,6 +31,7 @@ app.include_router(locations.router)
 app.include_router(fx.router)
 app.include_router(push.router)
 app.include_router(guides.router)
+app.include_router(consult_card.router)
 
 
 @app.get("/")

@@ -402,3 +402,93 @@ def generate_product_recommendations(
     except Exception:
         logger.exception("Anthropic product recommendation failed, using fallback")
         return _fallback_product_recommendations(candidates, profile), False
+
+
+# ---------------------------------------------------------------------------
+# F15 상담카드 번역 (이미 확정된 한국어 문구를 사용자 언어로 옮기기만 한다 - 새 정보 금지)
+# ---------------------------------------------------------------------------
+
+TRANSLATE_CONSULT_CARD_TOOL = {
+    "name": "translate_consult_card",
+    "description": "이미 확정된 한국어 상담카드 문구를 목표 언어로 그대로 옮긴다. 새로운 정보를 추가하거나, 없는 내용을 추측하거나, 항목을 빠뜨리면 안 된다.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "visit_purpose": {"type": "string", "description": "visit_purpose_ko를 번역한 문자열 (한 개)"},
+            "required_documents": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "required_documents_ko의 각 항목을 같은 개수·같은 순서로 번역한 배열",
+            },
+            "judgement_basis": {"type": "string", "description": "judgement_basis_ko를 번역한 문자열 (한 개)"},
+        },
+        "required": ["visit_purpose", "required_documents", "judgement_basis"],
+    },
+}
+
+
+def translate_consult_card(
+    visit_purpose_ko: str,
+    required_documents_ko: list[str],
+    judgement_basis_ko: str,
+    target_lang: str,
+) -> dict:
+    """상담카드에 이미 표시된 한국어 문구를 target_lang으로 번역만 한다.
+
+    GEN은 번역 용도로만 쓰고, GUARD가 항목 개수 불일치 등 구조가 깨진 응답을
+    걸러내면 원문 한국어를 그대로 돌려준다(사용자에게 잘못된 번역을 보여주지 않기 위해).
+    """
+    fallback = {
+        "visit_purpose": visit_purpose_ko,
+        "required_documents": required_documents_ko,
+        "judgement_basis": judgement_basis_ko,
+        "translated": False,
+    }
+
+    client = _get_client()
+    if client is None:
+        return fallback
+
+    try:
+        response = client.messages.create(
+            model="claude-sonnet-5",
+            max_tokens=1024,
+            tools=[TRANSLATE_CONSULT_CARD_TOOL],
+            tool_choice={"type": "tool", "name": "translate_consult_card"},
+            messages=[
+                {
+                    "role": "user",
+                    "content": (
+                        f"아래 한국어 문구를 언어 코드 '{target_lang}'로 그대로 번역하세요. "
+                        "이미 확정된 사실을 옮기는 것이지, 새로운 사실을 만들거나 추측하거나 "
+                        "누락된 내용을 채워 넣는 것이 아닙니다. required_documents는 입력과 "
+                        "정확히 같은 개수·같은 순서로 번역하세요.\n\n"
+                        f"visit_purpose_ko: {visit_purpose_ko}\n"
+                        f"required_documents_ko: {json.dumps(required_documents_ko, ensure_ascii=False)}\n"
+                        f"judgement_basis_ko: {judgement_basis_ko}"
+                    ),
+                }
+            ],
+        )
+        tool_use = next(b for b in response.content if b.type == "tool_use")
+        payload = tool_use.input
+
+        translated_docs = payload.get("required_documents", [])
+        # GUARD: 항목 개수가 원문과 다르면 정보가 누락/추가된 것이므로 신뢰하지 않는다.
+        if (
+            not payload.get("visit_purpose")
+            or not payload.get("judgement_basis")
+            or len(translated_docs) != len(required_documents_ko)
+        ):
+            logger.warning("AI translation failed structural GUARD check, falling back to Korean")
+            return fallback
+
+        return {
+            "visit_purpose": payload["visit_purpose"],
+            "required_documents": translated_docs,
+            "judgement_basis": payload["judgement_basis"],
+            "translated": True,
+        }
+    except Exception:
+        logger.exception("Anthropic consult-card translation failed, using fallback")
+        return fallback

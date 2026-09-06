@@ -149,6 +149,7 @@ export default function FinancePage() {
       productName: r.product_name,
       productReasonKo: r.reason_ko,
       productEligibilityBadgeKo: r.eligibility_badge_ko,
+      institutionType: "BANK",
       ready: false,
     });
     router.push("/consult-card");

@@ -8,12 +8,13 @@ import { BackHeader, Card, ErrorNotice, PrimaryButton } from "@/components/Card"
 import { SignalBadge } from "@/components/SignalBadge";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
+import { inferInstitutionType } from "@/lib/institutionType";
 import type { RuleEvaluateResponse, TaskSignal } from "@/lib/types";
 
 export default function TaskDetailPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
-  const { state, setDocumentsHeld } = useStore();
+  const { state, setDocumentsHeld, setConsultation } = useStore();
   const lang = state.profile.language;
   const [held, setHeld] = useState<Set<string>>(new Set(state.documentsHeld));
 
@@ -128,6 +129,18 @@ export default function TaskDetailPage() {
                     className="print:hidden mt-2 w-full rounded-xl py-2 text-xs font-semibold text-gray-500 underline"
                   >
                     🌐 {t(lang, "findMultilingualBranch")}
+                  </button>
+                )}
+                {requiresVisit && (
+                  <button
+                    onClick={() => {
+                      const inferred = inferInstitutionType(task.responsible_org);
+                      setConsultation({ institutionType: inferred ?? "BANK" });
+                      router.push("/consult-card");
+                    }}
+                    className="print:hidden mt-2 w-full rounded-xl bg-brand-navy py-2.5 text-sm font-semibold text-white"
+                  >
+                    🏧 이 업무로 상담카드 준비하기
                   </button>
                 )}
               </Card>

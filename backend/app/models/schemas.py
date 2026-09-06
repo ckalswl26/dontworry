@@ -460,6 +460,22 @@ class MinWageInfo(BaseModel):
     calculator_url: str
 
 
+# ---------- F15 상담카드 번역 ----------
+
+class ConsultCardTranslateRequest(BaseModel):
+    visit_purpose_ko: str
+    required_documents_ko: list[str] = Field(default_factory=list)
+    judgement_basis_ko: str
+    target_lang: str
+
+
+class ConsultCardTranslateResponse(BaseModel):
+    visit_purpose: str
+    required_documents: list[str] = Field(default_factory=list)
+    judgement_basis: str
+    translated: bool = Field(False, description="GEN 번역이 GUARD를 통과해 실제로 번역됐는지 - False면 원문 한국어 그대로")
+
+
 # ---------- 다국어 상담 지점 찾기 (F 신규 3순위) ----------
 
 class MultilingualBranch(BaseModel):

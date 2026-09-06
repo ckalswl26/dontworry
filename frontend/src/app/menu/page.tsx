@@ -23,7 +23,7 @@ const CATEGORIES: { title: string; items: { icon: string; label: string; desc: s
       { icon: "📅", label: "D-Day 금융체크", desc: "시점별로 할 일 확인하기", href: "/dday" },
       { icon: "✅", label: "업무별 확인 결과", desc: "필요서류와 처리 순서 확인", href: "/tasks" },
       { icon: "🧾", label: "AI 재무 브리핑", desc: "지금 해야 할 일 Top 3", href: "/briefing" },
-      { icon: "🏧", label: "은행원용 사전상담 카드", desc: "방문 예약 정보 준비하기", href: "/consult-card" },
+      { icon: "🏧", label: "기관 방문 통역 카드", desc: "은행·고용센터·출입국 등 방문 예약 정보 준비하기", href: "/consult-card" },
       { icon: "🌐", label: "다국어 상담 지점 찾기", desc: "통역 지원되는 지점 찾기", href: "/branches" },
     ],
   },

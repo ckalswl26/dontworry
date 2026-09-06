@@ -48,6 +48,8 @@ interface SessionState {
     productName: string;
     productReasonKo: string;
     productEligibilityBadgeKo: string;
+    // F15: 방문 기관 유형 ("" = 아직 미선택, 업무에서 자동 추론되기 전)
+    institutionType: string;
   };
   // 여권 등 민감정보 - 이 필드는 state.profile과 분리해서 어떤 API 요청 payload에도
   // 절대 섞여 들어가지 않게 한다 (state.profile은 그대로 서버로 전송되는 필드라서).
@@ -85,6 +87,7 @@ const DEFAULT_STATE: SessionState = {
     productName: "",
     productReasonKo: "",
     productEligibilityBadgeKo: "",
+    institutionType: "",
   },
   passportPrep: { englishName: "", passportNumber: "", passportExpiry: "", address: "", phone: "" },
   savingsTracking: { productName: "", maturityDate: null },
