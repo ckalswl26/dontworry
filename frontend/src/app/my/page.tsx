@@ -74,10 +74,10 @@ export default function MyPage() {
       <div className="flex-1 px-5 pb-28 pt-6">
         <div className="mb-5">
           <h2 className="text-xl font-black tracking-tight text-brand-navy">
-            {lang === "ko" ? "내 정보를 관리해요" : lang === "vi" ? "Quản lý thông tin" : "Manage your information"}
+            {t(lang, "myTitle")}
           </h2>
           <p className="mt-1 text-sm text-slate-500">
-            {lang === "ko" ? "맞춤 금융 안내에 필요한 기본 정보예요." : lang === "vi" ? "Thông tin cơ bản cho hướng dẫn tài chính phù hợp." : "Basic details used for personalized financial guidance."}
+            {t(lang, "onboardingDesc")}
           </p>
         </div>
 
@@ -89,7 +89,7 @@ export default function MyPage() {
           <div className="mx-5 border-t border-slate-100" />
           <div className="flex min-h-[58px] items-center justify-between gap-4 px-5 py-3">
             <span className="shrink-0 text-sm font-semibold text-slate-500">{t(lang, "nameLabel")}</span>
-            <span className="text-sm font-bold text-brand-navy">{state.profile.name || "미입력"}</span>
+            <span className="text-sm font-bold text-brand-navy">{state.profile.name || t(lang, "notEnteredLabel")}</span>
           </div>
           <div className="mx-5 border-t border-slate-100" />
           <div className="flex min-h-[58px] items-center justify-between px-5 py-3">
@@ -104,7 +104,7 @@ export default function MyPage() {
           <div className="mx-5 border-t border-slate-100" />
           <div className="flex min-h-[58px] items-center justify-between gap-4 px-5 py-3">
             <span className="shrink-0 text-sm font-semibold text-slate-500">{t(lang, "departureDate")}</span>
-            <span className="text-sm font-bold text-brand-navy">{state.profile.departure_date || "미입력"}</span>
+            <span className="text-sm font-bold text-brand-navy">{state.profile.departure_date || t(lang, "notEnteredLabel")}</span>
           </div>
         </Card>
 
@@ -188,7 +188,7 @@ export default function MyPage() {
           }}
           className="mx-auto mt-5 block px-4 py-2 text-xs font-semibold text-slate-400 underline decoration-slate-300 underline-offset-4"
         >
-          {lang === "ko" ? "정보 초기화" : lang === "vi" ? "Đặt lại thông tin" : "Reset info"}
+          {t(lang, "reinput")}
         </button>
       </div>
 

@@ -28,7 +28,7 @@ export default function DDayPage() {
 
       <div className="flex-1 px-5 pb-28 pt-6">
         {!state.profile.departure_date && (
-          <p className="text-sm text-gray-400">출국 예정일을 먼저 입력해주세요 (내 정보에서 수정 가능).</p>
+          <p className="text-sm text-gray-400">{t(lang, "departureDateNotSet")}</p>
         )}
 
         {state.profile.departure_date && loading && <p className="text-sm text-gray-400">...</p>}
@@ -37,7 +37,7 @@ export default function DDayPage() {
         {data && (
           <>
             <div className="rounded-xl2 bg-brand-navy p-5 text-center text-white">
-              <p className="text-xs text-white/70">{data.departure_date} 출국 예정</p>
+              <p className="text-xs text-white/70">{t(lang, "daysToDeparture")} · {data.departure_date}</p>
               <p className="mt-1 text-4xl font-black">D-{data.days_left}</p>
             </div>
 
@@ -45,6 +45,7 @@ export default function DDayPage() {
               <DDayCalendar
                 departureDate={data.departure_date}
                 items={data.items}
+                lang={lang}
                 onSelectDate={(key, itemsOnDate) => setSelectedDate({ key, items: itemsOnDate })}
               />
             </div>
@@ -53,7 +54,7 @@ export default function DDayPage() {
               <div className="mt-3 rounded-xl2 bg-brand-sky/40 p-4">
                 <p className="text-xs font-semibold text-brand-navy">{selectedDate.key}</p>
                 {selectedDate.items.length === 0 ? (
-                  <p className="mt-1 text-xs text-slate-500">이 날짜엔 예정된 할 일이 없어요.</p>
+                  <p className="mt-1 text-xs text-slate-500">{t(lang, "noUpcomingWithin30Days")}</p>
                 ) : (
                   <div className="mt-2 flex flex-col gap-2">
                     {selectedDate.items.map((item, i) => (
@@ -96,7 +97,6 @@ export default function DDayPage() {
                   </div>
                   <p className="mt-1 text-[11px] leading-4 text-gray-500">
                     {item.detail}
-                    {item.is_recommended_not_legal && " (팀 권장 시점, 법정기한 아님)"}
                   </p>
                 </button>
               ))}

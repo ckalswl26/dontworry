@@ -23,17 +23,17 @@ export function BottomNav() {
   return (
     <nav className="bottom-nav print:hidden fixed bottom-0 left-1/2 z-20 w-full max-w-[480px] -translate-x-1/2 border-t border-gray-100 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
       {/* AI 챗봇 진입 FAB - 원형 배경 없이 마스코트가 그대로 떠 있는 느낌, 탭바 위 우측 하단 고정 */}
-      <button
+      {pathname === "/home" && <button
         type="button"
         onClick={() => router.push("/chat")}
         aria-label={t(lang, "aiChatbotTitle")}
-        className="absolute bottom-[70px] right-4 z-30 flex h-[68px] w-[68px] items-center justify-center rounded-full border-2 border-white bg-brand-sky shadow-[0_12px_24px_rgba(17,28,78,0.28)] transition-transform hover:-translate-y-1 active:scale-95"
+        className="absolute bottom-[70px] right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full border-2 border-white bg-brand-sky shadow-[0_10px_20px_rgba(17,28,78,0.24)] transition-transform hover:-translate-y-1 active:scale-95"
       >
         <Mascot
-          size={60}
-          className="h-[60px] w-[60px] object-contain"
+          size={50}
+          className="h-[50px] w-[50px] object-contain"
         />
-      </button>
+      </button>}
 
       <div className="flex items-center justify-around py-2">
         {ITEMS.map((item) => {

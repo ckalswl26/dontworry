@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { DDayItem } from "@/lib/types";
-
-const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
+import type { DDayItem, Lang } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 function toDateKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -19,13 +18,16 @@ export function DDayCalendar({
   departureDate,
   items,
   onSelectDate,
+  lang,
 }: {
   departureDate: string;
   items: DDayItem[];
   onSelectDate?: (dateKey: string, itemsOnDate: DDayItem[]) => void;
+  lang: Lang;
 }) {
   const today = useMemo(() => new Date(new Date().setHours(0, 0, 0, 0)), []);
   const departure = useMemo(() => new Date(`${departureDate}T00:00:00`), [departureDate]);
+  const weekdayLabels = useMemo(() => Array.from({ length: 7 }, (_, day) => new Intl.DateTimeFormat(lang, { weekday: "short" }).format(new Date(2024, 0, 7 + day))), [lang]);
 
   const [cursor, setCursor] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
   const [selected, setSelected] = useState<string | null>(null);
@@ -67,7 +69,7 @@ export function DDayCalendar({
           ‹
         </button>
         <p className="text-sm font-extrabold text-brand-navy">
-          {cursor.getFullYear()}년 {cursor.getMonth() + 1}월
+          {new Intl.DateTimeFormat(lang, { year: "numeric", month: "long" }).format(cursor)}
         </p>
         <button
           type="button"
@@ -80,7 +82,7 @@ export function DDayCalendar({
       </div>
 
       <div className="mt-3 grid grid-cols-7 gap-y-1 text-center">
-        {WEEKDAY_LABELS.map((w, i) => (
+        {weekdayLabels.map((w, i) => (
           <span key={w} className={`text-[10px] font-semibold ${i === 0 ? "text-brand-red" : "text-slate-400"}`}>
             {w}
           </span>
@@ -126,13 +128,13 @@ export function DDayCalendar({
 
       <div className="mt-3 flex items-center gap-3 text-[10px] text-slate-400">
         <span className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-brand-navy" /> 출국일
+          <span className="h-2 w-2 rounded-full bg-brand-navy" /> {t(lang, "departureDate")}
         </span>
         <span className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-brand-red" /> 방문필요
+          <span className="h-1.5 w-1.5 rounded-full bg-brand-red" /> {t(lang, "signalRed")}
         </span>
         <span className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-brand-blue" /> 할 일
+          <span className="h-1.5 w-1.5 rounded-full bg-brand-blue" /> {t(lang, "todo")}
         </span>
       </div>
     </div>

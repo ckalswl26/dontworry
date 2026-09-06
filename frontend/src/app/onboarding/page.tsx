@@ -8,16 +8,14 @@ import { PrimaryButton } from "@/components/Card";
 import { Dropdown } from "@/components/Dropdown";
 import { LogoWordmark, Mascot } from "@/components/Logo";
 import { LocalizedDateInput } from "@/components/LocalizedDateInput";
-import { api } from "@/lib/api";
 import { NATIONALITIES, VISA_TYPES, VISA_TYPE_LABELS, VISIT_TIMES } from "@/lib/profileOptions";
 import { pickLang3 } from "@/lib/types";
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { state, setProfile, setOnboarded, loadDemo } = useStore();
+  const { state, setProfile, setOnboarded } = useStore();
   const lang = state.profile.language;
   const [profile, setLocalProfile] = useState(state.profile);
-  const [loadingDemo, setLoadingDemo] = useState(false);
 
   const toggleVisitTime = (code: string) => {
     const current = profile.available_visit_time;
@@ -29,19 +27,6 @@ export default function OnboardingPage() {
     setProfile(profile);
     setOnboarded(true);
     router.push("/home");
-  };
-
-  const handleDemo = async () => {
-    setLoadingDemo(true);
-    try {
-      const demo = await api.demoPersona();
-      loadDemo(demo.profile, demo.planner, demo.documents_held);
-      router.push("/home");
-    } catch {
-      alert("데모 데이터를 불러오지 못했어요. 백엔드 서버가 실행 중인지 확인해주세요.");
-    } finally {
-      setLoadingDemo(false);
-    }
   };
 
   return (
@@ -148,11 +133,10 @@ export default function OnboardingPage() {
       <div className="mt-6 flex flex-col gap-2.5">
         <PrimaryButton onClick={handleStart}>{t(lang, "start")}</PrimaryButton>
         <button
-          onClick={handleDemo}
-          disabled={loadingDemo}
-          className="w-full rounded-xl2 border border-brand-blue py-2.5 text-xs font-semibold text-brand-blue disabled:opacity-40"
+          onClick={() => router.push("/")}
+          className="w-full rounded-xl2 border border-brand-blue py-2.5 text-xs font-semibold text-brand-blue"
         >
-          {loadingDemo ? "..." : t(lang, "demoMode")}
+          {lang === "ko" ? "뒤로가기" : t(lang, "reinput")}
         </button>
       </div>
     </div>

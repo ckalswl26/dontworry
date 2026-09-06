@@ -64,17 +64,17 @@ def _fallback_intent(text: str, profile: UserProfile, last_confirmed_intent: str
     text_lower = text.lower()
     candidates: list[str] = []
     keyword_map = {
-        "departure_notification": ["출국", "신고", "xuất cảnh", "leave", "depart"],
-        "return_cost_insurance": ["귀국", "보험", "bảo hiểm", "insurance"],
-        "maturity_insurance": ["만기", "보험금", "maturity"],
-        "pension_refund": ["연금", "일시금", "pension", "lương hưu"],
-        "overseas_remittance": ["송금", "remittance", "chuyển tiền", "돈"],
-        "account_closure": ["통장", "계좌", "account", "tài khoản"],
+        "departure_notification": ["출국 신고", "출국예정", "xuất cảnh", "departure report", "leave korea", "出境申报", "出境", "প্রস্থান"],
+        "return_cost_insurance": ["귀국비용보험", "귀국 보험", "bảo hiểm chi phí hồi hương", "return cost insurance", "回国费用保险", "প্রত্যাবর্তন বীমা"],
+        "maturity_insurance": ["출국만기보험", "만기 보험금", "bảo hiểm mãn hạn", "maturity insurance", "出境满期保险", "মেয়াদপূর্তি বীমা"],
+        "pension_refund": ["국민연금", "반환일시금", "lương hưu", "pension refund", "国民年金", "养老金", "পেনশন"],
+        "overseas_remittance": ["해외송금", "본국송금", "remittance", "chuyển tiền", "汇款", "海外汇款", "রেমিট্যান্স", "টাকা পাঠানো"],
+        "account_closure": ["계좌 정리", "계좌 해지", "통장 해지", "close account", "account closure", "đóng tài khoản", "销户", "关闭账户", "অ্যাকাউন্ট বন্ধ"],
     }
     for task_type, keywords in keyword_map.items():
         if any(k in text_lower for k in keywords):
             candidates.append(task_type)
-    follow_up_words = ["그거", "그 업무", "서류", "필요해", "어떻게", "그 다음", "that", "documents", "what do i need"]
+    follow_up_words = ["그거", "그 업무", "서류", "필요해", "어떻게", "그 다음", "that", "documents", "what do i need", "cái đó", "giấy tờ", "那个", "材料", "ওটা", "কাগজপত্র"]
     context_used = not candidates and last_confirmed_intent in KNOWN_TASK_TYPES and any(word in text_lower for word in follow_up_words)
     if context_used:
         candidates = [last_confirmed_intent]

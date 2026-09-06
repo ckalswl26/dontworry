@@ -195,7 +195,7 @@ export default function IntentPage() {
             <QuickReplyButton onClick={() => router.back()}>{t(lang, "reinput")}</QuickReplyButton>
           </div>
         )}
-      <button onClick={() => { resetConversation(); router.push("/home#ai-chat"); }} className="mx-auto mb-5 text-xs font-semibold text-slate-400 underline underline-offset-4">새 대화 시작</button>
+      <button onClick={() => { resetConversation(); router.push("/chat"); }} className="mx-auto mb-5 text-xs font-semibold text-slate-400 underline underline-offset-4">{t(lang, "reinput")}</button>
     </div>
   );
 }
