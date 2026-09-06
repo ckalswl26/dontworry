@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
+import { LocalizedDateInput } from "@/components/LocalizedDateInput";
 import { BackHeader, Card } from "@/components/Card";
 import { shareOrCopy } from "@/lib/share";
 
@@ -10,6 +11,7 @@ export default function PassportPrepPage() {
   const router = useRouter();
   const { state, setPassportPrep } = useStore();
   const prep = state.passportPrep;
+  const lang = state.profile.language;
   const [notice, setNotice] = useState("");
 
   // 온보딩/내 정보에서 이미 입력한 이름이 있으면 한 번만 미리 채워준다 (재입력 방지).
@@ -80,11 +82,11 @@ export default function PassportPrepPage() {
             </div>
             <div>
               <label className="text-xs font-semibold text-slate-600">여권 만료일</label>
-              <input
-                type="date"
+              <LocalizedDateInput
+                lang={lang}
                 value={prep.passportExpiry}
-                onChange={(e) => setPassportPrep({ passportExpiry: e.target.value })}
-                className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:border-brand-blue"
+                onChange={(value) => setPassportPrep({ passportExpiry: value })}
+                className="mt-1.5"
               />
             </div>
             <div>

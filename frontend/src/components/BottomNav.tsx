@@ -27,11 +27,11 @@ export function BottomNav() {
         type="button"
         onClick={() => router.push("/chat")}
         aria-label={t(lang, "aiChatbotTitle")}
-        className="absolute bottom-[68px] right-4 z-30 transition-transform hover:-translate-y-1 active:scale-95"
+        className="absolute bottom-[70px] right-4 z-30 flex h-[68px] w-[68px] items-center justify-center rounded-full border-2 border-white bg-brand-sky shadow-[0_12px_24px_rgba(17,28,78,0.28)] transition-transform hover:-translate-y-1 active:scale-95"
       >
         <Mascot
-          size={72}
-          className="h-[72px] w-[72px] object-contain drop-shadow-[0_12px_18px_rgba(17,28,78,0.35)]"
+          size={60}
+          className="h-[60px] w-[60px] object-contain"
         />
       </button>
 

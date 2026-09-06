@@ -1,11 +1,14 @@
+import { t } from "@/lib/i18n";
+import type { Lang } from "@/lib/types";
+
 export type InstitutionType = "BANK" | "EMPLOYMENT_CENTER" | "IMMIGRATION" | "PENSION" | "WELFARE";
 
-export const INSTITUTION_TYPES: { value: InstitutionType; label: string }[] = [
-  { value: "BANK", label: "은행" },
-  { value: "EMPLOYMENT_CENTER", label: "고용센터" },
-  { value: "IMMIGRATION", label: "출입국·외국인청" },
-  { value: "PENSION", label: "국민연금공단" },
-  { value: "WELFARE", label: "근로복지공단" },
+export const INSTITUTION_TYPES: { value: InstitutionType; labelKey: string }[] = [
+  { value: "BANK", labelKey: "institutionBank" },
+  { value: "EMPLOYMENT_CENTER", labelKey: "institutionEmploymentCenter" },
+  { value: "IMMIGRATION", labelKey: "institutionImmigration" },
+  { value: "PENSION", labelKey: "institutionPension" },
+  { value: "WELFARE", labelKey: "institutionWelfare" },
 ];
 
 // TaskSignal.responsible_org는 Rule Graph의 자유 텍스트("한국산업인력공단 / 고용센터" 등)라
@@ -26,6 +29,7 @@ export function inferInstitutionType(responsibleOrg: string | null | undefined):
   return null;
 }
 
-export function institutionLabel(type: InstitutionType | ""): string {
-  return INSTITUTION_TYPES.find((i) => i.value === type)?.label ?? "기관";
+export function institutionLabel(lang: Lang, type: InstitutionType | ""): string {
+  const key = INSTITUTION_TYPES.find((i) => i.value === type)?.labelKey;
+  return t(lang, key ?? "institutionFallback");
 }

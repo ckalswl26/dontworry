@@ -7,6 +7,7 @@ import { t } from "@/lib/i18n";
 import { PrimaryButton } from "@/components/Card";
 import { Dropdown } from "@/components/Dropdown";
 import { LogoWordmark, Mascot } from "@/components/Logo";
+import { LocalizedDateInput } from "@/components/LocalizedDateInput";
 import { api } from "@/lib/api";
 import { NATIONALITIES, VISA_TYPES, VISA_TYPE_LABELS, VISIT_TIMES } from "@/lib/profileOptions";
 import { pickLang3 } from "@/lib/types";
@@ -48,8 +49,8 @@ export default function OnboardingPage() {
       <div className="flex items-center justify-between rounded-xl2 bg-brand-sky px-4 py-3.5">
         <div className="min-w-0 pr-2">
           <LogoWordmark height={20} />
-          <p className="mt-1 text-[10px] font-semibold text-slate-500">외국인 근로자를 위한 금융 서비스</p>
-          <h1 className="mt-3 text-[17px] font-black leading-tight tracking-[-0.03em] text-brand-navy">맞춤 금융 안내를<br />시작해요</h1>
+          <p className="mt-1 text-[10px] font-semibold text-slate-500">{t(lang, "tagline")}</p>
+          <h1 className="mt-3 text-[17px] font-black leading-tight tracking-[-0.03em] text-brand-navy">{t(lang, "onboardingTitle")}</h1>
         </div>
         <Mascot size={64} className="h-16 w-16 shrink-0 object-contain" />
       </div>
@@ -86,25 +87,24 @@ export default function OnboardingPage() {
 
         <div>
           <label className="mb-1.5 block text-xs font-medium text-gray-600">{t(lang, "departureDate")}</label>
-          <input
-            type="date"
+          <LocalizedDateInput
+            lang={lang}
             value={profile.departure_date ?? ""}
-            onChange={(e) => setLocalProfile({ ...profile, departure_date: e.target.value })}
-            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm shadow-sm focus:border-brand-blue"
+            onChange={(value) => setLocalProfile({ ...profile, departure_date: value })}
           />
         </div>
 
         <div>
           <label className="mb-1.5 block text-xs font-medium text-gray-600">{t(lang, "npsEnrolled")}</label>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {[
-              { v: true, label: lang === "ko" ? "가입" : lang === "vi" ? "Có" : "Enrolled" },
-              { v: false, label: lang === "ko" ? "미가입" : lang === "vi" ? "Không" : "Not enrolled" },
+              { v: true, label: t(lang, "yesLabel") },
+              { v: false, label: t(lang, "noLabel") },
             ].map((opt) => (
               <button
                 key={String(opt.v)}
                 onClick={() => setLocalProfile({ ...profile, nps_enrolled: opt.v })}
-                className={`flex-1 rounded-full border py-1.5 text-xs ${
+                className={`min-w-fit flex-1 rounded-full border px-4 py-2 text-xs leading-4 ${
                   profile.nps_enrolled === opt.v ? "border-brand-navy bg-brand-navy text-white" : "border-gray-200"
                 }`}
               >
@@ -127,12 +127,12 @@ export default function OnboardingPage() {
 
         <div>
           <label className="mb-1.5 block text-xs font-medium text-gray-600">{t(lang, "visitTime")}</label>
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {VISIT_TIMES.map((vt) => (
               <button
                 key={vt.code}
                 onClick={() => toggleVisitTime(vt.code)}
-                className={`whitespace-nowrap rounded-full border px-2 py-1.5 text-xs ${
+                className={`max-w-full rounded-full border px-3 py-2 text-xs leading-4 ${
                   profile.available_visit_time.includes(vt.code)
                     ? "border-brand-navy bg-brand-navy text-white"
                     : "border-gray-200 text-gray-600"

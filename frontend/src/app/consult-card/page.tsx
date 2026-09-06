@@ -7,9 +7,11 @@ import { codeLabel, t } from "@/lib/i18n";
 import { BackHeader, Card, ErrorNotice, PrimaryButton } from "@/components/Card";
 import { BranchPicker } from "@/components/BranchPicker";
 import { Dropdown } from "@/components/Dropdown";
+import { LocalizedDateInput } from "@/components/LocalizedDateInput";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
 import { shareOrCopy } from "@/lib/share";
+import { renderTemplate } from "@/lib/renderTemplate";
 import { INSTITUTION_TYPES, inferInstitutionType, institutionLabel, type InstitutionType } from "@/lib/institutionType";
 import type { ConsultCardTranslateResponse, MultilingualBranch, RuleEvaluateResponse, TaskSignal } from "@/lib/types";
 
@@ -65,9 +67,9 @@ function timeSlots(hours: { open: string; close: string }): string[] {
   return slots;
 }
 
-function formatTimeLabel(time: string): string {
+function formatTimeLabel(lang: import("@/lib/types").Lang, time: string): string {
   const [h, m] = time.split(":").map(Number);
-  const period = h < 12 ? "오전" : "오후";
+  const period = h < 12 ? t(lang, "amLabel") : t(lang, "pmLabel");
   const hour12 = h % 12 === 0 ? 12 : h % 12;
   return `${period} ${hour12}:${String(m).padStart(2, "0")}`;
 }
@@ -115,18 +117,24 @@ export default function ConsultCardPage() {
   const dateClosed = Boolean(consultation.visitDate) && operatingHours === null;
   const hasSchedule = Boolean(consultation.branch.trim() && consultation.visitDate && !dateClosed);
   const scheduleText = hasSchedule
-    ? `${consultation.branch.trim()} 방문 예정 · ${consultation.visitDate}${consultation.visitTime ? ` ${consultation.visitTime}` : ""}`
-    : "방문 일정을 입력해주세요";
+    ? `${consultation.branch.trim()} ${t(lang, "scheduledVisitSuffix")} · ${consultation.visitDate}${consultation.visitTime ? ` ${consultation.visitTime}` : ""}`
+    : t(lang, "enterScheduleMsg");
   const visitTimeLabels = state.profile.available_visit_time.map((code) => codeLabel(lang, code));
   const sourceText = visitTask?.sources.length
     ? visitTask.sources.map((source) => source.title).filter(Boolean).join(", ")
-    : "확인 필요";
+    : t(lang, "needToCheck");
+
+  // 공유/복사 카드 내용은 한국 기관 창구 직원이 읽는 용도라 항상 한국어로 유지한다
+  // (화면 UI 자체는 lang에 맞춰 번역하지만, 카드 본문은 F15 설계 원칙대로 한국어 고정).
+  const scheduleTextKo = hasSchedule
+    ? `${consultation.branch.trim()} 방문 예정 · ${consultation.visitDate}${consultation.visitTime ? ` ${consultation.visitTime}` : ""}`
+    : "방문 일정을 입력해주세요";
   const shareText = [
-    "[Don't ₩orry 사전상담 카드]", scheduleText,
+    "[Don't ₩orry 사전상담 카드]", scheduleTextKo,
     `방문 목적: ${visitTask?.label ?? "확인 필요"}`,
     `출국 예정일: ${state.profile.departure_date ?? "미입력"}`,
     `서류 준비도: ${readiness}% (${missingDocs.length}개 부족)`,
-    missingDocs.length ? `부족한 서류: ${missingDocs.map((doc) => codeLabel(lang, doc)).join(", ")}` : "필요 서류 준비 완료",
+    missingDocs.length ? `부족한 서류: ${missingDocs.map((doc) => codeLabel("ko", doc)).join(", ")}` : "필요 서류 준비 완료",
     consultation.productName.trim() ? `희망 상품: ${consultation.productName.trim()} (${consultation.productReasonKo.trim()})` : "",
     consultation.productName.trim() && state.profile.departure_date
       ? `요청사항: 만기를 ${state.profile.departure_date} 이전으로 설정 요청`
@@ -137,7 +145,7 @@ export default function ConsultCardPage() {
   const handleShare = async () => {
     try {
       const result = await shareOrCopy("Don't ₩orry 사전상담 카드", shareText);
-      setNotice(result === "shared" ? "공유 화면을 열었어요." : "카드 내용이 복사되었습니다.");
+      setNotice(result === "shared" ? t(lang, "shareOpenedMsg") : t(lang, "shareCopiedMsg"));
     } catch {
       // 공유 취소 - 조용히 무시
     }
@@ -170,11 +178,11 @@ export default function ConsultCardPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <BackHeader title="기관 방문 통역 카드" onBack={() => router.back()} />
+      <BackHeader title={t(lang, "consultCard")} onBack={() => router.back()} />
       <div className="flex-1 px-5 pb-8 pt-5">
         <Card className="border-brand-blue/15 bg-brand-sky/40">
-          <p className="font-extrabold text-brand-navy">방문 기관 유형</p>
-          <p className="mt-1 text-xs leading-5 text-slate-500">확인 중인 업무에 맞춰 자동으로 선택했어요. 다르다면 직접 바꿔주세요.</p>
+          <p className="font-extrabold text-brand-navy">{t(lang, "consultInstitutionTypeTitle")}</p>
+          <p className="mt-1 text-xs leading-5 text-slate-500">{t(lang, "consultInstitutionTypeDesc")}</p>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {INSTITUTION_TYPES.map((it) => (
               <button
@@ -185,19 +193,27 @@ export default function ConsultCardPage() {
                   institutionType === it.value ? "bg-brand-navy text-white" : "border border-slate-200 bg-white text-slate-500"
                 }`}
               >
-                {it.label}
+                {t(lang, it.labelKey)}
               </button>
             ))}
           </div>
         </Card>
 
         <Card className="mt-3 border-brand-blue/15 bg-brand-sky/40">
-          <div className="flex items-start justify-between gap-3"><div><p className="font-extrabold text-brand-navy">방문 예약 정보</p><p className="mt-1 text-xs leading-5 text-slate-500">예약한 {institutionLabel(institutionType)}과 방문 일정을 직접 입력해주세요.</p></div>{hasSchedule && <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-brand-blue">입력 완료</span>}</div>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="font-extrabold text-brand-navy">{t(lang, "consultScheduleTitle")}</p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                {renderTemplate(t(lang, "consultScheduleDesc"), "{institution}", institutionLabel(lang, institutionType))}
+              </p>
+            </div>
+            {hasSchedule && <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-brand-blue">{t(lang, "inputDoneBadge")}</span>}
+          </div>
           <div className="mt-4 space-y-3">
             <div>
               <div className="flex items-center justify-between">
                 <label htmlFor="branch" className="text-xs font-semibold text-slate-600">
-                  {institutionType === "BANK" ? "방문 은행/지점명" : "방문 기관명"}
+                  {institutionType === "BANK" ? t(lang, "consultBranchLabelBank") : t(lang, "consultBranchLabelGeneric")}
                 </label>
                 {institutionType === "BANK" && (
                   <button type="button" onClick={() => setPickerOpen((v) => !v)} className="text-xs font-semibold text-brand-blue">
@@ -210,16 +226,20 @@ export default function ConsultCardPage() {
                 type="text"
                 value={consultation.branch}
                 onChange={(e) => setConsultation({ branch: e.target.value, branchIsSunday: false, ready: false })}
-                placeholder={institutionType === "BANK" ? "예: OO은행 OO지점" : `예: OO시 ${institutionLabel(institutionType)}`}
+                placeholder={
+                  institutionType === "BANK"
+                    ? t(lang, "consultBranchPlaceholderBank")
+                    : t(lang, "consultBranchPlaceholderGeneric").replace("{institution}", institutionLabel(lang, institutionType))
+                }
                 className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-brand-blue"
               />
               {institutionType === "BANK" && consultation.branch.trim() && (
                 consultation.branchIsSunday ? (
                   <span className="mt-1.5 inline-block rounded-full bg-brand-yellow/30 px-2 py-0.5 text-[11px] font-bold text-brand-navy">
-                    ✓ {t(lang, "sundayBranchBadge")} 확인됨
+                    ✓ {t(lang, "sundayBranchBadge")} {t(lang, "confirmedSuffix")}
                   </span>
                 ) : (
-                  <p className="mt-1.5 text-[11px] text-slate-400">일요 영업 확인 안 됨 (신한은행 일부 지점만 확인 가능)</p>
+                  <p className="mt-1.5 text-[11px] text-slate-400">{t(lang, "sundayBranchUnconfirmed")}</p>
                 )
               )}
               {institutionType === "BANK" && pickerOpen && (
@@ -233,46 +253,45 @@ export default function ConsultCardPage() {
               )}
             </div>
             <div>
-              <label htmlFor="visit-date" className="text-xs font-semibold text-slate-600">방문 예정 날짜</label>
-              <input
+              <label htmlFor="visit-date" className="text-xs font-semibold text-slate-600">{t(lang, "consultVisitDateLabel")}</label>
+              <LocalizedDateInput
                 id="visit-date"
-                type="date"
+                lang={lang}
                 value={consultation.visitDate}
-                onChange={(e) => {
-                  const newDate = e.target.value;
+                onChange={(newDate) => {
                   const newHours = dayOperatingHours(newDate, consultation.branchIsSunday);
                   const timeStillValid =
                     newHours && consultation.visitTime && consultation.visitTime >= newHours.open && consultation.visitTime <= newHours.close;
                   setConsultation({ visitDate: newDate, visitTime: timeStillValid ? consultation.visitTime : "", ready: false });
                 }}
-                className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:border-brand-blue"
+                className="mt-1.5"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-600">방문 시간 <span className="font-normal text-slate-400">선택</span></label>
+              <label className="text-xs font-semibold text-slate-600">{t(lang, "consultVisitTimeLabel")} <span className="font-normal text-slate-400">{t(lang, "optionalLabel")}</span></label>
               {operatingHours ? (
                 <div className="mt-1.5">
                   <Dropdown
                     value={consultation.visitTime}
                     onChange={(v) => setConsultation({ visitTime: v, ready: false })}
-                    placeholder="시간 선택"
-                    options={timeSlots(operatingHours).map((slot) => ({ value: slot, label: formatTimeLabel(slot) }))}
+                    placeholder={t(lang, "timeSelectPlaceholder")}
+                    options={timeSlots(operatingHours).map((slot) => ({ value: slot, label: formatTimeLabel(lang, slot) }))}
                   />
                 </div>
               ) : (
                 <p className="mt-1.5 rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 text-sm text-slate-300">
-                  날짜를 먼저 선택해주세요
+                  {t(lang, "selectDateFirst")}
                 </p>
               )}
             </div>
             {dateClosed && (
               <p className="text-xs font-semibold text-brand-red">
-                이 날짜는 영업일이 아니에요. {consultation.branchIsSunday ? "평일 또는 일요일(10:00~15:00)로 선택해주세요." : "평일로 선택해주세요."}
+                {t(lang, "dateNotBusinessDay")} {consultation.branchIsSunday ? t(lang, "chooseWeekdayOrSunday") : t(lang, "chooseWeekday")}
               </p>
             )}
             {operatingHours && (
               <p className="text-[11px] text-slate-400">
-                영업시간 {operatingHours.open}~{operatingHours.close}
+                {t(lang, "operatingHoursLabel").replace("{open}", operatingHours.open).replace("{close}", operatingHours.close)}
               </p>
             )}
           </div>
@@ -281,13 +300,13 @@ export default function ConsultCardPage() {
         {consultation.productName.trim() && (
           <Card className="mt-3 border-emerald-100 bg-emerald-50/40">
             <div className="flex items-start justify-between gap-3">
-              <p className="font-extrabold text-brand-navy">예금/적금 가입 상담 정보</p>
+              <p className="font-extrabold text-brand-navy">{t(lang, "productConsultTitle")}</p>
               <button
                 type="button"
                 onClick={() => setConsultation({ productName: "", productReasonKo: "", productEligibilityBadgeKo: "" })}
                 className="text-[11px] font-semibold text-slate-400 underline"
               >
-                지우기
+                {t(lang, "clearLabel")}
               </button>
             </div>
             <p className="mt-2 text-sm font-bold text-brand-navy">{consultation.productName}</p>
@@ -295,7 +314,7 @@ export default function ConsultCardPage() {
 
             {consultation.productEligibilityBadgeKo && (
               <div className="mt-3">
-                <p className="text-xs font-semibold text-slate-500">이미 충족한 조건</p>
+                <p className="text-xs font-semibold text-slate-500">{t(lang, "metConditionsLabel")}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {consultation.productEligibilityBadgeKo.split(" · ").map((cond) => (
                     <span key={cond} className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-emerald-700">
@@ -308,7 +327,8 @@ export default function ConsultCardPage() {
 
             {state.profile.departure_date && (
               <div className="mt-3 rounded-xl bg-white px-3 py-2.5">
-                <p className="text-xs font-semibold text-slate-500">요청사항 (창구에서 보여주세요)</p>
+                <p className="text-xs font-semibold text-slate-500">{t(lang, "requestLabel")}</p>
+                {/* 창구 직원이 화면으로 직접 읽는 요청 문구라 항상 한국어로 고정한다 (F15 설계 원칙과 동일). */}
                 <p className="mt-1 text-sm font-bold text-brand-navy">
                   만기를 {state.profile.departure_date} 이전으로 설정 요청
                 </p>
@@ -319,10 +339,10 @@ export default function ConsultCardPage() {
 
         {interpretationCenter && (
           <Card className="mt-3 border-brand-blue/15 bg-brand-sky/30">
-            <p className="text-xs font-semibold text-brand-blue">💬 말이 안 통할 때</p>
+            <p className="text-xs font-semibold text-brand-blue">💬 {t(lang, "languageHelpTitle")}</p>
             <p className="mt-1 text-sm font-bold text-brand-navy">{interpretationCenter.branch_name}</p>
             <p className="mt-1 text-xs leading-5 text-slate-600">
-              {interpretationCenter.languages.join(" · ")} 지원. 창구 방문 시에도 3자 전화통역 요청이 가능해요.
+              {t(lang, "interpretationDesc").replace("{languages}", interpretationCenter.languages.join(" · "))}
             </p>
             <a
               href={`tel:${interpretationCenter.phone}`}
@@ -333,28 +353,28 @@ export default function ConsultCardPage() {
           </Card>
         )}
 
-        {loading && <p className="mt-4 text-sm text-gray-400">상담 정보를 확인하고 있어요...</p>}
+        {loading && <p className="mt-4 text-sm text-gray-400">{t(lang, "consultLoadingMsg")}</p>}
         {!loading && error && <div className="mt-4"><ErrorNotice message={error} /></div>}
         {!loading && !error && <>
-          <Card className="mt-4"><div className="flex items-center gap-3"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-navy font-bold text-white">{state.profile.nationality.slice(0, 1)}</div><div className="min-w-0"><p className="font-bold text-brand-navy">{state.profile.nationality} · {state.profile.visa_type}</p><p className={`mt-1 text-xs font-semibold ${hasSchedule ? "text-brand-blue" : "text-slate-500"}`}>{scheduleText}{consultation.branchIsSunday && ` · ${t(lang, "sundayBranchBadge")}`}</p><p className="mt-1 text-xs text-slate-500">{days === null ? "출국예정일 미입력" : `출국 예정일까지 D-${days}`}</p>{visitTimeLabels.length > 0 && <p className="mt-1 text-xs text-slate-500">방문 가능 시간: {visitTimeLabels.join(", ")}</p>}</div></div></Card>
-          <Card className="mt-3"><div className="flex items-center justify-between gap-4"><span className="text-sm text-gray-500">{t(lang, "visitPurpose")}</span><span className="text-right font-semibold text-brand-red">{visitTask?.label ?? "확인 필요"}</span></div><div className="mt-3 flex items-center justify-between"><span className="text-sm text-gray-500">{t(lang, "readiness")}</span><span className="font-bold">{readiness}% ({missingDocs.length}{t(lang, "missingCount")})</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-brand-blue" style={{ width: `${readiness}%` }} /></div></Card>
+          <Card className="mt-4"><div className="flex items-center gap-3"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-navy font-bold text-white">{state.profile.nationality.slice(0, 1)}</div><div className="min-w-0"><p className="font-bold text-brand-navy">{state.profile.nationality} · {state.profile.visa_type}</p><p className={`mt-1 text-xs font-semibold ${hasSchedule ? "text-brand-blue" : "text-slate-500"}`}>{scheduleText}{consultation.branchIsSunday && ` · ${t(lang, "sundayBranchBadge")}`}</p><p className="mt-1 text-xs text-slate-500">{days === null ? t(lang, "departureDateNotSet") : `${t(lang, "daysToDeparture")} D-${days}`}</p>{visitTimeLabels.length > 0 && <p className="mt-1 text-xs text-slate-500">{t(lang, "visitTime")}: {visitTimeLabels.join(", ")}</p>}</div></div></Card>
+          <Card className="mt-3"><div className="flex items-center justify-between gap-4"><span className="text-sm text-gray-500">{t(lang, "visitPurpose")}</span><span className="text-right font-semibold text-brand-red">{visitTask?.label ?? t(lang, "needToCheck")}</span></div><div className="mt-3 flex items-center justify-between"><span className="text-sm text-gray-500">{t(lang, "readiness")}</span><span className="font-bold">{readiness}% ({missingDocs.length}{t(lang, "missingCount")})</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-brand-blue" style={{ width: `${readiness}%` }} /></div></Card>
           {missingDocs.length > 0 && <Card className="mt-3"><p className="text-sm font-semibold text-gray-500">{t(lang, "insufficientDocs")}</p><ul className="mt-2 space-y-1.5 text-sm text-brand-red">{missingDocs.map((doc) => <li key={doc} className="flex gap-2"><span>•</span><span>{codeLabel(lang, doc)}</span></li>)}</ul></Card>}
-          <Card className="mt-3"><p className="text-xs font-semibold text-gray-400">{t(lang, "judgementBasis")}</p><p className={`mt-1 text-sm ${sourceText === "확인 필요" ? "font-semibold text-amber-700" : "text-gray-600"}`}>{sourceText}</p></Card>
+          <Card className="mt-3"><p className="text-xs font-semibold text-gray-400">{t(lang, "judgementBasis")}</p><p className={`mt-1 text-sm ${sourceText === t(lang, "needToCheck") ? "font-semibold text-amber-700" : "text-gray-600"}`}>{sourceText}</p></Card>
 
           {lang !== "ko" && (
             <Card className="mt-3">
               <button type="button" onClick={loadTranslation} className="flex w-full items-center justify-between" disabled={translationLoading}>
-                <span className="text-sm font-bold text-brand-navy">🌐 내 언어로 보기</span>
+                <span className="text-sm font-bold text-brand-navy">🌐 {t(lang, "viewInMyLangTitle")}</span>
                 <span className="text-xs font-semibold text-brand-blue">
-                  {translationLoading ? "..." : translationOpen ? "접기" : "펼치기"}
+                  {translationLoading ? "..." : translationOpen ? t(lang, "collapseLabel") : t(lang, "expandLabel")}
                 </span>
               </button>
-              {translationError && <p className="mt-2 text-xs text-brand-red">번역을 불러오지 못했어요.</p>}
+              {translationError && <p className="mt-2 text-xs text-brand-red">{t(lang, "translationFailedMsg")}</p>}
               {translationOpen && translation && (
                 <div className="mt-3 space-y-3 border-t border-slate-100 pt-3">
                   {!translation.translated && (
                     <p className="text-[11px] font-semibold text-amber-600">
-                      번역을 불러오지 못해 원문(한국어)으로 표시해요.
+                      {t(lang, "translationFallbackMsg")}
                     </p>
                   )}
                   <div>
@@ -380,11 +400,11 @@ export default function ConsultCardPage() {
             </Card>
           )}
 
-          <div className="mt-4"><label htmlFor="consult-memo" className="text-sm font-semibold text-gray-500">{t(lang, "consultMemo")}</label><textarea id="consult-memo" value={consultation.memo} onChange={(e) => setConsultation({ memo: e.target.value, ready: false })} placeholder="상담 시 확인할 내용을 적어주세요. 이 기기에만 임시 저장됩니다." className="mt-2 h-28 w-full resize-none rounded-xl border border-gray-200 bg-white p-3 text-sm focus:border-brand-blue" /></div>
-          <div className="mt-5 grid grid-cols-2 gap-3"><button type="button" onClick={handleShare} className="rounded-xl2 border border-brand-blue py-3 text-sm font-bold text-brand-blue">공유하기</button><PrimaryButton disabled={!hasSchedule} onClick={() => { setConsultation({ ready: true }); setNotice("이 기기에 상담 준비 완료로 저장했어요."); }}>상담 준비 완료</PrimaryButton></div>
-          {!hasSchedule && <p className="mt-2 text-right text-[11px] font-medium text-slate-400">{institutionLabel(institutionType)}·방문 날짜를 입력하면 준비 완료로 저장할 수 있어요.</p>}
+          <div className="mt-4"><label htmlFor="consult-memo" className="text-sm font-semibold text-gray-500">{t(lang, "consultMemo")}</label><textarea id="consult-memo" value={consultation.memo} onChange={(e) => setConsultation({ memo: e.target.value, ready: false })} placeholder={t(lang, "consultMemoPlaceholder")} className="mt-2 h-28 w-full resize-none rounded-xl border border-gray-200 bg-white p-3 text-sm focus:border-brand-blue" /></div>
+          <div className="mt-5 grid grid-cols-2 gap-3"><button type="button" onClick={handleShare} className="rounded-xl2 border border-brand-blue py-3 text-sm font-bold text-brand-blue">{t(lang, "shareLabel")}</button><PrimaryButton disabled={!hasSchedule} onClick={() => { setConsultation({ ready: true }); setNotice(t(lang, "consultSavedNotice")); }}>{t(lang, "consultReadyBadge")}</PrimaryButton></div>
+          {!hasSchedule && <p className="mt-2 text-right text-[11px] font-medium text-slate-400">{t(lang, "needScheduleHint").replace("{institution}", institutionLabel(lang, institutionType))}</p>}
           {notice && <p role="status" className="mt-3 rounded-xl bg-brand-sky px-3 py-2 text-center text-xs font-semibold text-brand-navy">{notice}</p>}
-          <p className="mt-3 text-center text-[11px] leading-4 text-slate-400">기관 시스템으로 전송되지 않으며, 준비 상태와 메모는 이 기기에만 임시 저장됩니다.</p>
+          <p className="mt-3 text-center text-[11px] leading-4 text-slate-400">{t(lang, "consultPrivacyNote")}</p>
         </>}
       </div>
     </div>

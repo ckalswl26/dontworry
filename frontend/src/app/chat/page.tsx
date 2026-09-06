@@ -28,8 +28,8 @@ export default function ChatPage() {
           <Mascot size={104} className="h-[104px] w-[104px] object-contain" />
         </div>
         <div className="mt-6 text-center">
-          <h1 className="text-xl font-black text-brand-navy">무엇을 도와드릴까요?</h1>
-          <p className="mt-2 text-sm leading-6 text-slate-500">금융 상품과 출국 준비에 관해 편하게 물어보세요.</p>
+          <h1 className="text-xl font-black text-brand-navy">{t(lang, "aiChatbotTitle")}</h1>
+          <p className="mt-2 text-sm leading-6 text-slate-500">{t(lang, "aiChatbotPlaceholder")}</p>
         </div>
 
         <div className="mt-auto rounded-2xl border border-brand-blue/15 bg-white p-3 shadow-[0_12px_32px_rgba(17,28,78,0.1)]">
@@ -53,7 +53,7 @@ export default function ChatPage() {
             disabled={!question.trim()}
             className="mt-2 w-full rounded-xl bg-brand-blue py-3 text-sm font-bold text-white shadow-sm transition disabled:cursor-not-allowed disabled:bg-slate-200"
           >
-            질문하기
+            {t(lang, "confirmQuestion")}
           </button>
         </div>
       </main>

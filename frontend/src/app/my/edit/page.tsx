@@ -6,6 +6,7 @@ import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { BackHeader, PrimaryButton } from "@/components/Card";
 import { Dropdown } from "@/components/Dropdown";
+import { LocalizedDateInput } from "@/components/LocalizedDateInput";
 import { NATIONALITIES, VISA_TYPES, VISA_TYPE_LABELS } from "@/lib/profileOptions";
 import { pickLang3 } from "@/lib/types";
 
@@ -57,11 +58,10 @@ export default function MyEditPage() {
 
           <div>
             <label className="mb-1.5 block text-xs font-medium text-gray-600">{t(lang, "departureDate")}</label>
-            <input
-              type="date"
+            <LocalizedDateInput
+              lang={lang}
               value={draft.departure_date ?? ""}
-              onChange={(e) => setDraft({ ...draft, departure_date: e.target.value })}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm shadow-sm focus:border-brand-blue"
+              onChange={(value) => setDraft({ ...draft, departure_date: value })}
             />
           </div>
         </div>

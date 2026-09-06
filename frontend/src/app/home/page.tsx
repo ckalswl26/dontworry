@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
+import { renderTemplate } from "@/lib/renderTemplate";
 import { Card } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
 import { LogoWordmark } from "@/components/Logo";
@@ -29,7 +30,7 @@ interface TimelineEntry {
 // F13: 홈 화면에 흩어져 있던 D-Day류 표시(출국일, 적금 만기)에 비자·여권 만료일까지
 // 더해 날짜 있는 항목을 전부 하나의 정렬된 목록으로 모은다. 새 화면은 만들지 않고
 // 각 항목은 이미 있는 화면(D-Day/금융상품/내 정보/여권 준비)으로 라우팅만 한다.
-function buildTimeline(state: ReturnType<typeof useStore>["state"]): TimelineEntry[] {
+function buildTimeline(state: ReturnType<typeof useStore>["state"], lang: import("@/lib/types").Lang): TimelineEntry[] {
   const entries: TimelineEntry[] = [];
   const push = (id: string, label: string, date: string | null | undefined, route: string) => {
     if (!date) return;
@@ -37,10 +38,15 @@ function buildTimeline(state: ReturnType<typeof useStore>["state"]): TimelineEnt
     if (d === null) return;
     entries.push({ id, label, date, daysLeft: d, route });
   };
-  push("departure", "출국 예정일", state.profile.departure_date, "/dday");
-  push("savings", `${state.savingsTracking.productName || "적금"} 만기`, state.savingsTracking.maturityDate, "/finance");
-  push("visa", "체류자격(비자) 만료일", state.profile.visa_expiry_date, "/my/edit");
-  push("passport", "여권 만료일", state.passportPrep.passportExpiry, "/passport-prep");
+  push("departure", t(lang, "departureDate"), state.profile.departure_date, "/dday");
+  push(
+    "savings",
+    `${state.savingsTracking.productName || t(lang, "savingsProductFallback")} ${t(lang, "maturityLabel")}`,
+    state.savingsTracking.maturityDate,
+    "/finance"
+  );
+  push("visa", t(lang, "visaExpiry"), state.profile.visa_expiry_date, "/my/edit");
+  push("passport", t(lang, "passportExpiryLabel"), state.passportPrep.passportExpiry, "/passport-prep");
   return entries.sort((a, b) => a.daysLeft - b.daysLeft);
 }
 
@@ -86,7 +92,7 @@ export default function HomePage() {
 
   const days = daysUntil(state.profile.departure_date);
   const maturityDays = daysUntil(state.savingsTracking.maturityDate);
-  const timeline = buildTimeline(state);
+  const timeline = buildTimeline(state, lang);
   const urgentTimeline = timeline.filter((e) => e.daysLeft >= 0 && e.daysLeft <= 30);
   const laterTimeline = timeline.filter((e) => !(e.daysLeft >= 0 && e.daysLeft <= 30));
   const greeting = state.profile.name
@@ -100,7 +106,7 @@ export default function HomePage() {
         <button
           type="button"
           onClick={() => router.push("/my")}
-          aria-label="내 정보"
+          aria-label={t(lang, "myInfo")}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-navy text-[10px] font-black text-white shadow-sm"
         >
           MY
@@ -115,14 +121,14 @@ export default function HomePage() {
           onClick={() => router.push("/consult-card")}
           className="mt-3 flex w-full items-center justify-between rounded-xl bg-brand-sky px-4 py-3 text-left shadow-sm"
         >
-          <span><span className="mr-2">✓</span><span className="text-sm font-bold text-brand-navy">상담 준비 완료</span></span>
-          <span className="text-xs font-semibold text-brand-blue">카드 보기 ›</span>
+          <span><span className="mr-2">✓</span><span className="text-sm font-bold text-brand-navy">{t(lang, "consultReadyBadge")}</span></span>
+          <span className="text-xs font-semibold text-brand-blue">{t(lang, "viewCardLink")} ›</span>
         </button>
       )}
 
       <div className="mt-3 rounded-xl2 bg-gradient-to-br from-brand-navy to-[#24397E] p-5 text-white shadow-[0_12px_30px_rgba(17,28,78,0.2)]">
         <p className="text-xs text-white/70">{t(lang, "daysToDeparture")}</p>
-        <p className={`${days !== null ? "text-4xl" : "text-xl"} mt-1 font-black`}>{days !== null ? `D-${days}` : "출국예정일 미입력"}</p>
+        <p className={`${days !== null ? "text-4xl" : "text-xl"} mt-1 font-black`}>{days !== null ? `D-${days}` : t(lang, "departureDateNotSet")}</p>
         {days !== null && (
           <div className="mt-3 h-1.5 w-full rounded-full bg-white/20">
             <div
@@ -133,7 +139,9 @@ export default function HomePage() {
         )}
         {state.savingsTracking.maturityDate && (
           <div className="mt-3 flex items-center justify-between border-t border-white/15 pt-3">
-            <p className="text-xs text-white/70">{state.savingsTracking.productName || "저축 상품"} 만기</p>
+            <p className="text-xs text-white/70">
+              {state.savingsTracking.productName || t(lang, "savingsProductFallback")} {t(lang, "maturityLabel")}
+            </p>
             <p className="text-lg font-black">
               {maturityDays !== null ? `D-${maturityDays}` : state.savingsTracking.maturityDate}
             </p>
@@ -148,18 +156,24 @@ export default function HomePage() {
         maturityDays <= days ? (
           <Card className="mt-3 border-brand-blue/15 bg-brand-sky/40">
             <p className="text-sm leading-6 text-brand-navy">
-              만기 후 출국까지 <span className="font-black">{days - maturityDays}일</span> 남아요. 귀국 전 송금을
-              준비할 수 있어요.
+              {renderTemplate(
+                t(lang, "maturityBeforeDepartureMsg"),
+                "{days}",
+                <span className="font-black">{days - maturityDays}</span>
+              )}
             </p>
             <button onClick={() => router.push("/tasks/overseas_remittance")} className="mt-1 text-xs font-semibold text-brand-blue">
-              해외송금 안내 보기 ›
+              {t(lang, "viewRemittanceGuide")} ›
             </button>
           </Card>
         ) : (
           <Card className="mt-3 border-brand-red/20 bg-red-50">
             <p className="text-sm leading-6 text-brand-red">
-              ⚠ 적금 만기가 출국일보다 <span className="font-black">{maturityDays - days}일</span> 늦어요. 중도해지
-              조건을 확인하세요.
+              ⚠ {renderTemplate(
+                t(lang, "maturityAfterDepartureMsg"),
+                "{days}",
+                <span className="font-black">{maturityDays - days}</span>
+              )}
             </p>
           </Card>
         )
@@ -167,7 +181,7 @@ export default function HomePage() {
 
       {timeline.length > 0 && (
         <div className="mt-6">
-          <p className="text-sm font-semibold text-gray-500">다가오는 일정</p>
+          <p className="text-sm font-semibold text-gray-500">{t(lang, "upcomingTimelineTitle")}</p>
           {urgentTimeline.length > 0 ? (
             <div className="mt-2 flex flex-col gap-2">
               {urgentTimeline.map((entry) => (
@@ -175,7 +189,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <p className="mt-2 text-xs text-slate-400">앞으로 30일 안에 예정된 일정은 없어요.</p>
+            <p className="mt-2 text-xs text-slate-400">{t(lang, "noUpcomingWithin30Days")}</p>
           )}
           {laterTimeline.length > 0 && (
             <>
@@ -184,7 +198,7 @@ export default function HomePage() {
                 onClick={() => setShowMoreTimeline((v) => !v)}
                 className="mt-2 text-xs font-semibold text-brand-blue"
               >
-                {showMoreTimeline ? "접기" : `더보기 (${laterTimeline.length})`}
+                {showMoreTimeline ? t(lang, "collapseLabel") : t(lang, "showMoreCount").replace("{count}", String(laterTimeline.length))}
               </button>
               {showMoreTimeline && (
                 <div className="mt-2 flex flex-col gap-2">
@@ -203,18 +217,18 @@ export default function HomePage() {
           <p className="text-sm font-medium text-gray-500">{t(lang, "myAssets")}</p>
           <button
             onClick={() => setAssetsHidden(!state.assetsHidden)}
-            aria-label={state.assetsHidden ? "금액 보기" : "금액 숨김"}
+            aria-label={state.assetsHidden ? t(lang, "showAmount") : t(lang, "hideAmount")}
             className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500 hover:bg-brand-sky hover:text-brand-blue"
           >
-            {state.assetsHidden ? "보기" : "숨김"}
+            {state.assetsHidden ? t(lang, "show") : t(lang, "hide")}
           </button>
         </div>
         <p className={`mt-1 ${state.assetsHidden ? "text-sm font-semibold text-slate-400" : "text-2xl font-black text-brand-navy"}`}>
-          {state.assetsHidden ? "금액 숨김" : formatWon(state.planner.current_savings)}
+          {state.assetsHidden ? t(lang, "hideAmount") : formatWon(state.planner.current_savings)}
         </p>
         {state.planner.target_amount > 0 ? (
           <p className="mt-1 text-xs text-gray-400">
-            {t(lang, "savingsGoalLabel")} {state.assetsHidden ? "금액 숨김" : formatWon(state.planner.target_amount)}
+            {t(lang, "savingsGoalLabel")} {state.assetsHidden ? t(lang, "hideAmount") : formatWon(state.planner.target_amount)}
           </p>
         ) : (
           <button onClick={() => router.push("/planner")} className="mt-1 text-xs text-brand-blue">
@@ -227,10 +241,10 @@ export default function HomePage() {
         <p className="text-sm font-semibold text-gray-500">{t(lang, "quickLinks")}</p>
         <div className="mt-3 grid grid-cols-4 gap-2">
           {[
-            { icon: "💱", label: "환율 계산", href: "/fx", tone: "bg-blue-50" },
-            { icon: "📊", label: "자산 플래너", href: "/planner", tone: "bg-violet-50" },
-            { icon: "📅", label: "D-Day", href: "/dday", tone: "bg-amber-50" },
-            { icon: "📋", label: "재무 브리핑", href: "/briefing", tone: "bg-emerald-50" },
+            { icon: "💱", labelKey: "fxCalcQuickLink", href: "/fx", tone: "bg-blue-50" },
+            { icon: "📊", labelKey: "assetPlannerQuickLink", href: "/planner", tone: "bg-violet-50" },
+            { icon: "📅", labelKey: "dday", href: "/dday", tone: "bg-amber-50" },
+            { icon: "📋", labelKey: "financialBriefingQuickLink", href: "/briefing", tone: "bg-emerald-50" },
           ].map((item) => (
             <button
               key={item.href}
@@ -239,20 +253,20 @@ export default function HomePage() {
               className="flex min-w-0 flex-col items-center gap-2 rounded-2xl border border-slate-100 bg-white px-1 py-4 text-center shadow-[0_8px_24px_rgba(17,28,78,0.07)] transition active:scale-95"
             >
               <span className={`flex h-11 w-11 items-center justify-center rounded-2xl text-xl ${item.tone}`} aria-hidden="true">{item.icon}</span>
-              <span className="whitespace-nowrap text-[11px] font-bold text-brand-navy">{item.label}</span>
+              <span className="break-keep text-[11px] font-bold leading-tight text-brand-navy">{t(lang, item.labelKey)}</span>
             </button>
           ))}
         </div>
       </div>
 
       <div className="mt-6 flex flex-col gap-3">
-        <p className="text-sm font-semibold text-gray-500">도움이 필요하신가요?</p>
+        <p className="text-sm font-semibold text-gray-500">{t(lang, "needHelpTitle")}</p>
 
         <Card>
           <button className="flex w-full items-center justify-between" onClick={() => router.push("/wage-check")}>
             <div className="text-left">
-              <p className="font-semibold text-brand-navy">💰 최저임금 확인하기</p>
-              <p className="text-xs text-gray-500">내 월급이 최저임금 기준인지 확인해보세요</p>
+              <p className="font-semibold text-brand-navy">💰 {t(lang, "minWageCheckTitle")}</p>
+              <p className="text-xs text-gray-500">{t(lang, "minWageCheckDesc")}</p>
             </div>
             <span>›</span>
           </button>
@@ -261,8 +275,8 @@ export default function HomePage() {
         <Card>
           <button className="flex w-full items-center justify-between" onClick={() => router.push("/guides/wage_claim")}>
             <div className="text-left">
-              <p className="font-semibold text-brand-navy">📋 임금을 못 받았어요</p>
-              <p className="text-xs text-gray-500">임금체불 신고 방법 안내</p>
+              <p className="font-semibold text-brand-navy">📋 {t(lang, "wageClaimTitle")}</p>
+              <p className="text-xs text-gray-500">{t(lang, "wageClaimDesc")}</p>
             </div>
             <span>›</span>
           </button>
@@ -271,8 +285,8 @@ export default function HomePage() {
         <Card>
           <button className="flex w-full items-center justify-between" onClick={() => router.push("/guides/reentry_special_case")}>
             <div className="text-left">
-              <p className="font-semibold text-brand-navy">🔁 다시 한국에서 일하고 싶어요</p>
-              <p className="text-xs text-gray-500">성실근로자 재입국 특례 안내</p>
+              <p className="font-semibold text-brand-navy">🔁 {t(lang, "reentryTitle")}</p>
+              <p className="text-xs text-gray-500">{t(lang, "reentryDesc")}</p>
             </div>
             <span>›</span>
           </button>

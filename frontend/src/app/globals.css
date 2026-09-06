@@ -61,7 +61,8 @@ body {
     bottom: 34px !important;
     width: calc(var(--phone-frame-width) - 20px) !important;
     max-width: none;
-    overflow: hidden;
+    /* 챗봇 FAB가 탭바 위로 올라와도 프레임 안에서 잘리지 않게 둔다. */
+    overflow: visible;
     border-radius: 0 0 22px 22px;
   }
 

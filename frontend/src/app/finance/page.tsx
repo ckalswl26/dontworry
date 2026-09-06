@@ -8,6 +8,7 @@ import { BackHeader, Card, ErrorNotice } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
 import { RemoteAccountOpeningCard } from "@/components/RemoteAccountOpeningCard";
 import { TermFitBadge } from "@/components/SignalBadge";
+import { LocalizedDateInput } from "@/components/LocalizedDateInput";
 import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useApi";
 import {
@@ -51,7 +52,7 @@ function TriToggle({
   return (
     <div>
       <p className="text-xs font-semibold text-slate-600">{label}</p>
-      <div className="mt-2 grid grid-cols-3 gap-1 rounded-xl bg-slate-50 p-1">
+      <div className="mt-2 flex flex-wrap gap-1 rounded-xl bg-slate-50 p-1">
         {[
           { v: true as boolean | null, key: "yesLabel" },
           { v: false as boolean | null, key: "noLabel" },
@@ -60,7 +61,7 @@ function TriToggle({
           <button
             key={String(opt.v)}
             onClick={() => onChange(opt.v)}
-            className={`rounded-lg px-2 py-2 text-xs font-bold ${
+            className={`min-w-[4.5rem] flex-1 rounded-lg px-2 py-2 text-xs font-bold leading-4 ${
               value === opt.v ? "bg-brand-navy text-white shadow-sm" : "text-slate-500 hover:bg-white"
             }`}
           >
@@ -238,11 +239,11 @@ export default function FinancePage() {
         </p>
       ) : maturityEditId === r.product_id ? (
         <div className="mt-2 flex items-center gap-2">
-          <input
-            type="date"
+          <LocalizedDateInput
+            lang={lang}
             value={maturityDraft}
-            onChange={(e) => setMaturityDraft(e.target.value)}
-            className="min-w-0 flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-xs"
+            onChange={setMaturityDraft}
+            className="min-w-0 flex-1"
           />
           <button
             type="button"

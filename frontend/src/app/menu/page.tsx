@@ -6,34 +6,34 @@ import { t } from "@/lib/i18n";
 import { Card } from "@/components/Card";
 import { BottomNav } from "@/components/BottomNav";
 
-const CATEGORIES: { title: string; items: { icon: string; label: string; desc: string; href: string }[] }[] = [
+const CATEGORIES: { titleKey: string; items: { icon: string; labelKey: string; descKey: string; href: string }[] }[] = [
   {
-    title: "자산관리",
+    titleKey: "menuCategoryAssets",
     items: [
-      { icon: "💱", label: "실시간 환율 계산기", desc: "환율 확인하고 계산해보기", href: "/fx" },
-      { icon: "📊", label: "체류기간 자산목표 플래너", desc: "필요 월 저축액 계산하기", href: "/planner" },
-      { icon: "🏦", label: "금융상품", desc: "내 조건에 맞는 상품 찾기", href: "/finance" },
-      { icon: "🧳", label: "귀국 전 정산 체크리스트", desc: "받을 수 있는 돈, 어디서 신청하는지 정리", href: "/settlement-checklist" },
-      { icon: "💰", label: "최저임금 확인하기", desc: "내 월급이 최저임금 기준인지 확인", href: "/wage-check" },
-      { icon: "🧾", label: "급여명세서 체크", desc: "연장·야간·휴일수당 예상액 계산해보기", href: "/wage-slip-check" },
-      { icon: "📝", label: "계좌개설 준비", desc: "비대면 계좌개설 정보 미리 정리하기", href: "/passport-prep" },
+      { icon: "💱", labelKey: "menuFxTitle", descKey: "menuFxDesc", href: "/fx" },
+      { icon: "📊", labelKey: "menuPlannerTitle", descKey: "menuPlannerDesc", href: "/planner" },
+      { icon: "🏦", labelKey: "menuFinanceTitle", descKey: "menuFinanceDesc", href: "/finance" },
+      { icon: "🧳", labelKey: "menuSettlementTitle", descKey: "menuSettlementDesc", href: "/settlement-checklist" },
+      { icon: "💰", labelKey: "minWageCheckTitle", descKey: "minWageCheckDesc", href: "/wage-check" },
+      { icon: "🧾", labelKey: "menuWageSlipTitle", descKey: "menuWageSlipDesc", href: "/wage-slip-check" },
+      { icon: "📝", labelKey: "menuPassportPrepTitle", descKey: "menuPassportPrepDesc", href: "/passport-prep" },
     ],
   },
   {
-    title: "출국 준비",
+    titleKey: "menuCategoryDeparturePrep",
     items: [
-      { icon: "📅", label: "D-Day 금융체크", desc: "시점별로 할 일 확인하기", href: "/dday" },
-      { icon: "✅", label: "업무별 확인 결과", desc: "필요서류와 처리 순서 확인", href: "/tasks" },
-      { icon: "🧾", label: "AI 재무 브리핑", desc: "지금 해야 할 일 Top 3", href: "/briefing" },
-      { icon: "🏧", label: "기관 방문 통역 카드", desc: "은행·고용센터·출입국 등 방문 예약 정보 준비하기", href: "/consult-card" },
-      { icon: "🌐", label: "다국어 상담 지점 찾기", desc: "통역 지원되는 지점 찾기", href: "/branches" },
+      { icon: "📅", labelKey: "menuDdayTitle", descKey: "menuDdayDesc", href: "/dday" },
+      { icon: "✅", labelKey: "menuTasksTitle", descKey: "menuTasksDesc", href: "/tasks" },
+      { icon: "🧾", labelKey: "menuBriefingTitle", descKey: "menuBriefingDesc", href: "/briefing" },
+      { icon: "🏧", labelKey: "consultCard", descKey: "menuConsultCardDesc", href: "/consult-card" },
+      { icon: "🌐", labelKey: "menuBranchesTitle", descKey: "menuBranchesDesc", href: "/branches" },
     ],
   },
   {
-    title: "도움 정보",
+    titleKey: "menuCategoryHelp",
     items: [
-      { icon: "📋", label: "임금을 못 받았어요", desc: "임금체불 신고 방법 안내", href: "/guides/wage_claim" },
-      { icon: "🔁", label: "다시 한국에서 일하고 싶어요", desc: "성실근로자 재입국 특례 안내", href: "/guides/reentry_special_case" },
+      { icon: "📋", labelKey: "wageClaimTitle", descKey: "wageClaimDesc", href: "/guides/wage_claim" },
+      { icon: "🔁", labelKey: "reentryTitle", descKey: "reentryDesc", href: "/guides/reentry_special_case" },
     ],
   },
 ];
@@ -56,25 +56,26 @@ export default function MenuPage() {
           MY
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-bold text-brand-navy">{state.profile.name || "이름 미입력"}</p>
-          <p className="text-xs text-slate-500">내 정보 보기 ›</p>
+          <p className="truncate font-bold text-brand-navy">{state.profile.name || t(lang, "nameNotSet")}</p>
+          <p className="text-xs text-slate-500">{t(lang, "viewMyInfo")} ›</p>
         </div>
       </button>
 
       {CATEGORIES.map((cat) => (
-        <div key={cat.title} className="mt-6">
-          <p className="text-sm font-semibold text-gray-500">{cat.title}</p>
+        <div key={cat.titleKey} className="mt-6">
+          <p className="text-sm font-semibold text-gray-500">{t(lang, cat.titleKey)}</p>
           <div className="mt-2 flex flex-col gap-2">
             {cat.items.map((item) => (
               <Card key={item.href}>
-                <button className="flex w-full items-center justify-between" onClick={() => router.push(item.href)}>
-                  <div className="text-left">
-                    <p className="font-semibold text-brand-navy">
-                      {item.icon} {item.label}
+                <button className="flex w-full items-center justify-between gap-2" onClick={() => router.push(item.href)}>
+                  <div className="min-w-0 flex-1 text-left">
+                    <p className="flex items-center gap-1.5 whitespace-nowrap text-[13px] font-bold tracking-[-0.035em] text-brand-navy">
+                      <span className="shrink-0 text-base" aria-hidden="true">{item.icon}</span>
+                      <span>{t(lang, item.labelKey)}</span>
                     </p>
-                    <p className="text-xs text-gray-500">{item.desc}</p>
+                    <p className="mt-0.5 text-[11px] leading-4 text-gray-500">{t(lang, item.descKey)}</p>
                   </div>
-                  <span>›</span>
+                  <span className="shrink-0 text-sm text-brand-navy" aria-hidden="true">›</span>
                 </button>
               </Card>
             ))}
