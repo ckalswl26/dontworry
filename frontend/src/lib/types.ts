@@ -69,6 +69,15 @@ export interface PensionResult {
   sources: SourceRef[];
 }
 
+export interface PensionRequest {
+  nationality: string;
+  visa_type: string;
+  nps_enrolled: boolean;
+  nps_insured_months?: number | null;
+  departure_date?: string | null;
+  departure_confirmed?: boolean;
+}
+
 export interface RuleEvaluateResponse {
   days_to_departure: number | null;
   tasks: TaskSignal[];

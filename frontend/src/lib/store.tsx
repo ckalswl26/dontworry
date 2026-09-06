@@ -66,6 +66,8 @@ interface SessionState {
     productName: string;
     maturityDate: string | null;
   };
+  // F16: 귀국 전 정산 체크리스트 항목별 "신청 완료" 체크 상태 (item id -> done)
+  settlementProgress: Record<string, boolean>;
 }
 
 const DEFAULT_STATE: SessionState = {
@@ -91,6 +93,7 @@ const DEFAULT_STATE: SessionState = {
   },
   passportPrep: { englishName: "", passportNumber: "", passportExpiry: "", address: "", phone: "" },
   savingsTracking: { productName: "", maturityDate: null },
+  settlementProgress: {},
 };
 
 interface StoreContextValue {
@@ -107,6 +110,7 @@ interface StoreContextValue {
   setConsultation: (value: Partial<SessionState["consultation"]>) => void;
   setPassportPrep: (value: Partial<SessionState["passportPrep"]>) => void;
   setSavingsTracking: (value: Partial<SessionState["savingsTracking"]>) => void;
+  setSettlementItemDone: (itemId: string, done: boolean) => void;
   loadDemo: (profile: UserProfile, planner: PlannerRequest, docs: string[]) => void;
   restoreState: (data: Partial<SessionState>) => void;
   reset: () => void;
@@ -174,6 +178,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setState((s) => ({ ...s, passportPrep: { ...s.passportPrep, ...passportPrep } })),
       setSavingsTracking: (savingsTracking) =>
         setState((s) => ({ ...s, savingsTracking: { ...s.savingsTracking, ...savingsTracking } })),
+      setSettlementItemDone: (itemId, done) =>
+        setState((s) => ({ ...s, settlementProgress: { ...s.settlementProgress, [itemId]: done } })),
       loadDemo: (profile, planner, docs) =>
         setState((s) => ({ ...s, profile, planner, documentsHeld: docs, onboarded: true })),
       restoreState: (data) =>

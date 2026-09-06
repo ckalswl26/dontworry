@@ -63,7 +63,7 @@ export const api = {
   guides: () => request<import("./types").GuideContent[]>("/api/guides"),
   guide: (id: string) => request<import("./types").GuideContent>(`/api/guides/${id}`),
   minWage: () => request<import("./types").MinWageInfo>("/api/wage/min-wage"),
-  pensionEvaluate: (body: unknown) =>
+  pensionEvaluate: (body: import("./types").PensionRequest) =>
     request<import("./types").PensionResult>("/api/pension/evaluate", { method: "POST", body: JSON.stringify(body) }),
   consultCardTranslate: (body: import("./types").ConsultCardTranslateRequest) =>
     request<import("./types").ConsultCardTranslateResponse>("/api/consult-card/translate", {
