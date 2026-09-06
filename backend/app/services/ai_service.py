@@ -69,7 +69,7 @@ def _fallback_intent(text: str, profile: UserProfile, last_confirmed_intent: str
         "maturity_insurance": ["출국만기보험", "만기 보험금", "bảo hiểm mãn hạn", "maturity insurance", "出境满期保险", "মেয়াদপূর্তি বীমা"],
         "pension_refund": ["국민연금", "반환일시금", "lương hưu", "pension refund", "国民年金", "养老金", "পেনশন"],
         "overseas_remittance": ["해외송금", "본국송금", "remittance", "chuyển tiền", "汇款", "海外汇款", "রেমিট্যান্স", "টাকা পাঠানো"],
-        "account_closure": ["계좌 정리", "계좌 해지", "통장 해지", "close account", "account closure", "đóng tài khoản", "销户", "关闭账户", "অ্যাকাউন্ট বন্ধ"],
+        "account_closure": ["계좌 정리", "계좌를 정리", "계좌 해지", "계좌를 해지", "통장 해지", "통장을 해지", "close account", "account closure", "đóng tài khoản", "销户", "关闭账户", "অ্যাকাউন্ট বন্ধ"],
     }
     for task_type, keywords in keyword_map.items():
         if any(k in text_lower for k in keywords):

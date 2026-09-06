@@ -6,6 +6,7 @@ import { BackHeader } from "@/components/Card";
 import { Mascot } from "@/components/Logo";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
+import { resolveChatFeature } from "@/lib/chatFeatureRoutes";
 
 export default function ChatPage() {
   const router = useRouter();
@@ -13,21 +14,12 @@ export default function ChatPage() {
   const [question, setQuestion] = useState("");
   const lang = state.profile.language;
 
-  const featureRoutes = [
-    { route: "/planner", words: ["플래너", "자산 계획", "저축 계획", "planner", "savings plan", "kế hoạch", "lập kế hoạch", "规划", "计划", "পরিকল্পনা"] },
-    { route: "/fx", words: ["환율", "환전", "exchange rate", "currency", "tỷ giá", "đổi tiền", "汇率", "换汇", "বিনিময় হার"] },
-    { route: "/dday", words: ["d-day", "디데이", "출국 일정", "departure schedule", "ngày xuất cảnh", "出境日期", "প্রস্থানের তারিখ"] },
-    { route: "/finance", words: ["금융 상품", "적금", "예금", "financial product", "deposit", "sản phẩm tài chính", "金融产品", "আর্থিক পণ্য"] },
-    { route: "/wage-check", words: ["최저임금", "월급", "minimum wage", "salary", "lương tối thiểu", "最低工资", "ন্যূনতম মজুরি"] },
-  ];
-
   const submit = () => {
     const value = question.trim();
     if (!value) return;
-    const normalized = value.toLocaleLowerCase();
-    const feature = featureRoutes.find((item) => item.words.some((word) => normalized.includes(word.toLocaleLowerCase())));
-    if (feature) {
-      router.push(feature.route);
+    const featureRoute = resolveChatFeature(value, lang);
+    if (featureRoute) {
+      router.push(featureRoute);
       return;
     }
     setLastQuestion(value);
