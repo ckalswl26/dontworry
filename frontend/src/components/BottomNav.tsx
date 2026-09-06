@@ -35,19 +35,21 @@ export function BottomNav() {
         />
       </button>}
 
-      <div className="flex items-center justify-around py-2">
+      <div className="grid grid-cols-5 items-stretch py-2">
         {ITEMS.map((item) => {
           const active = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1 text-xs ${
+              className={`min-w-0 overflow-hidden flex flex-col items-center justify-start gap-1 px-0.5 py-1 text-center text-[10px] leading-3 ${
                 active ? "text-brand-blue font-semibold" : "text-gray-400"
               }`}
             >
-              <span className="text-lg">{item.icon}</span>
-              {t(lang, item.key)}
+              <span className="shrink-0 text-lg leading-5">{item.icon}</span>
+              <span className="block min-h-6 w-full max-w-full overflow-hidden break-words [overflow-wrap:anywhere]">
+                {t(lang, item.key)}
+              </span>
             </Link>
           );
         })}

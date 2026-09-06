@@ -83,8 +83,8 @@ export default function MyPage() {
 
         <Card className="!p-0">
           <div className="flex items-center justify-between px-5 py-4">
-            <div><p className="text-sm font-extrabold text-brand-navy">프로필</p><p className="mt-0.5 text-[11px] text-slate-400">맞춤 안내에 사용하는 정보</p></div>
-            <button type="button" onClick={() => router.push("/my/edit")} className="rounded-full bg-brand-sky px-3 py-1.5 text-xs font-bold text-brand-blue">수정</button>
+            <div><p className="text-sm font-extrabold text-brand-navy">{t(lang, "myTitle")}</p><p className="mt-0.5 text-[11px] text-slate-400">{t(lang, "viewMyInfo")}</p></div>
+            <button type="button" aria-label={t(lang, "myTitle")} onClick={() => router.push("/my/edit")} className="rounded-full bg-brand-sky px-3 py-1.5 text-sm font-bold text-brand-blue">✎</button>
           </div>
           <div className="mx-5 border-t border-slate-100" />
           <div className="flex min-h-[58px] items-center justify-between gap-4 px-5 py-3">
@@ -115,27 +115,26 @@ export default function MyPage() {
             onChange={(code) => setLang(code as Lang)}
             options={LANGS.map((l) => ({ value: l.code, label: `${l.greeting} · ${l.label}` }))}
           />
-          {AUTO_TRANSLATED_LANGS.includes(lang) && (
-            <p className="mt-1.5 text-[11px] text-amber-600">⚠ 자동번역 - 오류가 있을 수 있어요</p>
-          )}
+          {AUTO_TRANSLATED_LANGS.includes(lang) && <p className="mt-1.5 text-[11px] text-amber-600">⚠ {t(lang, "translationFallbackMsg")}</p>}
         </Card>
 
         {isPushSupported() && (
           <Card className="mt-4">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-bold text-brand-navy">출국 준비 알림</p>
-                <p className="mt-0.5 text-[11px] text-slate-400">D-14 방문 준비, 출국일에 알려드려요.</p>
+                <p className="text-sm font-bold text-brand-navy">{t(lang, "ddayTitle")}</p>
+                <p className="mt-0.5 text-[11px] text-slate-400">{t(lang, "upcomingTimelineTitle")}</p>
               </div>
               <button
                 type="button"
+                aria-label={t(lang, "ddayTitle")}
                 onClick={togglePush}
                 disabled={pushBusy}
                 className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold disabled:opacity-50 ${
                   pushEnabled ? "bg-brand-navy text-white" : "border border-brand-blue text-brand-blue"
                 }`}
               >
-                {pushEnabled ? "알림 켜짐" : "알림 받기"}
+                🔔
               </button>
             </div>
             {pushNotice && <p className="mt-2 text-[11px] text-brand-red">{pushNotice}</p>}
@@ -143,14 +142,14 @@ export default function MyPage() {
         )}
 
         <Card className="mt-4">
-          <p className="text-sm font-bold text-brand-navy">내 정보 백업</p>
-          <p className="mt-0.5 text-[11px] text-slate-400">기기를 바꾸거나 브라우저 데이터가 지워져도 복원할 수 있어요.</p>
+          <p className="text-sm font-bold text-brand-navy">{t(lang, "myInfo")}</p>
+          <p className="mt-0.5 text-[11px] text-slate-400">{t(lang, "viewMyInfo")}</p>
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <button type="button" onClick={handleExport} className="rounded-xl border border-brand-blue py-2.5 text-xs font-bold text-brand-blue">
-              내보내기
+            <button type="button" aria-label={t(lang, "myInfo")} onClick={handleExport} className="rounded-xl border border-brand-blue py-2.5 text-lg font-bold text-brand-blue">
+              ↓
             </button>
-            <button type="button" onClick={() => fileInputRef.current?.click()} className="rounded-xl border border-slate-200 py-2.5 text-xs font-bold text-slate-500">
-              불러오기
+            <button type="button" aria-label={t(lang, "myInfo")} onClick={() => fileInputRef.current?.click()} className="rounded-xl border border-slate-200 py-2.5 text-lg font-bold text-slate-500">
+              ↑
             </button>
           </div>
           <input
@@ -178,7 +177,7 @@ export default function MyPage() {
           onClick={() => router.push("/passport-prep")}
           className="mt-3 flex w-full items-center justify-between rounded-xl2 border border-brand-blue/20 bg-brand-sky px-5 py-4 text-left text-sm font-bold text-brand-navy shadow-sm"
         >
-          <span><span className="mr-2">📝</span>비대면 계좌개설 준비</span><span className="text-brand-blue">›</span>
+          <span><span className="mr-2">📝</span>{t(lang, "menuPassportPrepTitle")}</span><span className="text-brand-blue">›</span>
         </button>
 
         <button
