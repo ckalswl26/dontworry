@@ -100,7 +100,7 @@ export default function HomePage() {
     : t(lang, "greetingNoName");
 
   return (
-    <div className="flex min-h-dvh flex-col px-5 pb-28 pt-6">
+    <div className="flex min-h-dvh flex-col px-5 pb-40 pt-6">
       <div className="flex items-center justify-between">
         <LogoWordmark height={28} />
         <button
@@ -263,32 +263,32 @@ export default function HomePage() {
         <p className="text-sm font-semibold text-gray-500">{t(lang, "needHelpTitle")}</p>
 
         <Card>
-          <button className="flex w-full items-center justify-between" onClick={() => router.push("/wage-check")}>
-            <div className="text-left">
-              <p className="font-semibold text-brand-navy">💰 {t(lang, "minWageCheckTitle")}</p>
-              <p className="text-xs text-gray-500">{t(lang, "minWageCheckDesc")}</p>
+          <button className="flex w-full items-center justify-between gap-2" onClick={() => router.push("/wage-check")}>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="whitespace-nowrap text-[13px] font-bold tracking-[-0.035em] text-brand-navy">💰 {t(lang, "minWageCheckTitle")}</p>
+              <p className="text-[11px] text-gray-500">{t(lang, "minWageCheckDesc")}</p>
             </div>
-            <span>›</span>
+            <span className="shrink-0">›</span>
           </button>
         </Card>
 
         <Card>
-          <button className="flex w-full items-center justify-between" onClick={() => router.push("/guides/wage_claim")}>
-            <div className="text-left">
-              <p className="font-semibold text-brand-navy">📋 {t(lang, "wageClaimTitle")}</p>
-              <p className="text-xs text-gray-500">{t(lang, "wageClaimDesc")}</p>
+          <button className="flex w-full items-center justify-between gap-2" onClick={() => router.push("/guides/wage_claim")}>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="whitespace-nowrap text-[13px] font-bold tracking-[-0.035em] text-brand-navy">📋 {t(lang, "wageClaimTitle")}</p>
+              <p className="text-[11px] text-gray-500">{t(lang, "wageClaimDesc")}</p>
             </div>
-            <span>›</span>
+            <span className="shrink-0">›</span>
           </button>
         </Card>
 
         <Card>
-          <button className="flex w-full items-center justify-between" onClick={() => router.push("/guides/reentry_special_case")}>
-            <div className="text-left">
-              <p className="font-semibold text-brand-navy">🔁 {t(lang, "reentryTitle")}</p>
-              <p className="text-xs text-gray-500">{t(lang, "reentryDesc")}</p>
+          <button className="flex w-full items-center justify-between gap-2" onClick={() => router.push("/guides/reentry_special_case")}>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="whitespace-nowrap text-[13px] font-bold tracking-[-0.045em] text-brand-navy">🔁 {t(lang, "reentryTitle")}</p>
+              <p className="text-[11px] text-gray-500">{t(lang, "reentryDesc")}</p>
             </div>
-            <span>›</span>
+            <span className="shrink-0">›</span>
           </button>
         </Card>
       </div>
